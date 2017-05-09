@@ -64,3 +64,15 @@ stormcloud.restoreCoreDataBackup(withMetadata metadata : StormcloudMetadata, toC
     }
 }
 ```
+
+Installing using CocaoPods
+
+To begin using pods see: https://cocoapods.org.
+A minimal Podfile for Stormcloud could be:
+
+```
+target 'yourAppName'
+use_frameworks!
+
+pod 'Stormcloud'
+```
