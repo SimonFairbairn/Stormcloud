@@ -84,7 +84,7 @@ extension Stormcloud {
 								}
 								
 								if relationshipDescription.value.isToMany && relatedObjects.count > 0 {
-									self.stormcloudLog("\tRestoring To-many relationship \(object.entity.name) ->> \(relationshipDescription.value.name) with \(relatedObjects.count) objects")
+									self.stormcloudLog("\tRestoring To-many relationship \(String(describing: object.entity.name)) ->> \(relationshipDescription.value.name) with \(relatedObjects.count) objects")
 									if relationshipDescription.value.isOrdered {
 										
 										let set = NSOrderedSet(array: relatedObjects)
@@ -339,7 +339,7 @@ extension Stormcloud {
 				
 				if let cacheData = self.workingCache[id] as? [String : AnyObject], let relatedObject = cacheData[StormcloudEntityKeys.ManagedObject.rawValue] as? NSManagedObject {
 					if !relationship.isToMany {
-						self.stormcloudLog("\tRestoring To-one relationship \(onObject.entity.name) -> \(relationship.name)")
+						self.stormcloudLog("\tRestoring To-one relationship \(String(describing: onObject.entity.name)) -> \(relationship.name)")
 						onObject.setValue(relatedObject, forKey: relationship.name)
 					} else {
 						setObjects.append(relatedObject)
@@ -351,7 +351,7 @@ extension Stormcloud {
 			
 			
 			if relationship.isToMany && setObjects.count > 0 {
-				self.stormcloudLog("\tRestoring To-many relationship \(onObject.entity.name) ->> \(relationship.name) with \(setObjects.count) objects")
+				self.stormcloudLog("\tRestoring To-many relationship \(String(describing: onObject.entity.name)) ->> \(relationship.name) with \(setObjects.count) objects")
 				if relationship.isOrdered {
 					
 					let set = NSOrderedSet(array: setObjects)
@@ -407,7 +407,7 @@ extension Stormcloud {
 			if let val = data as? NSNumber {
 				object.setValue(val, forKey: attribute.name)
 			} else {
-				stormcloudLog("Setting Number : \(data) not Number")
+				stormcloudLog("Setting Number : \(String(describing: data)) not Number")
 			}
 			
 		case .decimalAttributeType:
@@ -415,20 +415,20 @@ extension Stormcloud {
 				let decimal = NSDecimalNumber(string: val)
 				object.setValue(decimal, forKey: attribute.name)
 			} else {
-				stormcloudLog("Setting Decimal : \(data) not String")
+				stormcloudLog("Setting Decimal : \(String(describing: data)) not String")
 			}
 			
 		case .stringAttributeType:
 			if let val = data as? String {
 				object.setValue(val, forKey: attribute.name)
 			} else {
-				stormcloudLog("Setting String : \(data) not String")
+				stormcloudLog("Setting String : \(String(describing: data)) not String")
 			}
 		case .booleanAttributeType:
 			if let val = data as? NSNumber {
 				object.setValue(val.boolValue, forKey: attribute.name)
 			} else {
-				stormcloudLog("Setting Bool : \(data) not Number")
+				stormcloudLog("Setting Bool : \(String(describing: data)) not Number")
 			}
 		case .dateAttributeType:
 			if let val = data as? String, let date = self.formatter.date(from: val) {
@@ -443,7 +443,7 @@ extension Stormcloud {
 				}
 				unarchiver.finishDecoding()
 			} else {
-				stormcloudLog("Transformable/Binary type : \(data) not String")
+				stormcloudLog("Transformable/Binary type : \(String(describing: data)) not String")
 			}
 		case .objectIDAttributeType, .undefinedAttributeType:
 			break

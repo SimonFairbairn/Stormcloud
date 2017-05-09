@@ -16,101 +16,11 @@
 
 # This is the minimum version number required.
 # Update this, if you use features of a newer version
-fastlane_version "1.36.1"
+$scheme = "Stormcloud"
+$spec = "Stormcloud.podspec"
+$project = "./Stormcloud.xcodeproj"
 
-default_platform :ios
-
-scheme = "Stormcloud"
-
-platform :ios do
-
-	spec = "Stormcloud.podspec"
-
-	before_all do |lane, options|
-		ENV["SLACK_URL"] = "https://hooks.slack.com/services/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"
-        if options[:skip_checks]
-            UI.message "Skipping checks"
-        else
-			ensure_git_branch
-			ensure_git_status_clean
-        end
-    end
-
-	desc "This does the following: "
-	desc ""
-	desc "- Runs the unit tests"  
-	desc "- Ensures Cocoapods compatibility"  
-	desc "- Bumps the patch version"  
-	desc "- Pushes it to the remote repository"
-	desc "- Updates the spec repository"
-	lane :patch do
-		update(type: "patch")
-	end
-	
-	desc "This does the following: "
-	desc ""
-	desc "- Runs the unit tests"  
-	desc "- Ensures Cocoapods compatibility"  
-	desc "- Bumps the minor version"  
-	desc "- Pushes it to the remote repository"
-	desc "- Updates the spec repository"
-	lane :minor do
-		update(type: "minor")
-	end  
-	
-	private_lane :update do |options|
-
-		scan(
-			scheme: scheme,
-			output_directory: "../Reports/",
-			skip_slack: true
-		)
-		pod_lib_lint
-
-		type = options[:type]
-
-    	if type == "none" 
-    		UI.message("No type found")
-    	else
-			version = version_bump_podspec(path: spec, bump_type: type)
-			increment_version_number( bump_type: type, version_number: version )
-
-			git_commit(path: spec, message: "Updating podspec")
-			commit_version_bump(xcodeproj: './Stormcloud.xcodeproj')
-			add_git_tag( tag: version)  
-			push_to_git_remote
-			pod_push(path: spec)
-			post_to_slack(scheme: scheme, version: version)
-		end
-	end
-
-	private_lane :post_to_slack do |options|
-		scheme      = options[:scheme]
-		version     = options[:version]
-		environment = scheme.upcase
-
-		slack(
-			message: "New `#{environment}` version: *#{version}* released :rocket:",
-		) 
-	end
-
-
-	# You can define as many lanes as you want
-
-	after_all do |lane|
-		# This block is called, only if the executed lane was successful
-		notification(subtitle: "Stormcloud fastlane finished", message: "Completed '#{lane}' successfully")
-	end
-
-	error do |lane, exception|
-		notification(subtitle: "Error: Stormcloud fastlane", message: "'#{exception.message}'")
-		slack(
-			message: "Stormcloud: Error with '#{lane}'.\n\n#{exception.message}"
-			)
-	end
-end
-
-
+import "../../../Fastlane/FastfilePods"
 
 # More information about multiple platforms in fastlane: https://github.com/KrauseFx/fastlane/blob/master/docs/Platforms.md
 # All available actions: https://github.com/KrauseFx/fastlane/blob/master/docs/Actions.md

@@ -121,6 +121,8 @@ open class Stormcloud: NSObject {
 		if self.isUsingiCloud {
 			_ = self.enableiCloudShouldMoveLocalDocumentsToiCloud(false, completion: nil)
 		}
+		// Assume UTC for everything.
+		self.formatter.timeZone = TimeZone(identifier: "UTC")
 		self.prepareDocumentList()
 	}
 	
