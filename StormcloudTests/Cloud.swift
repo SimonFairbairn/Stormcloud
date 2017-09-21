@@ -9,7 +9,7 @@
 import UIKit
 import CoreData
 
-
+@objc(Cloud)
 open class Cloud: NSManagedObject {
 
 // Insert code here to add functionality to your managed object subclass
@@ -21,10 +21,10 @@ open class Cloud: NSManagedObject {
 			if let didRainSet = didRain {
 				cloud.didRain = NSNumber(value:didRainSet )
 			}
-            cloud.added = Date()
+            cloud.added = NSDate()
             cloud.chanceOfRain = 0.45
 			
-			if let hasImage = UIImage(named: "cloud"), let data = UIImageJPEGRepresentation(hasImage, 0.7)  {
+			if let hasImage = UIImage(named: "cloud"), let data = UIImageJPEGRepresentation(hasImage, 0.7) as NSData? {
 				cloud.image = data
 			}
 			

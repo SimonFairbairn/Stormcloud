@@ -13,10 +13,10 @@ public protocol StormcloudMetadataDelegate {
 }
 
 open class StormcloudMetadata : NSObject {
-	var delegate : StormcloudMetadataDelegate? 
+	open var delegate : StormcloudMetadataDelegate?
 	// The date the item was added
-	var date : Date
-	var filename : String
+	open var date : Date
+	open var filename : String
 	open var iCloudMetadata : NSMetadataItem? {
 		didSet {
 			self.delegate?.iCloudMetadataDidUpdate(self)

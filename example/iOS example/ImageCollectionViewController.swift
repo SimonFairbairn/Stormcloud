@@ -62,12 +62,16 @@ class ImageCollectionViewController: UICollectionViewController  {
 		if let hasCell = cell as? ImageCollectionViewCell {
 			if let url = stormcloud.urlForItem(item) {
 				let doc = ImageDocument(fileURL: url)
-				
-				doc.open(completionHandler: { (success) in
-					if ( success ) {
-						hasCell.photoView.image = doc.imageToBackup
-					}
-				})
+				if doc.documentState == .normal {
+					hasCell.photoView.image = doc.imageToBackup
+				} else {
+					doc.open(completionHandler: { (success) in
+						if ( success ) {
+							hasCell.photoView.image = doc.imageToBackup
+						}
+					})
+				}
+
 			}
 			// Configure the cell
 			hasCell.photoView.image = #imageLiteral(resourceName: "cloud")
@@ -127,7 +131,13 @@ extension ImageCollectionViewController {
 		// Get an image
 		// Add it to stormcloud
 		
+		let image = #imageLiteral(resourceName: "Item1")
 		
+		stormcloud.addDocument(withData: image, for: .jpegImage) { (error, metadata) in
+			if let hasError = error {
+				
+			}
+		}
 		
 	}
 	

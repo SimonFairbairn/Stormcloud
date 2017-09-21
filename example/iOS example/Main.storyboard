@@ -45,7 +45,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="0aL-3X-fnR">
-                                <rect key="frame" x="16" y="80" width="343" height="265"/>
+                                <rect key="frame" x="16" y="120" width="343" height="265"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="Z1L-mo-XZW">
                                         <rect key="frame" x="0.0" y="0.0" width="343" height="31"/>
@@ -274,7 +274,11 @@
                         </connections>
                     </collectionView>
                     <navigationItem key="navigationItem" id="iOb-qK-IG5">
-                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="SOQ-Tq-3Fa"/>
+                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="SOQ-Tq-3Fa">
+                            <connections>
+                                <action selector="addImage:" destination="2Gt-dp-mzC" id="0kU-3I-6fM"/>
+                            </connections>
+                        </barButtonItem>
                     </navigationItem>
                 </collectionViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="mHb-Uh-fmy" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -650,7 +654,6 @@
         <!--Navigation Controller-->
         <scene sceneID="CGR-MK-DAR">
             <objects>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="XlO-Qq-dDb" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="HVe-Ge-V1T" sceneMemberID="viewController">
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="XJe-mN-3bf">
@@ -662,6 +665,7 @@
                         <segue destination="mU8-Uf-Ea7" kind="relationship" relationship="rootViewController" id="X0O-dL-VSN"/>
                     </connections>
                 </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="XlO-Qq-dDb" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-455" y="2198"/>
         </scene>

@@ -64,13 +64,15 @@ class DocumentsTableViewController: UITableViewController, StormcloudViewControl
 		}
         data.delegate = self
         // End
-        
-		self.configureTableViewCell(tvc: cell, withMetadata: data)
+		if let isJSON = data as? JSONMetadata {
+			self.configureTableViewCell(tvc: cell, withMetadata: isJSON)
+		}
+		
         return cell
     }
     
     
-    func configureTableViewCell( tvc : UITableViewCell, withMetadata data: StormcloudMetadata ) {
+    func configureTableViewCell( tvc : UITableViewCell, withMetadata data: JSONMetadata ) {
 
 		dateFormatter.dateStyle = .short
         dateFormatter.timeStyle = .short
@@ -183,9 +185,9 @@ extension DocumentsTableViewController : StormcloudMetadataDelegate {
     func iCloudMetadataDidUpdate(_ metadata: StormcloudMetadata) {
         if let index = stormcloud?.metadataList.index(of: metadata) {
 			let ip = IndexPath(row: index, section: 0)
-			if let tvc = self.tableView.cellForRow(at: ip) {
-				
-				self.configureTableViewCell(tvc: tvc, withMetadata: metadata)
+			if let tvc = self.tableView.cellForRow(at: ip), let isJson = metadata as? JSONMetadata {
+			
+				self.configureTableViewCell(tvc: tvc, withMetadata: isJson)
             }
         }
     }

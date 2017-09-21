@@ -277,6 +277,7 @@ extension Stormcloud {
 		
 		// Find out where we should be saving, based on iCloud or local
 		if let baseURL = self.documentsDirectory() {
+			// Set the file extension to whatever it is we're trying to back up
 			fileExtension = documentType.rawValue
 			let metadata : StormcloudMetadata
 			let document : UIDocument
@@ -638,8 +639,27 @@ extension Stormcloud {
 	
 	func loadLocalDocuments() {
 		for fileURL in self.listLocalDocuments() {
+			
+			
 			if fileURL.pathExtension == self.fileExtension {
-				let backup = StormcloudMetadata(fileURL: fileURL)
+				let backup : StormcloudMetadata
+
+				if let type = StormcloudDocumentType(rawValue: self.fileExtension) {
+					
+					switch type {
+					case .jpegImage:
+						backup = ImageMetadata(fileURL: fileURL)
+					case .json:
+						backup = JSONMetadata(fileURL: fileURL)
+					default:
+						backup = StormcloudMetadata(fileURL: fileURL)
+					}
+				} else {
+					backup = StormcloudMetadata(fileURL: fileURL)
+				}
+				
+
+				
 				self.internalMetadataList.append(backup)
 				self.sortDocuments()
 			}
