@@ -8,7 +8,7 @@
 
 import UIKit
 
-open class ImageDocument: UIDocument {
+open class ImageDocument: UIDocument, StormcloudDocument {
 	
 	open var backupMetadata : StormcloudMetadata?
 	open var imageToBackup : UIImage?

@@ -40,7 +40,7 @@ class DocumentsTableViewController: UITableViewController, StormcloudViewControl
             if error != nil {
                 print("Error deleting items over limit")
             }
-            print(self.stormcloud?.metadataList)
+			print(self.stormcloud?.metadataList ?? "ERROR: No list available")
         }
     }
 

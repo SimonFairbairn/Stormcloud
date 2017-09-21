@@ -12,7 +12,6 @@
 		F42AAD0A1F738B890008D6D6 /* ImageDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42AAD091F738B890008D6D6 /* ImageDocument.swift */; };
 		F42AAD0C1F738C840008D6D6 /* ImageMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42AAD0B1F738C840008D6D6 /* ImageMetadata.swift */; };
 		F42AAD0E1F739E740008D6D6 /* JSONMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42AAD0D1F739E740008D6D6 /* JSONMetadata.swift */; };
-		F43811941BE77A1E0030D9FD /* Tag+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43811921BE77A1E0030D9FD /* Tag+CoreDataProperties.swift */; };
 		F43811951BE77A1E0030D9FD /* Tag.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43811931BE77A1E0030D9FD /* Tag.swift */; };
 		F45788271DBA201600A1FB38 /* 2014-10-18 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.json in Resources */ = {isa = PBXBuildFile; fileRef = F45788241DBA201600A1FB38 /* 2014-10-18 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.json */; };
 		F45788281DBA201600A1FB38 /* 2020-10-19 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.json in Resources */ = {isa = PBXBuildFile; fileRef = F45788251DBA201600A1FB38 /* 2020-10-19 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.json */; };
@@ -33,10 +32,7 @@
 		F4E2E9851BDCC8AF00A63FAF /* StormcloudTestsBaseClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E2E9791BDCC8AF00A63FAF /* StormcloudTestsBaseClass.swift */; };
 		F4E2E9861BDCC8AF00A63FAF /* StormcloudTestsCoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E2E97A1BDCC8AF00A63FAF /* StormcloudTestsCoreDataStack.swift */; };
 		F4E2E9871BDCC8AF00A63FAF /* Cloud.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E2E97B1BDCC8AF00A63FAF /* Cloud.swift */; };
-		F4E2E9881BDCC8AF00A63FAF /* Cloud+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E2E97C1BDCC8AF00A63FAF /* Cloud+CoreDataProperties.swift */; };
-		F4E2E9891BDCC8AF00A63FAF /* clouds.xcdatamodel in Sources */ = {isa = PBXBuildFile; fileRef = F4E2E97D1BDCC8AF00A63FAF /* clouds.xcdatamodel */; };
 		F4E2E98A1BDCC8AF00A63FAF /* Raindrop.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E2E97E1BDCC8AF00A63FAF /* Raindrop.swift */; };
-		F4E2E98B1BDCC8AF00A63FAF /* Raindrop+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E2E97F1BDCC8AF00A63FAF /* Raindrop+CoreDataProperties.swift */; };
 		F4E2E98D1BDCC8AF00A63FAF /* Stormcloud.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E2E96E1BDCC8AF00A63FAF /* Stormcloud.swift */; };
 		F4E2E98E1BDCC8AF00A63FAF /* JSONDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E2E96D1BDCC8AF00A63FAF /* JSONDocument.swift */; };
 		F4E2E98F1BDCC8AF00A63FAF /* StormcloudMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E2E96F1BDCC8AF00A63FAF /* StormcloudMetadata.swift */; };
@@ -58,13 +54,13 @@
 		F42AAD091F738B890008D6D6 /* ImageDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageDocument.swift; sourceTree = "<group>"; };
 		F42AAD0B1F738C840008D6D6 /* ImageMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageMetadata.swift; sourceTree = "<group>"; };
 		F42AAD0D1F739E740008D6D6 /* JSONMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONMetadata.swift; sourceTree = "<group>"; };
-		F43811921BE77A1E0030D9FD /* Tag+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Tag+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		F43811931BE77A1E0030D9FD /* Tag.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tag.swift; sourceTree = "<group>"; };
 		F45788241DBA201600A1FB38 /* 2014-10-18 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "2014-10-18 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.json"; sourceTree = "<group>"; };
 		F45788251DBA201600A1FB38 /* 2020-10-19 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "2020-10-19 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.json"; sourceTree = "<group>"; };
 		F45788261DBA201600A1FB38 /* fragment.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = fragment.json; sourceTree = "<group>"; };
 		F48421201BDCBB8900C98567 /* Stormcloud.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Stormcloud.podspec; sourceTree = "<group>"; };
 		F48421811BDCD62400C98567 /* StormcloudDefaultsManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StormcloudDefaultsManager.swift; sourceTree = "<group>"; };
+		F49005EF1F73CCD50070862C /* clouds 2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; name = "clouds 2.xcdatamodel"; path = "example/iOS example/clouds.xcdatamodeld/clouds 2.xcdatamodel"; sourceTree = SOURCE_ROOT; };
 		F4A617E81DB8F67000E484D0 /* Stormcloud+CoreData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Stormcloud+CoreData.swift"; sourceTree = "<group>"; };
 		F4E2E94F1BDCC8AF00A63FAF /* Stormcloud.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Stormcloud.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4E2E9521BDCC8AF00A63FAF /* Stormcloud.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Stormcloud.h; sourceTree = "<group>"; };
@@ -82,10 +78,7 @@
 		F4E2E9791BDCC8AF00A63FAF /* StormcloudTestsBaseClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StormcloudTestsBaseClass.swift; sourceTree = "<group>"; };
 		F4E2E97A1BDCC8AF00A63FAF /* StormcloudTestsCoreDataStack.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StormcloudTestsCoreDataStack.swift; sourceTree = "<group>"; };
 		F4E2E97B1BDCC8AF00A63FAF /* Cloud.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cloud.swift; sourceTree = "<group>"; };
-		F4E2E97C1BDCC8AF00A63FAF /* Cloud+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Cloud+CoreDataProperties.swift"; sourceTree = "<group>"; };
-		F4E2E97D1BDCC8AF00A63FAF /* clouds.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = clouds.xcdatamodel; sourceTree = "<group>"; };
 		F4E2E97E1BDCC8AF00A63FAF /* Raindrop.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Raindrop.swift; sourceTree = "<group>"; };
-		F4E2E97F1BDCC8AF00A63FAF /* Raindrop+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Raindrop+CoreDataProperties.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -120,14 +113,11 @@
 		F484212A1BDCD34300C98567 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				F43811921BE77A1E0030D9FD /* Tag+CoreDataProperties.swift */,
+				F49005EF1F73CCD50070862C /* clouds 2.xcdatamodel */,
 				F43811931BE77A1E0030D9FD /* Tag.swift */,
 				F4E2E97A1BDCC8AF00A63FAF /* StormcloudTestsCoreDataStack.swift */,
 				F4E2E97B1BDCC8AF00A63FAF /* Cloud.swift */,
-				F4E2E97C1BDCC8AF00A63FAF /* Cloud+CoreDataProperties.swift */,
-				F4E2E97D1BDCC8AF00A63FAF /* clouds.xcdatamodel */,
 				F4E2E97E1BDCC8AF00A63FAF /* Raindrop.swift */,
-				F4E2E97F1BDCC8AF00A63FAF /* Raindrop+CoreDataProperties.swift */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -317,13 +307,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F4E2E9891BDCC8AF00A63FAF /* clouds.xcdatamodel in Sources */,
 				F4E2E9831BDCC8AF00A63FAF /* StormcloudCoreDataTests.swift in Sources */,
 				F4E2E9871BDCC8AF00A63FAF /* Cloud.swift in Sources */,
 				F42AAD001F7372CB0008D6D6 /* Stormcloud+Environment.swift in Sources */,
-				F4E2E9881BDCC8AF00A63FAF /* Cloud+CoreDataProperties.swift in Sources */,
-				F43811941BE77A1E0030D9FD /* Tag+CoreDataProperties.swift in Sources */,
-				F4E2E98B1BDCC8AF00A63FAF /* Raindrop+CoreDataProperties.swift in Sources */,
 				F4E2E9841BDCC8AF00A63FAF /* StormcloudTests.swift in Sources */,
 				F4E2E98E1BDCC8AF00A63FAF /* JSONDocument.swift in Sources */,
 				F4E2E98F1BDCC8AF00A63FAF /* StormcloudMetadata.swift in Sources */,

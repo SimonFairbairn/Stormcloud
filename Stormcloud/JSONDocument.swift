@@ -8,7 +8,13 @@
 
 import UIKit
 
-open class JSONDocument: UIDocument {
+protocol StormcloudDocument {
+	var backupMetadata : StormcloudMetadata? {
+		get set
+	}
+}
+
+open class JSONDocument: UIDocument, StormcloudDocument {
 
     open var backupMetadata : StormcloudMetadata?
     open var objectsToBackup : Any?

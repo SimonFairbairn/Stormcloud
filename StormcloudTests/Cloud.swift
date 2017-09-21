@@ -24,7 +24,7 @@ open class Cloud: NSManagedObject {
             cloud.added = NSDate()
             cloud.chanceOfRain = 0.45
 			
-			if let hasImage = UIImage(named: "cloud"), let data = UIImageJPEGRepresentation(hasImage, 0.7) as? NSData {
+			if let hasImage = UIImage(named: "cloud"), let data = UIImageJPEGRepresentation(hasImage, 0.7) as NSData? {
 				cloud.image = data
 			}
 			
