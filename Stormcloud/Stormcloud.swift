@@ -309,6 +309,7 @@ extension Stormcloud {
 		
 		if let url = self.urlForItem(metadata) {
 			let document = BackupDocument(fileURL : url)
+			let _ = document.documentState
 			document.open(completionHandler: { (success) -> Void in
 				
 				if !success {
