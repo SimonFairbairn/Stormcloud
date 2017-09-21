@@ -9,7 +9,7 @@
 import UIKit
 import CoreData
 
-@objc(Cloud)
+
 open class Cloud: NSManagedObject {
 
 // Insert code here to add functionality to your managed object subclass

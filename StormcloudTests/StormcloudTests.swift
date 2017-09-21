@@ -93,9 +93,7 @@ class StormcloudTests: StormcloudTestsBaseClass {
         let newDocs = self.listItemsAtURL()
         XCTAssertEqual(stormcloud.metadataList.count, 2)
         XCTAssertEqual(stormcloud.metadataList.count, newDocs.count)
-		
-		
-		
+	
         let expectation = self.expectation(description: "Adding new item")
         stormcloud.backupObjectsToJSON(["Test" : "Test"]) { ( error,  metadata) -> () in
             
@@ -150,8 +148,6 @@ class StormcloudTests: StormcloudTestsBaseClass {
             expectation.fulfill()
         }
         waitForExpectations(timeout: 3.0, handler: nil)
-        
-        
         
     }
     

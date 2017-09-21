@@ -9,6 +9,20 @@
 import UIKit
 import CoreData
 
+protocol StormcloudDocument {
+	var backupMetadata : StormcloudMetadata? {
+		get set
+	}
+}
+
+public enum StormcloudDocumentType : String {
+	case json = "json"
+	case jpegImage = "jpg"
+	case pngImage = "png"
+}
+
+public typealias StormcloudDocumentClosure = (_ error : StormcloudError?, _ metadata : StormcloudMetadata?) -> ()
+
 public protocol StormcloudRestoreDelegate {
 	func stormcloud( stormcloud : Stormcloud, shouldRestore objects: [String : AnyObject], toEntityWithName name: String ) -> Bool
 }
@@ -249,6 +263,100 @@ extension Stormcloud {
 	}
 }
 
+// MARK: - Adding Documents
+extension Stormcloud {
+
+	public func addDocument( withData objects : Any, for documentType : StormcloudDocumentType,  completion: @escaping StormcloudDocumentClosure ) {
+		self.stormcloudLog("\(#function)")
+		
+		if self.operationInProgress {
+			completion(.backupInProgress, nil)
+			return
+		}
+		self.operationInProgress = true
+		
+		// Find out where we should be saving, based on iCloud or local
+		if let baseURL = self.documentsDirectory() {
+			fileExtension = documentType.rawValue
+			let metadata : StormcloudMetadata
+			let document : UIDocument
+			let finalURL : URL
+			switch documentType {
+			case .jpegImage:
+				
+				metadata = ImageMetadata()
+				finalURL = baseURL.appendingPathComponent(metadata.filename)
+				let imageDocument = ImageDocument(fileURL: finalURL )
+				if let isImage = objects as? UIImage {
+					imageDocument.imageToBackup = isImage
+				}
+				document = imageDocument
+			case .json:
+				metadata = JSONMetadata()
+				finalURL = baseURL.appendingPathComponent(metadata.filename)
+				let jsonDocument = JSONDocument(fileURL: finalURL )
+				jsonDocument.objectsToBackup = objects
+				document = jsonDocument
+			case .pngImage:
+				metadata  = StormcloudMetadata()
+				finalURL = baseURL.appendingPathComponent(metadata.filename)
+				document = UIDocument()
+				break
+			}
+			
+			
+			self.stormcloudLog("Backing up to: \(finalURL)")
+			
+			// If the filename already exists, can't create a new document. Usually because it's trying to add them too quickly.
+			let exists = self.internalMetadataList.filter({ (element) -> Bool in
+				if element.filename == metadata.filename {
+					return true
+				}
+				return false
+			})
+			
+			if exists.count > 0 {
+				completion(.backupFileExists, nil)
+				return
+			}
+			document.save(to: finalURL, for: .forCreating, completionHandler: { (success) -> Void in
+				let totalSuccess = success
+				
+				if ( !totalSuccess ) {
+					
+					self.stormcloudLog("\(#function): Error saving new document")
+					
+					DispatchQueue.main.async(execute: { () -> Void in
+						self.operationInProgress = false
+						completion(StormcloudError.couldntSaveNewDocument, nil)
+					})
+					return
+					
+				}
+				document.close(completionHandler: nil)
+				if !self.isUsingiCloud {
+					DispatchQueue.main.async(execute: { () -> Void in
+						self.internalMetadataList.append(metadata)
+						self.prepareDocumentList()
+						self.operationInProgress = false
+						completion(nil, (totalSuccess) ? metadata : metadata)
+					})
+				} else {
+					DispatchQueue.main.async(execute: { () -> Void in
+						self.moveItemsToiCloud([metadata.filename], completion: { (success, error) -> Void in
+							self.operationInProgress = false
+							if totalSuccess {
+								completion(nil, metadata)
+							} else {
+								completion(StormcloudError.couldntMoveDocumentToiCloud, metadata)
+							}
+						})
+					})
+				}
+			})
+		}
+	}
+}
 
 // MARK: - Restoring
 
@@ -603,7 +711,7 @@ extension Stormcloud {
 			for item in items {
 				if let fname = item.value(forAttribute: NSMetadataItemDisplayNameKey) as? String {
 					
-					if let hasBackup = self.internalQueryList[fname] {
+					if var hasBackup = self.internalQueryList[fname] {
 						hasBackup.iCloudMetadata = item
 					} else {
 						if let url = item.value(forAttribute: NSMetadataItemURLKey) as? URL {

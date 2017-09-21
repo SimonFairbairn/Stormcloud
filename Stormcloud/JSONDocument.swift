@@ -8,7 +8,7 @@
 
 import UIKit
 
-open class JSONDocument: UIDocument {
+open class JSONDocument: UIDocument, StormcloudDocument {
 
     open var backupMetadata : StormcloudMetadata?
     open var objectsToBackup : Any?
@@ -19,7 +19,7 @@ open class JSONDocument: UIDocument {
                 let json = try JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.allowFragments) as? [String : AnyObject]
                 if let isJson = json {
                     self.objectsToBackup = isJson
-                    self.backupMetadata = StormcloudMetadata(fileURL: self.fileURL)
+                    self.backupMetadata = JSONMetadata(fileURL: self.fileURL)
                 }
                 
             } catch {

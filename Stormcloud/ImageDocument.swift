@@ -8,7 +8,7 @@
 
 import UIKit
 
-open class ImageDocument: UIDocument {
+open class ImageDocument: UIDocument, StormcloudDocument {
 	
 	open var backupMetadata : StormcloudMetadata?
 	open var imageToBackup : UIImage?
@@ -16,7 +16,7 @@ open class ImageDocument: UIDocument {
 	open override func load(fromContents contents: Any, ofType typeName: String?) throws {
 		if let data = contents as? Data, let hasImage = UIImage(data: data) {
 			self.imageToBackup = hasImage
-			self.backupMetadata = StormcloudMetadata(fileURL: self.fileURL)
+			self.backupMetadata = ImageMetadata(fileURL: self.fileURL)
 		}
 		
 		updateChangeCount(.done)

@@ -527,7 +527,7 @@ extension Stormcloud {
 	- parameter objects:    A JSON object
 	- parameter completion: A completion block that returns the new metadata if the backup was successful and a new document was created
 	*/
-	public func backupObjectsToJSON( _ objects : Any, completion : @escaping (_ error : StormcloudError?, _ metadata : StormcloudMetadata?) -> () ) {
+	public func backupObjectsToJSON( _ objects : Any, completion : @escaping StormcloudDocumentClosure ) {
 		
 		self.stormcloudLog("\(#function)")
 		
@@ -539,7 +539,7 @@ extension Stormcloud {
 		
 		
 		if let baseURL = self.documentsDirectory() {
-			let metadata = StormcloudMetadata()
+			let metadata = JSONMetadata()
 			let finalURL = baseURL.appendingPathComponent(metadata.filename)
 			
 			let document = JSONDocument(fileURL: finalURL)
