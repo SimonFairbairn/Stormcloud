@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="13240" systemVersion="16G29" minimumToolsVersion="Xcode 7.0" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="Cloud" representedClassName="Cloud" syncable="YES" codeGenerationType="category">
+        <attribute name="added" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="chanceOfRain" optional="YES" attributeType="Float" defaultValueString="0.0" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="didRain" optional="YES" attributeType="Boolean" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="image" optional="YES" attributeType="Binary" syncable="YES"/>
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="order" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
+        <relationship name="raindrops" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Raindrop" inverseName="cloud" inverseEntity="Raindrop" syncable="YES"/>
+        <relationship name="tags" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Tag" inverseName="clouds" inverseEntity="Tag" syncable="YES"/>
+    </entity>
+    <entity name="Raindrop" representedClassName="Raindrop" syncable="YES" codeGenerationType="category">
+        <attribute name="colour" optional="YES" attributeType="Transformable" syncable="YES"/>
+        <attribute name="raindropValue" optional="YES" attributeType="Decimal" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="timesFallen" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="type" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="cloud" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Cloud" inverseName="raindrops" inverseEntity="Cloud" syncable="YES"/>
+    </entity>
+    <entity name="Tag" representedClassName=".Tag" syncable="YES" codeGenerationType="category">
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="clouds" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Cloud" inverseName="tags" inverseEntity="Cloud" syncable="YES"/>
+    </entity>
+    <fetchRequest name="CloudFetch" entity="Cloud" predicateString="didRain == 0 OR didRain == 1"/>
+    <elements>
+        <element name="Cloud" positionX="-576" positionY="-9" width="128" height="165"/>
+        <element name="Raindrop" positionX="-353" positionY="24" width="128" height="120"/>
+        <element name="Tag" positionX="-810" positionY="54" width="128" height="75"/>
+    </elements>
+</model>
