@@ -24,11 +24,11 @@ public class DynamicHub: NSObject, UIDynamicItem {
 
 extension CGFloat {
     public func degreesToRads() -> CGFloat {
-        let rads = self * CGFloat(M_PI / 180 )
+        let rads = self * CGFloat.pi / 180 
         return rads
     }
     public func positionOnCircleInRect(rect : CGRect) -> CGPoint {
-        let rads =  self.degreesToRads() - CGFloat( M_PI / 2)
+        let rads =  self.degreesToRads() - CGFloat.pi / 2
         let x = rect.size.height / 2 * CGFloat(cos(rads))
         let y = rect.size.height / 2 * CGFloat(sin(rads))
 		return CGPoint(x: x + (rect.size.height / 2) + rect.origin.x, y: y + (rect.size.height / 2) + rect.origin.x)

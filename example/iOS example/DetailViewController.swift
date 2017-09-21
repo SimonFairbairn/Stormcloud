@@ -13,7 +13,7 @@ import Stormcloud
 class DetailViewController: UIViewController {
     
     var itemURL : URL?
-    var document : BackupDocument?
+    var document : JSONDocument?
     var backupManager : Stormcloud?
     var stack  : CoreDataStack?
     
@@ -26,7 +26,7 @@ class DetailViewController: UIViewController {
         // Do any additional setup after loading the view.
         
         if let url = self.itemURL {
-            self.document = BackupDocument(fileURL: url as URL)
+            self.document = JSONDocument(fileURL: url as URL)
             if let doc = self.document {
                 doc.open(completionHandler: { (success) -> Void in
 					

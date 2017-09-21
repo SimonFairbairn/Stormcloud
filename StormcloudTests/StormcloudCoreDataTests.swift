@@ -483,7 +483,7 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
         XCTAssertEqual(items.count, 1)
         XCTAssertEqual(self.manager.metadataList.count, 1)
 		
-        print(self.manager.urlForItem(self.manager.metadataList[0]))
+		print(self.manager.urlForItem(self.manager.metadataList[0]) ?? "No metadata item found")
         
         let expectation = self.expectation(description: "Restore expectation")
         manager.restoreCoreDataBackup(withMetadata: self.manager.metadataList[0], toContext: stack.managedObjectContext!) { (success) -> () in

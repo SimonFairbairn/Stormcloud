@@ -8,14 +8,12 @@
 
 import UIKit
 
-open class BackupDocument: UIDocument {
+open class JSONDocument: UIDocument {
 
     open var backupMetadata : StormcloudMetadata?
     open var objectsToBackup : Any?
     
     open override func load(fromContents contents: Any, ofType typeName: String?) throws {
-
-		
         if let data = contents as? Data {
             do {
                 let json = try JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.allowFragments) as? [String : AnyObject]

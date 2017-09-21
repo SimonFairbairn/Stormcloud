@@ -46,7 +46,7 @@ public class StormcloudFetchedResultsController: UITableViewController {
         }
 
 		if enableDelete {
-            self.navigationItem.leftBarButtonItem = self.editButtonItem
+            self.navigationItem.rightBarButtonItem = self.editButtonItem
         }
     }
 }

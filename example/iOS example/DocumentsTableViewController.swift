@@ -9,49 +9,41 @@
 import UIKit
 import Stormcloud
 
-class DocumentsTableViewController: UITableViewController {
+class DocumentsTableViewController: UITableViewController, StormcloudViewController {
 	
     let dateFormatter = DateFormatter()
-    var documentsManager : Stormcloud!
+    var stormcloud: Stormcloud?
+	var coreDataStack: CoreDataStack?
     
     let numberFormatter = NumberFormatter()
     
-    var stack : CoreDataStack?
+	
     
     @IBOutlet var iCloudSwitch : UISwitch!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // MARK: - To Copy
-        self.documentsManager.fileLimit = 3
+        stormcloud?.fileLimit = 3
 
-        self.documentsManager.delegate = self
-        self.documentsManager.reloadData()
-        self.tableView.reloadData()
+        stormcloud?.delegate = self
+        stormcloud?.reloadData()
+        tableView.reloadData()
         // End
         
-        self.iCloudSwitch.isOn = self.documentsManager.isUsingiCloud
+        self.iCloudSwitch.isOn = stormcloud?.isUsingiCloud ?? false
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.documentsManager.deleteItemsOverLimit { (error) -> () in
+        stormcloud?.deleteItemsOverLimit { (error) -> () in
             if error != nil {
                 print("Error deleting items over limit")
             }
-            print(self.documentsManager.metadataList)
+            print(self.stormcloud?.metadataList)
         }
     }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-//        self.configureDocuments()
-    }
-    
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
+
 
     // MARK: - Table view data source
 
@@ -60,14 +52,16 @@ class DocumentsTableViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.documentsManager.metadataList.count
+        return stormcloud?.metadataList.count ?? 0
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "BackupTableViewCell", for: indexPath as IndexPath)
 
         // MARK: - To Copy
-        let data = self.documentsManager.metadataList[indexPath.row]
+		guard let data = stormcloud?.metadataList[indexPath.row] else {
+			return cell
+		}
         data.delegate = self
         // End
         
@@ -77,17 +71,22 @@ class DocumentsTableViewController: UITableViewController {
     
     
     func configureTableViewCell( tvc : UITableViewCell, withMetadata data: StormcloudMetadata ) {
-        
 
-        dateFormatter.dateStyle = .short
+		dateFormatter.dateStyle = .short
         dateFormatter.timeStyle = .short
         dateFormatter.timeZone = TimeZone(abbreviation: "UTC")
         var text = dateFormatter.string(from: data.date)
-        
-        if self.documentsManager.isUsingiCloud {
+		tvc.textLabel?.text = text
+		tvc.detailTextLabel?.text = data.device
+
+		guard let usingiCloud = stormcloud?.isUsingiCloud else {
+			return
+		}
+		
+        if usingiCloud {
             
             if data.isDownloading {
-				text.append(" ⏬ \(self.numberFormatter.string(from: NSNumber(value: data.percentDownloaded / 100)))%")
+				text.append(" ⏬ \(self.numberFormatter.string(from: NSNumber(value: data.percentDownloaded / 100)) ?? "0")%")
             } else if data.iniCloud {
                 text.append(" ☁️")
             } else if data.isUploading {
@@ -97,8 +96,6 @@ class DocumentsTableViewController: UITableViewController {
             }
             
         }
-        tvc.textLabel?.text = text
-        tvc.detailTextLabel?.text = data.device
     }
 
 
@@ -107,9 +104,12 @@ class DocumentsTableViewController: UITableViewController {
         if editingStyle == .delete {
             
             // MARK: - To Copy
-            
-            let metadataItem = self.documentsManager.metadataList[indexPath.row]
-            self.documentsManager.deleteItem(metadataItem, completion: { ( index, error) -> () in
+			
+			// If we don't have an item, nothing to delete
+			guard let metadataItem = stormcloud?.metadataList[indexPath.row] else {
+				return
+			}
+            stormcloud?.deleteItem(metadataItem, completion: { ( index, error) -> () in
                 
                 if let _ = error {
                     
@@ -181,7 +181,7 @@ extension DocumentsTableViewController : StormcloudDelegate {
 
 extension DocumentsTableViewController : StormcloudMetadataDelegate {
     func iCloudMetadataDidUpdate(_ metadata: StormcloudMetadata) {
-        if let index = self.documentsManager.metadataList.index(of: metadata) {
+        if let index = stormcloud?.metadataList.index(of: metadata) {
 			let ip = IndexPath(row: index, section: 0)
 			if let tvc = self.tableView.cellForRow(at: ip) {
 				
@@ -199,10 +199,12 @@ extension DocumentsTableViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let dvc = segue.destination as? DetailViewController, let tvc = self.tableView.indexPathForSelectedRow {
             
-            let metadata = self.documentsManager.metadataList[tvc.row]
-            dvc.itemURL = self.documentsManager.urlForItem(metadata)
-            dvc.backupManager = self.documentsManager
-            dvc.stack  = self.stack
+			if let metadata = stormcloud?.metadataList[tvc.row] {
+				dvc.itemURL = stormcloud?.urlForItem(metadata)
+			}
+			
+            dvc.backupManager = stormcloud
+            dvc.stack  = coreDataStack
         }
     }
 }
@@ -216,7 +218,7 @@ extension DocumentsTableViewController {
     
     @IBAction func enableiCloud( _ sender : UISwitch ) {
         if sender.isOn {
-            _ = self.documentsManager.enableiCloudShouldMoveLocalDocumentsToiCloud(true) { (error) -> Void in
+            _ = stormcloud?.enableiCloudShouldMoveLocalDocumentsToiCloud(true) { (error) -> Void in
                 
                 if let hasError = error {
                     sender.isOn = false
@@ -227,7 +229,7 @@ extension DocumentsTableViewController {
 
             }
         } else {
-            self.documentsManager.disableiCloudShouldMoveiCloudDocumentsToLocal(true, completion: { (moveSuccessful) -> Void in
+            stormcloud?.disableiCloudShouldMoveiCloudDocumentsToLocal(true, completion: { (moveSuccessful) -> Void in
                 print("Disabled iCloud: \(moveSuccessful)")
             })
         }
@@ -260,8 +262,8 @@ extension DocumentsTableViewController {
 //            easyJSON = ["Item" : "No Value"]
 //        }
 
-        if let context = self.stack?.privateContext {
-            self.documentsManager.backupCoreDataEntities(inContext: context, completion: { (error, metadata) -> () in
+        if let context = coreDataStack?.privateContext {
+            self.stormcloud?.backupCoreDataEntities(inContext: context, completion: { (error, metadata) -> () in
 
                 var title = NSLocalizedString("Success!", comment: "The title of the alert box shown when a backup successfully completes")
                 var message = NSLocalizedString("Successfully backed up all Core Data entities.", comment: "The message when the backup manager successfully completes")
@@ -296,7 +298,7 @@ extension DocumentsTableViewController {
                 
                 
             })
-            self.stack?.save()
+            self.coreDataStack?.save()
         }
         
         

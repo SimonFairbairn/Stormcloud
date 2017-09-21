@@ -19,13 +19,14 @@ open class StormcloudMetadata: NSObject {
     
     /// A delegate that can be notified when the state of the backup document changes
     open var delegate : StormcloudMetadataDelegate?
-    
+	
+	// The date the item was added
     open let date : Date
     
     /// The original Device UUID on which this backup was originally created
-    open let deviceUUID : String
-    open let device : String
-    open let filename : String
+    open var deviceUUID : String
+    open var device : String
+    open var filename : String
     open var iCloudMetadata : NSMetadataItem? {
         didSet {
             self.delegate?.iCloudMetadataDidUpdate(self)
@@ -163,7 +164,7 @@ open class StormcloudMetadata: NSObject {
     
     
     /**
-     Use this to get a UUID for the current device, which is then cached and attached to the filename of the created document and can be used to find out if the document that this metadata represents was originally created on the saem device.
+     Use this to get a UUID for the current device, which is then cached and attached to the filename of the created document and can be used to find out if the document that this metadata represents was originally created on the same device.
      
      - returns: The device UUID as a string
      */

@@ -36,7 +36,7 @@ class StormcloudTests: StormcloudTestsBaseClass {
         
         stormcloud.backupObjectsToJSON(["Test" : "Test"]) { (error, metadata) -> () in
             XCTAssertNil(error, "Backing up should always write successfully")
-                print(metadata?.filename)
+			print(metadata?.filename ?? "No filename found")
                 XCTAssertNotNil(metadata, "If successful, the metadata field should be populated")
             expectation.fulfill()
             
@@ -58,7 +58,7 @@ class StormcloudTests: StormcloudTestsBaseClass {
         stormcloud.backupObjectsToJSON(["Test" : "Test"]) { (error, metadata) -> () in
             XCTAssertNil(error, "Backing up should always write successfully")
 
-                print(metadata?.filename)
+			print(metadata?.filename ?? "Filename doesn't exist")
                 XCTAssertNotNil(metadata, "If successful, the metadata field should be populated")
             expectation.fulfill()
         }

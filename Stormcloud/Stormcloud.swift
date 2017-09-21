@@ -9,46 +9,8 @@
 import UIKit
 import CoreData
 
-// A simple protocol with an implementation in an extension that will help us manage the environment
-public protocol StormcloudEnvironmentVariable  {
-	func stringValue() -> String
-}
-
-public extension StormcloudEnvironmentVariable {
-	func isEnabled() -> Bool {
-		let env = ProcessInfo.processInfo.environment
-		if let _ = env[self.stringValue()]  {
-			return true
-		} else {
-			return false
-		}
-	}
-}
-
 public protocol StormcloudRestoreDelegate {
 	func stormcloud( stormcloud : Stormcloud, shouldRestore objects: [String : AnyObject], toEntityWithName name: String ) -> Bool
-}
-
-/**
-A list of environment variables that you can use for debugging purposes.
-
-Usage:
-
-1. `Product -> Scheme -> Edit Scheme...`
-2. Under `Environment variables` tap the `+` icon
-3. Add `Stormcloud` + the enum case (e.g. `StormcloudMangleDelete`) as the name field. No value is required.
-
-Valid variables:
-
-- **`StormcloudMangleDelete`** : Mangles a delete so you can test your apps response to errors correctly
-- **`StormcloudVerboseLogging`** : More verbose output to see what's happening within Stormcloud
-*/
-enum StormcloudEnvironment : String, StormcloudEnvironmentVariable {
-	case MangleDelete = "StormcloudMangleDelete"
-	case VerboseLogging = "StormcloudVerboseLogging"
-	func stringValue() -> String {
-		return self.rawValue
-	}
 }
 
 enum StormcloudEntityKeys : String {
@@ -252,7 +214,7 @@ open class Stormcloud: NSObject {
 	}
 	
 	
-	func iCloudUserChanged( _ notification : Notification ) {
+	@objc func iCloudUserChanged( _ notification : Notification ) {
 		// Handle user changing
 		
 		self.prepareDocumentList()
@@ -308,7 +270,9 @@ extension Stormcloud {
 		self.operationInProgress = true
 		
 		if let url = self.urlForItem(metadata) {
-			let document = BackupDocument(fileURL : url)
+			
+			// TODO: Handle different metadata types
+			let document = JSONDocument(fileURL : url)
 			let _ = document.documentState
 			document.open(completionHandler: { (success) -> Void in
 				
@@ -337,8 +301,6 @@ extension Stormcloud {
 		let limit = self.fileLimit - 1
 		var itemsToDelete : [StormcloudMetadata] = []
 		if self.fileLimit > 0 && self.metadataList.count > limit {
-			
-			
 			for i in self.fileLimit..<self.metadataList.count {
 				let metadata = self.metadataList[i]
 				itemsToDelete.append(metadata)
@@ -414,43 +376,6 @@ extension Stormcloud {
 				
 			})
 		}
-		
-		
-		//
-		//        if let itemURL = self.urlForItem(metadataItem), let idx = self.internalMetadataList.indexOf(metadataItem) {
-		//            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), { () -> Void in
-		//
-		//                // TESTING ENVIRONMENT
-		//                if StormcloudEnvironment.MangleDelete.isEnabled() {
-		//                    sleep(2)
-		//                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
-		//                        let deleteError = StormcloudError.CouldntDelete
-		//                        let error = NSError(domain:deleteError.domain(), code: deleteError.rawValue, userInfo: nil)
-		//                        completion(index: nil, error: error )
-		//                    })
-		//                    return
-		//                }
-		//                // ENDs
-		//
-		//                let coordinator = NSFileCoordinator(filePresenter: nil)
-		//                coordinator.coordinateWritingItemAtURL(itemURL, options: .ForDeleting, error:nil, byAccessor: { (url) -> Void in
-		//                    var hasError : NSError?
-		//                    do {
-		//                        try NSFileManager.defaultManager().removeItemAtURL(url)
-		//                    } catch let error as NSError  {
-		//                        hasError = error
-		//                    }
-		//                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
-		//                        self.internalMetadataList.removeAtIndex(idx)
-		//                        completion(index : (hasError != nil) ? idx : nil, error: hasError)
-		//                        self.sortDocuments()
-		//                    })
-		//                })
-		//            })
-		//        } else {
-		//
-		//
-		//        }
 	}
 	
 	
@@ -470,8 +395,7 @@ extension Stormcloud {
 // MARK: - Prepare Documents
 
 extension Stormcloud {
-	
-	
+
 	func prepareDocumentList() {
 		
 		self.internalQueryList.removeAll()
@@ -660,7 +584,7 @@ extension Stormcloud {
 		return nil
 	}
 	
-	func metadataFinishedGathering() {
+	@objc func metadataFinishedGathering() {
 		
 		stormcloudLog("Metadata finished gathering")
 		
@@ -668,7 +592,7 @@ extension Stormcloud {
 		self.metadataUpdated()
 	}
 	
-	func metadataUpdated() {
+	@objc func metadataUpdated() {
 		
 		stormcloudLog("Metadata updated")
 		
