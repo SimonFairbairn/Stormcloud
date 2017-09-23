@@ -275,7 +275,7 @@ extension Stormcloud {
 		}
 		self.operationInProgress = true
 		
-		// Find out where we should be saving, based on iCloud or local
+		// Find out where we should be savindocumentsDirectoryg, based on iCloud or local
 		if let baseURL = self.documentsDirectory() {
 			// Set the file extension to whatever it is we're trying to back up
 			fileExtension = documentType.rawValue
@@ -379,11 +379,33 @@ extension Stormcloud {
 		self.operationInProgress = true
 		
 		if let url = self.urlForItem(metadata) {
+			let document : UIDocument
+			if let validType = StormcloudDocumentType(rawValue: fileExtension) {
+				switch validType {
+				case .jpegImage:
+					document = ImageDocument(fileURL: url)
+				default:
+					document = JSONDocument(fileURL: url)
+				}
+			} else {
+				document = JSONDocument(fileURL : url)
+			}
+			
 			
 			// TODO: Handle different metadata types
-			let document = JSONDocument(fileURL : url)
+			
 			let _ = document.documentState
 			document.open(completionHandler: { (success) -> Void in
+				
+				let data : Any?
+				if let isJSON = document as? JSONDocument, let hasObjects = isJSON.objectsToBackup {
+					data = hasObjects
+				} else if let isImage = document as? ImageDocument, let hasImage = isImage.imageToBackup {
+					data = hasImage
+				} else {
+					data = nil
+				}
+
 				
 				if !success {
 					self.operationInProgress = false
@@ -393,7 +415,8 @@ extension Stormcloud {
 				
 				DispatchQueue.main.async(execute: { () -> Void in
 					self.operationInProgress = false
-					completion(nil, document.objectsToBackup)
+					completion(nil, data)
+					document.close()
 				})
 			})
 		} else {

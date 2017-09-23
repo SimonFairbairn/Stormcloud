@@ -16,6 +16,9 @@ class ImageCollectionViewController: UICollectionViewController  {
 	var stormcloud: Stormcloud = Stormcloud()
 	var coreDataStack: CoreDataStack?
 
+	var imageCache : [String : UIImage] = [:]
+	var count = 1
+	
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -60,21 +63,19 @@ class ImageCollectionViewController: UICollectionViewController  {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath)
 		let item = stormcloud.metadataList[indexPath.row]
 		if let hasCell = cell as? ImageCollectionViewCell {
-			if let url = stormcloud.urlForItem(item) {
-				let doc = ImageDocument(fileURL: url)
-				if doc.documentState == .normal {
-					hasCell.photoView.image = doc.imageToBackup
-				} else {
-					doc.open(completionHandler: { (success) in
-						if ( success ) {
-							hasCell.photoView.image = doc.imageToBackup
-						}
-					})
-				}
-
-			}
-			// Configure the cell
 			hasCell.photoView.image = #imageLiteral(resourceName: "cloud")
+			
+			if let hasImage = imageCache[item.filename] {
+				hasCell.photoView.image = hasImage
+			}  else {
+				stormcloud.restoreBackup(withMetadata: item, completion: { (error, restoredObject) in
+					if let hasImage = restoredObject as? UIImage {
+						hasCell.photoView.image = hasImage
+						self.imageCache[item.filename] = hasImage
+					}
+				})
+			}
+
 		} else {
 			cell.backgroundColor = .red
 		}
@@ -131,11 +132,17 @@ extension ImageCollectionViewController {
 		// Get an image
 		// Add it to stormcloud
 		
-		let image = #imageLiteral(resourceName: "Item1")
+		guard let image = UIImage(named: "Item\(count)") else {
+			return
+		}
+		count = count + 1
+		if count > 5 {
+			count = 1
+		}
 		
 		stormcloud.addDocument(withData: image, for: .jpegImage) { (error, metadata) in
 			if let hasError = error {
-				
+				print("Error: \(hasError.localizedDescription)")
 			}
 		}
 		
