@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F427E66F1F76A352008FA142 /* Cloud.swift in Sources */ = {isa = PBXBuildFile; fileRef = F427E66E1F76A352008FA142 /* Cloud.swift */; };
 		F42AACFF1F73708E0008D6D6 /* Stormcloud+Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42AACFE1F73708E0008D6D6 /* Stormcloud+Environment.swift */; };
 		F42AAD001F7372CB0008D6D6 /* Stormcloud+Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42AACFE1F73708E0008D6D6 /* Stormcloud+Environment.swift */; };
 		F42AAD0A1F738B890008D6D6 /* ImageDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42AAD091F738B890008D6D6 /* ImageDocument.swift */; };
@@ -31,7 +32,6 @@
 		F4E2E9841BDCC8AF00A63FAF /* StormcloudTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E2E9781BDCC8AF00A63FAF /* StormcloudTests.swift */; };
 		F4E2E9851BDCC8AF00A63FAF /* StormcloudTestsBaseClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E2E9791BDCC8AF00A63FAF /* StormcloudTestsBaseClass.swift */; };
 		F4E2E9861BDCC8AF00A63FAF /* StormcloudTestsCoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E2E97A1BDCC8AF00A63FAF /* StormcloudTestsCoreDataStack.swift */; };
-		F4E2E9871BDCC8AF00A63FAF /* Cloud.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E2E97B1BDCC8AF00A63FAF /* Cloud.swift */; };
 		F4E2E98A1BDCC8AF00A63FAF /* Raindrop.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E2E97E1BDCC8AF00A63FAF /* Raindrop.swift */; };
 		F4E2E98D1BDCC8AF00A63FAF /* Stormcloud.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E2E96E1BDCC8AF00A63FAF /* Stormcloud.swift */; };
 		F4E2E98E1BDCC8AF00A63FAF /* JSONDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E2E96D1BDCC8AF00A63FAF /* JSONDocument.swift */; };
@@ -57,6 +57,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		F427E66E1F76A352008FA142 /* Cloud.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cloud.swift; sourceTree = "<group>"; };
 		F42AACFE1F73708E0008D6D6 /* Stormcloud+Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Stormcloud+Environment.swift"; sourceTree = "<group>"; };
 		F42AAD091F738B890008D6D6 /* ImageDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageDocument.swift; sourceTree = "<group>"; };
 		F42AAD0B1F738C840008D6D6 /* ImageMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageMetadata.swift; sourceTree = "<group>"; };
@@ -83,7 +84,6 @@
 		F4E2E9781BDCC8AF00A63FAF /* StormcloudTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StormcloudTests.swift; sourceTree = "<group>"; };
 		F4E2E9791BDCC8AF00A63FAF /* StormcloudTestsBaseClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StormcloudTestsBaseClass.swift; sourceTree = "<group>"; };
 		F4E2E97A1BDCC8AF00A63FAF /* StormcloudTestsCoreDataStack.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StormcloudTestsCoreDataStack.swift; sourceTree = "<group>"; };
-		F4E2E97B1BDCC8AF00A63FAF /* Cloud.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cloud.swift; sourceTree = "<group>"; };
 		F4E2E97E1BDCC8AF00A63FAF /* Raindrop.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Raindrop.swift; sourceTree = "<group>"; };
 		F4E506671F73D2FB004E8B7D /* clouds 2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "clouds 2.xcdatamodel"; sourceTree = "<group>"; };
 		F4E506681F73D2FB004E8B7D /* clouds.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = clouds.xcdatamodel; sourceTree = "<group>"; };
@@ -127,9 +127,9 @@
 			isa = PBXGroup;
 			children = (
 				F4E506661F73D2FB004E8B7D /* clouds.xcdatamodeld */,
+				F427E66E1F76A352008FA142 /* Cloud.swift */,
 				F43811931BE77A1E0030D9FD /* Tag.swift */,
 				F4E2E97A1BDCC8AF00A63FAF /* StormcloudTestsCoreDataStack.swift */,
-				F4E2E97B1BDCC8AF00A63FAF /* Cloud.swift */,
 				F4E2E97E1BDCC8AF00A63FAF /* Raindrop.swift */,
 			);
 			name = Model;
@@ -324,9 +324,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				F4E506701F73DD7A004E8B7D /* ImageDocument.swift in Sources */,
+				F427E66F1F76A352008FA142 /* Cloud.swift in Sources */,
 				F4E2E9831BDCC8AF00A63FAF /* StormcloudCoreDataTests.swift in Sources */,
 				F4E506711F73DD7A004E8B7D /* ImageMetadata.swift in Sources */,
-				F4E2E9871BDCC8AF00A63FAF /* Cloud.swift in Sources */,
 				F42AAD001F7372CB0008D6D6 /* Stormcloud+Environment.swift in Sources */,
 				F4E2E9841BDCC8AF00A63FAF /* StormcloudTests.swift in Sources */,
 				F4E2E98E1BDCC8AF00A63FAF /* JSONDocument.swift in Sources */,
