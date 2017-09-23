@@ -754,7 +754,7 @@ extension Stormcloud {
 			for item in items {
 				if let fname = item.value(forAttribute: NSMetadataItemDisplayNameKey) as? String {
 					
-					if var hasBackup = self.internalQueryList[fname] {
+					if let hasBackup = self.internalQueryList[fname] {
 						hasBackup.iCloudMetadata = item
 					} else {
 						if let url = item.value(forAttribute: NSMetadataItemURLKey) as? URL {
