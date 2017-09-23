@@ -391,7 +391,7 @@ extension Stormcloud {
 				archiver.finishEncoding()
 				return mutableData.base64EncodedString(options: NSData.Base64EncodingOptions())
 			}
-		case .objectIDAttributeType, .undefinedAttributeType:
+		case .objectIDAttributeType, .undefinedAttributeType, .UUIDAttributeType, .URIAttributeType:
 			break
 			
 		}
@@ -445,7 +445,7 @@ extension Stormcloud {
 			} else {
 				stormcloudLog("Transformable/Binary type : \(String(describing: data)) not String")
 			}
-		case .objectIDAttributeType, .undefinedAttributeType:
+		case .objectIDAttributeType, .undefinedAttributeType, .UUIDAttributeType, .URIAttributeType:
 			break
 			
 		}
@@ -458,7 +458,7 @@ extension Stormcloud {
 	- parameter context:    The context to restore the objects to
 	- parameter completion: A completion handler
 	*/
-	public func restoreCoreDataBackup(withDocument document : BackupDocument, toContext context : NSManagedObjectContext,  completion : @escaping (_ error : StormcloudError?) -> () ) {
+	public func restoreCoreDataBackup(withDocument document : JSONDocument, toContext context : NSManagedObjectContext,  completion : @escaping (_ error : StormcloudError?) -> () ) {
 		if let data = document.objectsToBackup as? [String : AnyObject] {
 			self.insertObjectsWithContext(context, data: data) { (success)  -> Void in
 				self.operationInProgress = false
@@ -495,7 +495,7 @@ extension Stormcloud {
 		self.operationInProgress = true
 		
 		if let url = self.urlForItem(metadata) {
-			let document = BackupDocument(fileURL : url)
+			let document = JSONDocument(fileURL : url)
 			document.open(completionHandler: { (success) -> Void in
 				
 				if !success {
@@ -527,7 +527,7 @@ extension Stormcloud {
 	- parameter objects:    A JSON object
 	- parameter completion: A completion block that returns the new metadata if the backup was successful and a new document was created
 	*/
-	public func backupObjectsToJSON( _ objects : Any, completion : @escaping (_ error : StormcloudError?, _ metadata : StormcloudMetadata?) -> () ) {
+	public func backupObjectsToJSON( _ objects : Any, completion : @escaping StormcloudDocumentClosure ) {
 		
 		self.stormcloudLog("\(#function)")
 		
@@ -539,10 +539,10 @@ extension Stormcloud {
 		
 		
 		if let baseURL = self.documentsDirectory() {
-			let metadata = StormcloudMetadata()
+			let metadata = JSONMetadata()
 			let finalURL = baseURL.appendingPathComponent(metadata.filename)
 			
-			let document = BackupDocument(fileURL: finalURL)
+			let document = JSONDocument(fileURL: finalURL)
 			
 			self.stormcloudLog("Backing up to: \(finalURL)")
 			
@@ -584,7 +584,7 @@ extension Stormcloud {
 					})
 				} else {
 					DispatchQueue.main.async(execute: { () -> Void in
-						self.moveItemsToiCloud([metadata.filename], completion: { (success) -> Void in
+						self.moveItemsToiCloud([metadata.filename], completion: { (success, error) -> Void in
 							self.operationInProgress = false
 							if totalSuccess {
 								completion(nil, metadata)

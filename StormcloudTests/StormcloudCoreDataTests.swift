@@ -29,7 +29,8 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
     }
 
     override func tearDown() {
-        super.tearDown()
+		super.tearDown()
+		
     }
     
     func insertCloudWithNumber(_ number : Int) throws -> Cloud {
@@ -83,7 +84,7 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
             expectation.fulfill()
         }
         
-        waitForExpectations(timeout: 2.0, handler: nil)
+        waitForExpectations(timeout: 4.0, handler: nil)
         
     }
     
@@ -138,7 +139,7 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
             }
             expectation.fulfill()
         }
-        waitForExpectations(timeout: 3.0, handler: nil)
+        waitForExpectations(timeout: 4.0, handler: nil)
     }
 	
 	func testThatBackingUpIndividualObjectsWorks() {
@@ -465,8 +466,21 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
     func testWeirdStrings() {
         // Keep a copy of all the data and make sure it's the same when it gets back in to the DB
 		
+		sleep(1)
         self.setupStack()
-		
+		if let context = self.stack.managedObjectContext {
+			
+			let request = NSFetchRequest<Cloud>(entityName: "Cloud")
+			request.sortDescriptors = [NSSortDescriptor(key: "order", ascending: true)]
+			let clouds : [Cloud]
+			do {
+				clouds = try context.fetch(request)
+			} catch {
+				clouds = []
+			}
+			
+			XCTAssertEqual(clouds.count, 0)			
+		}
 
         if let context = self.stack.managedObjectContext {
             do {
@@ -483,7 +497,7 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
         XCTAssertEqual(items.count, 1)
         XCTAssertEqual(self.manager.metadataList.count, 1)
 		
-        print(self.manager.urlForItem(self.manager.metadataList[0]))
+		print(self.manager.urlForItem(self.manager.metadataList[0]) ?? "No metadata item found")
         
         let expectation = self.expectation(description: "Restore expectation")
         manager.restoreCoreDataBackup(withMetadata: self.manager.metadataList[0], toContext: stack.managedObjectContext!) { (success) -> () in

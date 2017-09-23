@@ -1,17 +1,22 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<testsuites tests='10' failures='0'>
-  <testsuite name='StormcloudTests.StormcloudCoreDataTests' tests='4' failures='0'>
-    <testcase classname='StormcloudTests.StormcloudCoreDataTests' name='testThatBackingUpCoreDataCreatesCorrectFormat' time='0.154'/>
-    <testcase classname='StormcloudTests.StormcloudCoreDataTests' name='testThatBackingUpCoreDataCreatesFile' time='0.547'/>
-    <testcase classname='StormcloudTests.StormcloudCoreDataTests' name='testThatRestoringRestoresThingsCorrectly' time='0.578'/>
-    <testcase classname='StormcloudTests.StormcloudCoreDataTests' name='testWeirdStrings' time='0.563'/>
+<testsuites name='StormcloudTests.xctest' tests='13' failures='0'>
+  <testsuite name='StormcloudTests.StormcloudCoreDataTests' tests='6' failures='0'>
+    <testcase classname='StormcloudTests.StormcloudCoreDataTests' name='testThatBackingUpCoreDataCreatesCorrectFormat' time='3.711'/>
+    <testcase classname='StormcloudTests.StormcloudCoreDataTests' name='testThatBackingUpCoreDataCreatesFile' time='0.564'/>
+    <testcase classname='StormcloudTests.StormcloudCoreDataTests' name='testThatBackingUpIndividualObjectsWorks' time='0.581'/>
+    <testcase classname='StormcloudTests.StormcloudCoreDataTests' name='testThatRestoringIndividualItemsWorks' time='0.015'/>
+    <testcase classname='StormcloudTests.StormcloudCoreDataTests' name='testThatRestoringRestoresThingsCorrectly' time='0.615'/>
+    <testcase classname='StormcloudTests.StormcloudCoreDataTests' name='testWeirdStrings' time='1.578'/>
+  </testsuite>
+  <testsuite name='StormcloudTests.StormcloudImageTests' tests='1' failures='0'>
+    <testcase classname='StormcloudTests.StormcloudImageTests' name='testThatBackupManagerAddsDocuments' time='0.603'/>
   </testsuite>
   <testsuite name='StormcloudTests.StormcloudTests' tests='6' failures='0'>
-    <testcase classname='StormcloudTests.StormcloudTests' name='testThatAddingAnItemPlacesItInRightPosition' time='0.009'/>
-    <testcase classname='StormcloudTests.StormcloudTests' name='testThatBackupManagerAddsDocuments' time='0.550'/>
-    <testcase classname='StormcloudTests.StormcloudTests' name='testThatBackupManagerDeletesDocuments' time='1.081'/>
-    <testcase classname='StormcloudTests.StormcloudTests' name='testThatFilenameDatesAreConvertedToLocalTime' time='0.009'/>
+    <testcase classname='StormcloudTests.StormcloudTests' name='testThatAddingAnItemPlacesItInRightPosition' time='0.551'/>
+    <testcase classname='StormcloudTests.StormcloudTests' name='testThatBackupManagerAddsDocuments' time='0.548'/>
+    <testcase classname='StormcloudTests.StormcloudTests' name='testThatBackupManagerDeletesDocuments' time='0.556'/>
+    <testcase classname='StormcloudTests.StormcloudTests' name='testThatFilenameDatesAreConvertedToLocalTime' time='0.557'/>
     <testcase classname='StormcloudTests.StormcloudTests' name='testThatMaximumBackupLimitsAreRespected' time='0.555'/>
-    <testcase classname='StormcloudTests.StormcloudTests' name='testThatRestoringAFileWorks' time='0.007'/>
+    <testcase classname='StormcloudTests.StormcloudTests' name='testThatRestoringAFileWorks' time='0.012'/>
   </testsuite>
 </testsuites>

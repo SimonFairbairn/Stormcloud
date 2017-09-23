@@ -10,6 +10,8 @@ import XCTest
 
 class StormcloudTestsBaseClass: XCTestCase {
 
+	
+	var fileExtension : String = "json"
     var docsURL : URL?
     
     let futureFilename = "2020-10-19 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157"
@@ -23,7 +25,7 @@ class StormcloudTestsBaseClass: XCTestCase {
         let docs = self.listItemsAtURL()
         
         for url in docs {
-            if url.pathExtension == "json" {
+            if url.pathExtension == fileExtension {
                 do {
                     print("Deleting \(url)")
                     try FileManager.default.removeItem(at: url)
@@ -42,7 +44,7 @@ class StormcloudTestsBaseClass: XCTestCase {
         let docs = self.listItemsAtURL()
         
         for url in docs {
-            if url.pathExtension == "json" {
+            if url.pathExtension == fileExtension {
                 do {
                     print("Deleting \(url)")
                     try FileManager.default.removeItem(at: url)
@@ -72,10 +74,10 @@ class StormcloudTestsBaseClass: XCTestCase {
 	
 	func copyItems(extra : Bool = false) {
 		
-		self.copyItemWith(filename: self.pastFilename, fileExtension: "json")
-		self.copyItemWith(filename: self.futureFilename, fileExtension: "json")
+		self.copyItemWith(filename: self.pastFilename, fileExtension: self.fileExtension)
+		self.copyItemWith(filename: self.futureFilename, fileExtension: self.fileExtension)
 		if extra {
-			self.copyItemWith(filename: "fragment", fileExtension: "json")
+			self.copyItemWith(filename: "fragment", fileExtension: self.fileExtension)
 			
 		}
 
@@ -83,7 +85,7 @@ class StormcloudTestsBaseClass: XCTestCase {
     }
     
     
-    func listItemsAtURL() -> [URL] {
+	func listItemsAtURL() -> [URL] {
         var jsonDocs : [URL] = []
         if let docsURL = docsURL {
             var docs : [URL] = []
@@ -94,7 +96,7 @@ class StormcloudTestsBaseClass: XCTestCase {
             }
             
             for url in docs {
-                if url.pathExtension == "json" {
+                if url.pathExtension == fileExtension {
                     jsonDocs.append(url)
                 }
             }

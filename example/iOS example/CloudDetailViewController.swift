@@ -120,8 +120,6 @@ extension CloudDetailViewController : UITextFieldDelegate {
     
 }
 
-
-
 // MARK: - Actions
 
 extension CloudDetailViewController {

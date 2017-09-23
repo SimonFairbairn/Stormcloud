@@ -6,7 +6,7 @@
 //  Copyright © 2015 Voyage Travel Apps. All rights reserved.
 //
 
-import Foundation
+import UIKit
 import CoreData
 
 @objc(Cloud)
@@ -23,6 +23,11 @@ open class Cloud: NSManagedObject {
 			}
             cloud.added = Date()
             cloud.chanceOfRain = 0.45
+			
+			if let hasImage = UIImage(named: "cloud"), let data = UIImageJPEGRepresentation(hasImage, 0.7) {
+				cloud.image = data
+			}
+			
             return cloud
         } else {
             throw ICECoreDataError.invalidType

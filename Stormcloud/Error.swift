@@ -32,7 +32,7 @@ public enum StormcloudError : Int, Error {
     case backupInProgress
     case restoreInProgress
     case couldntOpenDocument
-
+	case invalidDocumentData
     
     func domain() -> String {
         return "com.voyagetravelapps.Stormcloud"
