@@ -466,7 +466,19 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
         // Keep a copy of all the data and make sure it's the same when it gets back in to the DB
 		
         self.setupStack()
-		
+		if let context = self.stack.managedObjectContext {
+			
+			let request = NSFetchRequest<Cloud>(entityName: "Cloud")
+			request.sortDescriptors = [NSSortDescriptor(key: "order", ascending: true)]
+			let clouds : [Cloud]
+			do {
+				clouds = try context.fetch(request)
+			} catch {
+				clouds = []
+			}
+			
+			XCTAssertEqual(clouds.count, 0)			
+		}
 
         if let context = self.stack.managedObjectContext {
             do {
