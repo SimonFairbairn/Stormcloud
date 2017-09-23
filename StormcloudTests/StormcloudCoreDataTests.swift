@@ -29,7 +29,28 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
     }
 
     override func tearDown() {
-        super.tearDown()
+		super.tearDown()
+		
+		guard let context = stack.managedObjectContext else {
+			return
+		}
+		
+		let request = NSFetchRequest<Cloud>(entityName: "Cloud")
+		request.sortDescriptors = [NSSortDescriptor(key: "order", ascending: true)]
+		let clouds : [Cloud]
+		do {
+			clouds = try context.fetch(request)
+		} catch {
+			clouds = []
+		}
+		if clouds.count > 0 {
+			for cloud in clouds {
+				context.delete(cloud)
+			}
+		}
+		
+		
+		
     }
     
     func insertCloudWithNumber(_ number : Int) throws -> Cloud {
@@ -465,6 +486,7 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
     func testWeirdStrings() {
         // Keep a copy of all the data and make sure it's the same when it gets back in to the DB
 		
+		sleep(1)
         self.setupStack()
 		if let context = self.stack.managedObjectContext {
 			
