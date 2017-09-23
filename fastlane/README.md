@@ -81,6 +81,11 @@ This does the following:
 - Pushes it to the remote repository
 
 - Updates the spec repository
+### ios test
+```
+fastlane ios test
+```
+
 ### ios submit_pod
 ```
 fastlane ios submit_pod
