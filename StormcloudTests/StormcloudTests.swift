@@ -36,7 +36,7 @@ class StormcloudTests: StormcloudTestsBaseClass {
         
         stormcloud.backupObjectsToJSON(["Test" : "Test"]) { (error, metadata) -> () in
             XCTAssertNil(error, "Backing up should always write successfully")
-                print(metadata?.filename)
+			print(metadata?.filename ?? "No filename found")
                 XCTAssertNotNil(metadata, "If successful, the metadata field should be populated")
             expectation.fulfill()
             
@@ -58,7 +58,7 @@ class StormcloudTests: StormcloudTestsBaseClass {
         stormcloud.backupObjectsToJSON(["Test" : "Test"]) { (error, metadata) -> () in
             XCTAssertNil(error, "Backing up should always write successfully")
 
-                print(metadata?.filename)
+			print(metadata?.filename ?? "Filename doesn't exist")
                 XCTAssertNotNil(metadata, "If successful, the metadata field should be populated")
             expectation.fulfill()
         }
@@ -93,9 +93,7 @@ class StormcloudTests: StormcloudTestsBaseClass {
         let newDocs = self.listItemsAtURL()
         XCTAssertEqual(stormcloud.metadataList.count, 2)
         XCTAssertEqual(stormcloud.metadataList.count, newDocs.count)
-		
-		
-		
+	
         let expectation = self.expectation(description: "Adding new item")
         stormcloud.backupObjectsToJSON(["Test" : "Test"]) { ( error,  metadata) -> () in
             
@@ -150,8 +148,6 @@ class StormcloudTests: StormcloudTestsBaseClass {
             expectation.fulfill()
         }
         waitForExpectations(timeout: 3.0, handler: nil)
-        
-        
         
     }
     

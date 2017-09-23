@@ -41,18 +41,27 @@ enum ICEFetchRequests : String, CoreDataStackFetchTemplate {
     }
 }
 
+protocol StormcloudViewController {
+	var stormcloud : Stormcloud? {
+		get set
+	}
+	var coreDataStack : CoreDataStack? {
+		get set
+	}
+}
+
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     
     let coreDataStack = CoreDataStack(modelName: "clouds")
-    
+	let stormcloud = Stormcloud()
+	
     var window: UIWindow?
     
     var defaultsManager : StormcloudDefaultsManager = StormcloudDefaultsManager()
     
-       
-    func application(_: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+    func application(_: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         self.defaultsManager.prefix = "com.voyagetravelapps.iCloud-Extravaganza"
         
@@ -68,9 +77,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             coreDataStack.deleteStore()
         }
         
-        
-        
-        
         coreDataStack.setupStore { () -> Void in
             if let context = self.coreDataStack.managedObjectContext {
                 
@@ -82,13 +88,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     }
                 }
             }
-            
-            if let vc = self.window?.rootViewController as? SettingsViewController {
-                vc.stack = self.coreDataStack
-            }
-            
-            
-        }
+		}
+		
+		if let isTabBar = window?.rootViewController as? UITabBarController {
+			isTabBar.delegate = self
+		}
         
         return true
     }
@@ -122,108 +126,43 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
 }
 
-class CloudAdder : NSObject {
-    let context : NSManagedObjectContext?
-    
-    let docsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
-    
-    init(context : NSManagedObjectContext? ) {
-        self.context = context
-    }
-    
-    
-    func addCloudWithNumber(number : Int, addRaindrops : Bool ) {
-        guard let context = self.context else {
-			fatalError("Context not set")
-        }
-        
-        
-        let cloud1 : Cloud
-        do {
-            cloud1 = try Cloud.insertCloudWithName("Cloud \(number)", order: number, didRain: false, inContext: context)
-            if addRaindrops {
-                _ = try? Raindrop.insertRaindropWithType(RaindropType.Heavy, withCloud: cloud1, inContext: context)
-                _ = try? Raindrop.insertRaindropWithType(RaindropType.Heavy, withCloud: cloud1, inContext: context)
-                _ = try? Raindrop.insertRaindropWithType(RaindropType.Light, withCloud: cloud1, inContext: context)
-            }
-            
-        } catch {
-            print("Error inserting cloud!")
-        }
-    }
-    
-    
-    
-    func addDefaultClouds() {
-        guard let context = self.context else {
-            return
-        }
-        
-        
-        let request = NSFetchRequest<NSFetchRequestResult>(entityName: "Cloud")
-        let clouds : [Cloud]
-        do {
-            clouds = try context.fetch(request) as! [Cloud]
-        } catch {
-            clouds = []
-        }
-        
-        print(clouds.count)
-        
-        self.addCloudWithNumber(number: clouds.count, addRaindrops : true)
-        self.addCloudWithNumber(number: clouds.count + 1, addRaindrops : true)
-    }
-    
-    func deleteAllFiles() {
-        let docs = self.listItemsAtURL()
-        for url in docs {
-            if url.pathExtension == "json" {
-                do {
-                    try FileManager.default.removeItem(at: url as URL)
-                } catch {
-                    print("Couldn't delete item")
-                }
-            }
-        }
-        
-    }
-    
-    func listItemsAtURL() -> [URL] {
-        var jsonDocs : [URL] = []
-        if let docsURL = docsURL {
-            var docs : [URL] = []
-            do {
-                print(docsURL)
-                docs = try FileManager.default.contentsOfDirectory(at: docsURL, includingPropertiesForKeys: nil, options: FileManager.DirectoryEnumerationOptions())
-            } catch let error as NSError {
-                print("\(docsURL) path not available.\(error.localizedDescription)")
-            }
-            
-            for url in docs {
-                if url.pathExtension == "json" {
-                    jsonDocs.append(url)
-                }
-            }
-        }
-        return jsonDocs
-    }
-    
-    
-    
-    func copyDefaultFiles(name : String ) {
-        if let fileURLs = Bundle.main.urls(forResourcesWithExtension: ".json", subdirectory: nil), let docsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
-            print(docsURL)
-            for url in fileURLs {
-                let finalURL = docsURL.appendingPathComponent(url.lastPathComponent)
-                
-                do {
-					try FileManager.default.copyItem(at: url, to: finalURL)
-                } catch let error as NSError {
-                    print("Couldn't copy files \(error.localizedDescription)")
-                }
-                
-            }
-        }
-    }
+extension AppDelegate : UITabBarControllerDelegate {
+	func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
+		
+		guard let navController = viewController as? UINavigationController else {
+			return
+		}
+		
+		if var stormcloudVC = navController.viewControllers.first as? StormcloudViewController {
+			stormcloudVC.coreDataStack = coreDataStack
+			stormcloudVC.stormcloud = stormcloud
+		}
+		
+		if let cloudVC = navController.viewControllers.first as? StormcloudFetchedResultsController {
+			
+			if let context = coreDataStack.managedObjectContext {
+				let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Cloud")
+				fetchRequest.sortDescriptors = [NSSortDescriptor(key: "order", ascending: true)]
+				fetchRequest.fetchBatchSize = 20
+				cloudVC.frc = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
+			}
+						
+			cloudVC.enableDelete = true
+			cloudVC.cellCallback = { (tableView: UITableView, object: NSManagedObject, ip : IndexPath) -> UITableViewCell in
+				guard let cell = tableView.dequeueReusableCell(withIdentifier: "CloudTableViewCell") else {
+					return UITableViewCell()
+				}
+				if let cloudObject = object as? Cloud {
+					cell.textLabel?.text =   cloudObject.name
+					if let data = cloudObject.image as Data?,  let image = UIImage(data: data) {
+						cell.imageView?.image = image
+					}
+				}
+				return cell
+			}
+		}
+	}
 }
+
+
 

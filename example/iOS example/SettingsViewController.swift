@@ -10,19 +10,18 @@ import UIKit
 import CoreData
 import Stormcloud
 
-class SettingsViewController: UIViewController {
+class SettingsViewController: UIViewController, StormcloudViewController {
 
-    var stack : CoreDataStack? {
+    var coreDataStack: CoreDataStack? {
         didSet {
-            if let context = stack?.managedObjectContext {
+            if let context = coreDataStack?.managedObjectContext {
                 self.cloudAdder = CloudAdder(context: context)
             }
-            self.backupManager.reloadData()
-            self.updateCount()
+            self.stormcloud?.reloadData()
         }
     }
 
-    let backupManager = Stormcloud()
+	var stormcloud: Stormcloud?
     var cloudAdder : CloudAdder?
     
     @IBOutlet var settingsSwitch1 : UISwitch!
@@ -37,7 +36,7 @@ class SettingsViewController: UIViewController {
     @IBOutlet var cloudLabel : UILabel!
     
     func updateCount() {
-        if let stack = self.stack {
+        if let stack = coreDataStack {
             let clouds = stack.performRequestForTemplate(ICEFetchRequests.CloudFetch)
             self.cloudLabel.text = "Cloud Count: \(clouds.count)"
         }
@@ -52,26 +51,10 @@ class SettingsViewController: UIViewController {
         self.prepareSettings()
     }
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         self.updateCount()
     }
-    
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
 
     deinit {
         NotificationCenter.default.removeObserver(self)
@@ -102,7 +85,7 @@ extension SettingsViewController {
 extension SettingsViewController {
     
     @IBAction func addNewClouds( _ sender : UIButton ) {
-        if let adder = self.cloudAdder, let stack = self.stack {
+        if let adder = self.cloudAdder, let stack = self.coreDataStack {
             let clouds = stack.performRequestForTemplate(ICEFetchRequests.CloudFetch)
             let total = Int(self.valueStepper.value)
             let runningTotal = clouds.count + 1
@@ -144,42 +127,6 @@ extension SettingsViewController {
     
 }
 
-extension SettingsViewController {
-	
-	override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        
-        if let navController = segue.destination as? UINavigationController, let documentsVC = navController.viewControllers.first as? DocumentsTableViewController {
-            documentsVC.stack = self.stack
-            documentsVC.documentsManager = self.backupManager
-        }
-        
-
-        if let navController = segue.destination as? UINavigationController, let cloudVC = navController.viewControllers.first as? StormcloudFetchedResultsController {
-            
-            if let context = self.stack?.managedObjectContext {
-                let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Cloud")
-                fetchRequest.sortDescriptors = [NSSortDescriptor(key: "order", ascending: true)]
-                fetchRequest.fetchBatchSize = 20
-                cloudVC.frc = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
-            }
-            
-			cloudVC.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(SettingsViewController.dismissCloudVC))
-            
-            cloudVC.enableDelete = true
-            cloudVC.cellCallback = { (tableView: UITableView, object: NSManagedObject, ip : IndexPath) -> UITableViewCell in
-                guard let cell = tableView.dequeueReusableCell(withIdentifier: "CloudTableViewCell") else {
-                    return UITableViewCell()
-                }
-                if let cloudObject = object as? Cloud {
-                    cell.textLabel?.text =   cloudObject.name
-                }
-                return cell
-            }
-        }
-        
-        
-    }
-}
 
 extension SettingsViewController : UITextFieldDelegate {
     
