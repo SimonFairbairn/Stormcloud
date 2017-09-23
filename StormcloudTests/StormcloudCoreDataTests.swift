@@ -139,7 +139,7 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
             }
             expectation.fulfill()
         }
-        waitForExpectations(timeout: 3.0, handler: nil)
+        waitForExpectations(timeout: 4.0, handler: nil)
     }
 	
 	func testThatBackingUpIndividualObjectsWorks() {
