@@ -31,26 +31,6 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
     override func tearDown() {
 		super.tearDown()
 		
-		guard let context = stack.managedObjectContext else {
-			return
-		}
-		
-		let request = NSFetchRequest<Cloud>(entityName: "Cloud")
-		request.sortDescriptors = [NSSortDescriptor(key: "order", ascending: true)]
-		let clouds : [Cloud]
-		do {
-			clouds = try context.fetch(request)
-		} catch {
-			clouds = []
-		}
-		if clouds.count > 0 {
-			for cloud in clouds {
-				context.delete(cloud)
-			}
-		}
-		
-		
-		
     }
     
     func insertCloudWithNumber(_ number : Int) throws -> Cloud {
@@ -104,7 +84,7 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
             expectation.fulfill()
         }
         
-        waitForExpectations(timeout: 2.0, handler: nil)
+        waitForExpectations(timeout: 4.0, handler: nil)
         
     }
     
