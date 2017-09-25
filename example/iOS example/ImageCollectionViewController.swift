@@ -31,22 +31,17 @@ class ImageCollectionViewController: UICollectionViewController  {
 		stormcloud.fileExtension = "jpg"
 		stormcloud.delegate = self
 		stormcloud.reloadData()
+		
     }
 
+	func deleteItem(_ sender : Any? ) {
+		
+	}
+	
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using [segue destinationViewController].
-        // Pass the selected object to the new view controller.
-    }
-    */
 
     // MARK: UICollectionViewDataSource
 
@@ -85,6 +80,8 @@ class ImageCollectionViewController: UICollectionViewController  {
     }
 
     // MARK: UICollectionViewDelegate
+	
+	
 
     /*
     // Uncomment this method to specify if the specified item should be highlighted during tracking
@@ -100,20 +97,29 @@ class ImageCollectionViewController: UICollectionViewController  {
     }
     */
 
-    /*
+	
     // Uncomment these methods to specify if an action menu should be displayed for the specified item, and react to actions performed on the item
     override func collectionView(_ collectionView: UICollectionView, shouldShowMenuForItemAt indexPath: IndexPath) -> Bool {
-        return false
+        return true
     }
 
     override func collectionView(_ collectionView: UICollectionView, canPerformAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) -> Bool {
-        return false
+        return true
     }
 
     override func collectionView(_ collectionView: UICollectionView, performAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) {
-    
+		if action == #selector(cut(_:)) {
+			let item = stormcloud.metadataList[indexPath.row]
+			stormcloud.deleteItem(item, completion: { (val, error) in
+				if let hasError = error {
+					print(hasError.localizedDescription)
+				} else {
+					self.collectionView?.reloadData()
+				}
+			})
+		}
     }
-    */
+
 
 }
 
