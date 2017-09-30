@@ -10,7 +10,7 @@
 		F42AACFF1F73708E0008D6D6 /* Stormcloud+Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42AACFE1F73708E0008D6D6 /* Stormcloud+Environment.swift */; };
 		F42AAD001F7372CB0008D6D6 /* Stormcloud+Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42AACFE1F73708E0008D6D6 /* Stormcloud+Environment.swift */; };
 		F42AAD0A1F738B890008D6D6 /* ImageDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42AAD091F738B890008D6D6 /* ImageDocument.swift */; };
-		F42AAD0C1F738C840008D6D6 /* ImageMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42AAD0B1F738C840008D6D6 /* ImageMetadata.swift */; };
+		F42AAD0C1F738C840008D6D6 /* JPEGMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42AAD0B1F738C840008D6D6 /* JPEGMetadata.swift */; };
 		F42AAD0E1F739E740008D6D6 /* JSONMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42AAD0D1F739E740008D6D6 /* JSONMetadata.swift */; };
 		F43811951BE77A1E0030D9FD /* Tag.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43811931BE77A1E0030D9FD /* Tag.swift */; };
 		F45788271DBA201600A1FB38 /* 2014-10-18 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.json in Resources */ = {isa = PBXBuildFile; fileRef = F45788241DBA201600A1FB38 /* 2014-10-18 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.json */; };
@@ -42,7 +42,7 @@
 		F4E5066E1F73DC9F004E8B7D /* TestItem1.jpg in Resources */ = {isa = PBXBuildFile; fileRef = F4E5066B1F73D9EF004E8B7D /* TestItem1.jpg */; };
 		F4E5066F1F73DC9F004E8B7D /* TestItem2.jpg in Resources */ = {isa = PBXBuildFile; fileRef = F4E5066A1F73D9EF004E8B7D /* TestItem2.jpg */; };
 		F4E506701F73DD7A004E8B7D /* ImageDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42AAD091F738B890008D6D6 /* ImageDocument.swift */; };
-		F4E506711F73DD7A004E8B7D /* ImageMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42AAD0B1F738C840008D6D6 /* ImageMetadata.swift */; };
+		F4E506711F73DD7A004E8B7D /* JPEGMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42AAD0B1F738C840008D6D6 /* JPEGMetadata.swift */; };
 		F4E506721F73DD7A004E8B7D /* JSONMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42AAD0D1F739E740008D6D6 /* JSONMetadata.swift */; };
 /* End PBXBuildFile section */
 
@@ -59,7 +59,7 @@
 /* Begin PBXFileReference section */
 		F42AACFE1F73708E0008D6D6 /* Stormcloud+Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Stormcloud+Environment.swift"; sourceTree = "<group>"; };
 		F42AAD091F738B890008D6D6 /* ImageDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageDocument.swift; sourceTree = "<group>"; };
-		F42AAD0B1F738C840008D6D6 /* ImageMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageMetadata.swift; sourceTree = "<group>"; };
+		F42AAD0B1F738C840008D6D6 /* JPEGMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JPEGMetadata.swift; sourceTree = "<group>"; };
 		F42AAD0D1F739E740008D6D6 /* JSONMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONMetadata.swift; sourceTree = "<group>"; };
 		F43811931BE77A1E0030D9FD /* Tag.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tag.swift; sourceTree = "<group>"; };
 		F45788241DBA201600A1FB38 /* 2014-10-18 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "2014-10-18 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.json"; sourceTree = "<group>"; };
@@ -164,7 +164,7 @@
 				F42AACFE1F73708E0008D6D6 /* Stormcloud+Environment.swift */,
 				F4E2E96D1BDCC8AF00A63FAF /* JSONDocument.swift */,
 				F42AAD091F738B890008D6D6 /* ImageDocument.swift */,
-				F42AAD0B1F738C840008D6D6 /* ImageMetadata.swift */,
+				F42AAD0B1F738C840008D6D6 /* JPEGMetadata.swift */,
 				F42AAD0D1F739E740008D6D6 /* JSONMetadata.swift */,
 				F4E2E96F1BDCC8AF00A63FAF /* StormcloudMetadata.swift */,
 				F4E2E9541BDCC8AF00A63FAF /* Info.plist */,
@@ -308,7 +308,7 @@
 			files = (
 				F42AAD0E1F739E740008D6D6 /* JSONMetadata.swift in Sources */,
 				F42AAD0A1F738B890008D6D6 /* ImageDocument.swift in Sources */,
-				F42AAD0C1F738C840008D6D6 /* ImageMetadata.swift in Sources */,
+				F42AAD0C1F738C840008D6D6 /* JPEGMetadata.swift in Sources */,
 				F42AACFF1F73708E0008D6D6 /* Stormcloud+Environment.swift in Sources */,
 				F4E2E9741BDCC8AF00A63FAF /* Error.swift in Sources */,
 				F4E2E9701BDCC8AF00A63FAF /* JSONDocument.swift in Sources */,
@@ -325,7 +325,7 @@
 			files = (
 				F4E506701F73DD7A004E8B7D /* ImageDocument.swift in Sources */,
 				F4E2E9831BDCC8AF00A63FAF /* StormcloudCoreDataTests.swift in Sources */,
-				F4E506711F73DD7A004E8B7D /* ImageMetadata.swift in Sources */,
+				F4E506711F73DD7A004E8B7D /* JPEGMetadata.swift in Sources */,
 				F4E2E9871BDCC8AF00A63FAF /* Cloud.swift in Sources */,
 				F42AAD001F7372CB0008D6D6 /* Stormcloud+Environment.swift in Sources */,
 				F4E2E9841BDCC8AF00A63FAF /* StormcloudTests.swift in Sources */,
@@ -506,7 +506,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.voyagetravelapps.StormcloudTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_SWIFT3_OBJC_INFERENCE = On;
+				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
 				SWIFT_VERSION = 4.0;
 			};
 			name = Debug;
@@ -518,7 +518,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.voyagetravelapps.StormcloudTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_SWIFT3_OBJC_INFERENCE = On;
+				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
 				SWIFT_VERSION = 4.0;
 			};
 			name = Release;

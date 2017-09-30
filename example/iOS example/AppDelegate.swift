@@ -127,10 +127,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 }
 
 extension AppDelegate : UITabBarControllerDelegate {
-	func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
+	
+	func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
 		
 		guard let navController = viewController as? UINavigationController else {
-			return
+			return true
 		}
 		
 		if var stormcloudVC = navController.viewControllers.first as? StormcloudViewController {
@@ -140,13 +141,13 @@ extension AppDelegate : UITabBarControllerDelegate {
 		
 		if let cloudVC = navController.viewControllers.first as? StormcloudFetchedResultsController {
 			
-			if let context = coreDataStack.managedObjectContext {
+			if let context = coreDataStack.managedObjectContext, cloudVC.frc == nil {
 				let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Cloud")
 				fetchRequest.sortDescriptors = [NSSortDescriptor(key: "order", ascending: true)]
 				fetchRequest.fetchBatchSize = 20
 				cloudVC.frc = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
 			}
-						
+			
 			cloudVC.enableDelete = true
 			cloudVC.cellCallback = { (tableView: UITableView, object: NSManagedObject, ip : IndexPath) -> UITableViewCell in
 				guard let cell = tableView.dequeueReusableCell(withIdentifier: "CloudTableViewCell") else {
@@ -161,6 +162,13 @@ extension AppDelegate : UITabBarControllerDelegate {
 				return cell
 			}
 		}
+
+		return true
+	}
+	
+	
+	func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
+		
 	}
 }
 

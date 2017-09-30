@@ -8,16 +8,18 @@
 
 import UIKit
 
-class ImageMetadata : StormcloudMetadata {
+open class JPEGMetadata : StormcloudMetadata {
 	
 	public override init() {
 		super.init()
 		self.date = Date()
 		self.filename = UUID().uuidString + ".jpg"
+		self.type = .jpegImage
 	}
 	public override init( path : String ) {
 		super.init()
 		self.filename = path
 		self.date = Date()
+		self.type = .jpegImage
 	}
 }

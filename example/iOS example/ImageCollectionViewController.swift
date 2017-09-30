@@ -28,25 +28,9 @@ class ImageCollectionViewController: UICollectionViewController  {
         // Register cell classes
 
         // Do any additional setup after loading the view.
-		stormcloud.fileExtension = "jpg"
 		stormcloud.delegate = self
 		stormcloud.reloadData()
     }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using [segue destinationViewController].
-        // Pass the selected object to the new view controller.
-    }
-    */
 
     // MARK: UICollectionViewDataSource
 
@@ -56,12 +40,12 @@ class ImageCollectionViewController: UICollectionViewController  {
 
 
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return stormcloud.metadataList.count
+		return stormcloud.list(for: .jpegImage).count
     }
 
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath)
-		let item = stormcloud.metadataList[indexPath.row]
+		let item = stormcloud.list(for: .jpegImage)[indexPath.row]
 		if let hasCell = cell as? ImageCollectionViewCell {
 			hasCell.photoView.image = #imageLiteral(resourceName: "cloud")
 			
@@ -72,6 +56,8 @@ class ImageCollectionViewController: UICollectionViewController  {
 					if let hasImage = restoredObject as? UIImage {
 						hasCell.photoView.image = hasImage
 						self.imageCache[item.filename] = hasImage
+					} else if let hasError = error  {
+						print(hasError)
 					}
 				})
 			}

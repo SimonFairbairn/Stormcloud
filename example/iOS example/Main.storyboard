@@ -45,7 +45,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="0aL-3X-fnR">
-                                <rect key="frame" x="16" y="120" width="343" height="265"/>
+                                <rect key="frame" x="16" y="80" width="343" height="265"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="Z1L-mo-XZW">
                                         <rect key="frame" x="0.0" y="0.0" width="343" height="31"/>
@@ -176,37 +176,52 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HjQ-8c-RB5">
-                                <rect key="frame" x="166.5" y="72" width="42" height="21"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                <nil key="highlightedColor"/>
-                            </label>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="inc-Ih-t75">
+                                <rect key="frame" x="20" y="72" width="335" height="650.5"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HjQ-8c-RB5">
+                                        <rect key="frame" x="146.5" y="0.0" width="42" height="20.5"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TOZ-ae-T4s">
+                                        <rect key="frame" x="113.5" y="20.5" width="108" height="30"/>
+                                        <state key="normal" title="Restore Backup"/>
+                                        <connections>
+                                            <action selector="restoreObject:" destination="ZGL-Uq-fp6" eventType="touchUpInside" id="Lvc-QC-l9K"/>
+                                        </connections>
+                                    </button>
+                                    <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" placeholderIntrinsicWidth="240" placeholderIntrinsicHeight="128" translatesAutoresizingMaskIntoConstraints="NO" id="G48-XF-JwM">
+                                        <rect key="frame" x="0.0" y="50.5" width="335" height="600"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="600" id="bcw-7o-0QB"/>
+                                        </constraints>
+                                    </imageView>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstAttribute="trailing" secondItem="G48-XF-JwM" secondAttribute="trailing" id="5u0-d2-yhu"/>
+                                    <constraint firstItem="G48-XF-JwM" firstAttribute="leading" secondItem="inc-Ih-t75" secondAttribute="leading" id="ggk-0y-9Lh"/>
+                                </constraints>
+                            </stackView>
                             <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="srU-Gx-nS7">
                                 <rect key="frame" x="169" y="315" width="37" height="37"/>
                                 <color key="color" red="0.36078432199999999" green="0.56078433989999998" blue="0.42745098469999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             </activityIndicatorView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TOZ-ae-T4s">
-                                <rect key="frame" x="133.5" y="101" width="108" height="30"/>
-                                <state key="normal" title="Restore Backup"/>
-                                <connections>
-                                    <action selector="restoreObject:" destination="ZGL-Uq-fp6" eventType="touchUpInside" id="Lvc-QC-l9K"/>
-                                </connections>
-                            </button>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="srU-Gx-nS7" firstAttribute="centerY" secondItem="nsZ-AC-HhE" secondAttribute="centerY" id="1lu-WU-MP6"/>
-                            <constraint firstItem="TOZ-ae-T4s" firstAttribute="centerX" secondItem="HjQ-8c-RB5" secondAttribute="centerX" id="BgM-By-vR1"/>
-                            <constraint firstItem="HjQ-8c-RB5" firstAttribute="top" secondItem="7XK-3s-qrj" secondAttribute="bottom" constant="8" id="PYL-7T-Sa4"/>
-                            <constraint firstItem="HjQ-8c-RB5" firstAttribute="centerX" secondItem="nsZ-AC-HhE" secondAttribute="centerX" id="Syv-TZ-yLB"/>
+                            <constraint firstItem="inc-Ih-t75" firstAttribute="top" secondItem="7XK-3s-qrj" secondAttribute="bottom" constant="8" id="8N6-MU-uDC"/>
+                            <constraint firstAttribute="trailing" secondItem="inc-Ih-t75" secondAttribute="trailing" constant="20" symbolic="YES" id="NS5-M3-keO"/>
                             <constraint firstItem="srU-Gx-nS7" firstAttribute="centerX" secondItem="nsZ-AC-HhE" secondAttribute="centerX" id="V2s-O6-Ziv"/>
-                            <constraint firstItem="TOZ-ae-T4s" firstAttribute="top" secondItem="HjQ-8c-RB5" secondAttribute="bottom" constant="8" id="oyz-xv-xfI"/>
+                            <constraint firstItem="inc-Ih-t75" firstAttribute="leading" secondItem="nsZ-AC-HhE" secondAttribute="leading" constant="20" symbolic="YES" id="eXd-37-jp8"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="activityIndicator" destination="srU-Gx-nS7" id="oEg-OR-fWp"/>
                         <outlet property="detailLabel" destination="HjQ-8c-RB5" id="Skx-vP-lji"/>
+                        <outlet property="imageView" destination="G48-XF-JwM" id="F7x-6s-IjU"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="t9R-As-vHG" userLabel="First Responder" sceneMemberID="firstResponder"/>
