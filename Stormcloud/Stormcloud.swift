@@ -94,7 +94,7 @@ open class Stormcloud: NSObject {
 	
 	var restoreDelegate : StormcloudRestoreDelegate?
 	
-	public override init() {
+	@objc public override init() {
 		super.init()
 		if self.isUsingiCloud {
 			_ = self.enableiCloudShouldMoveLocalDocumentsToiCloud(false, completion: nil)
@@ -107,7 +107,7 @@ open class Stormcloud: NSObject {
 	/**
 	Reloads the current metadata list, either from iCloud or from local documents. If you are switching between storage locations, using the appropriate methods will automatically reload the list of documents so there's no need to call this.
 	*/
-	open func reloadData() {
+	@objc open func reloadData() {
 		self.prepareDocumentList()
 	}
 	

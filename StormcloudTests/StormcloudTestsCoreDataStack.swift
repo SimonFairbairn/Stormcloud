@@ -66,7 +66,7 @@ open class CoreDataStack {
         initialiseCoreData()
     }
     
-    open func performRequestForTemplate( _ template : CoreDataStackFetchTemplate ) -> [NSManagedObject] {
+    @objc open func performRequestForTemplate( _ template : CoreDataStackFetchTemplate ) -> [NSManagedObject] {
         let results : [NSManagedObject]
         if let fetchRequest = self.persistentStoreCoordinator?.managedObjectModel.fetchRequestTemplate(forName: template.fetchRequestName()), let context = self.managedObjectContext {
             do {
