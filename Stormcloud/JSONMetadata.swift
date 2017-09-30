@@ -38,6 +38,7 @@ open class JSONMetadata: StormcloudMetadata {
 		
 		let stringDate = JSONMetadata.dateFormatter.string(from: self.date)
 		self.filename = "\(stringDate)--\(self.device)--\(self.deviceUUID).json"
+		self.type = .json
 	}
 	
 	
@@ -67,9 +68,11 @@ open class JSONMetadata: StormcloudMetadata {
 		
 		self.device = device
 		self.deviceUUID = deviceUUID
+		
 		super.init()
 		self.filename = filename
 		self.date = date
+		self.type = .json
 	}
 	
 	

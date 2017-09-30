@@ -107,7 +107,7 @@ extension CloudDetailViewController {
         return UIColor(red: r, green: g, blue: b, alpha: 1.0)
     }
     
-    func addDynamicItem( item : UIDynamicItem ) {
+	@objc func addDynamicItem( item : UIDynamicItem ) {
         self.gravityBehaviour.addItem(item)
     }
 }
