@@ -24,7 +24,6 @@ class DocumentsTableViewController: UITableViewController, StormcloudViewControl
     override func viewDidLoad() {
         super.viewDidLoad()
         // MARK: - To Copy
-        stormcloud?.fileLimit = 3
 
         stormcloud?.delegate = self
         stormcloud?.reloadData()
@@ -36,12 +35,11 @@ class DocumentsTableViewController: UITableViewController, StormcloudViewControl
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        stormcloud?.deleteItemsOverLimit { (error) -> () in
-            if error != nil {
-                print("Error deleting items over limit")
-            }
-			print(self.stormcloud?.metadataList ?? "ERROR: No list available")
-        }
+		stormcloud?.deleteItems(.json, overLimit: 10, completion: { (error) in
+			if let hasError = error {
+				fatalError("Error deleting items over limit: \(hasError.localizedDescription)")
+			}
+		})
     }
 
 
@@ -66,6 +64,9 @@ class DocumentsTableViewController: UITableViewController, StormcloudViewControl
         // End
 		if let isJSON = data as? JSONMetadata {
 			self.configureTableViewCell(tvc: cell, withMetadata: isJSON)
+		} else if let isJPEG = data as? JPEGMetadata {
+			cell.textLabel?.text = "Image Backup"
+			cell.detailTextLabel?.text = "Filename: \(isJPEG.filename)"
 		}
 		
         return cell
@@ -141,18 +142,14 @@ extension DocumentsTableViewController {
         })
         alertViewController.addAction(action)
         self.present(alertViewController, animated: true, completion: nil)
-        
     }
-    
-
 }
 
 // MARK: - StormcloudDelegate
 
 extension DocumentsTableViewController : StormcloudDelegate {
 
-    
-    func metadataListDidAddItemsAtIndexes(_ addedItems: IndexSet?, andDeletedItemsAtIndexes deletedItems: IndexSet?) {
+	func metadataListDidAddItemsAtIndexes(_ addedItems: IndexSet?, andDeletedItemsAtIndexes deletedItems: IndexSet?) {
         
         self.tableView.beginUpdates()
         
@@ -186,7 +183,6 @@ extension DocumentsTableViewController : StormcloudMetadataDelegate {
         if let index = stormcloud?.metadataList.index(of: metadata) {
 			let ip = IndexPath(row: index, section: 0)
 			if let tvc = self.tableView.cellForRow(at: ip), let isJson = metadata as? JSONMetadata {
-			
 				self.configureTableViewCell(tvc: tvc, withMetadata: isJson)
             }
         }
@@ -203,6 +199,7 @@ extension DocumentsTableViewController {
             
 			if let metadata = stormcloud?.metadataList[tvc.row] {
 				dvc.itemURL = stormcloud?.urlForItem(metadata)
+				dvc.metadataItem = metadata
 			}
 			
             dvc.backupManager = stormcloud

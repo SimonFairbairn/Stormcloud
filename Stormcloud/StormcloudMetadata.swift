@@ -17,6 +17,7 @@ open class StormcloudMetadata : NSObject {
 	// The date the item was added
 	open var date : Date
 	open var filename : String
+	open var type : StormcloudDocumentType
 	open var iCloudMetadata : NSMetadataItem? {
 		didSet {
 			self.delegate?.iCloudMetadataDidUpdate(self)
@@ -100,11 +101,13 @@ open class StormcloudMetadata : NSObject {
 	override init() {
 		self.filename = ""
 		self.date = Date()
+		self.type = .unknown
 	}
 	
 	init( path : String ) {
 		self.filename = path
 		self.date = Date()
+		self.type = .unknown
 	}
 	
 	public convenience init( fileURL : URL ) {

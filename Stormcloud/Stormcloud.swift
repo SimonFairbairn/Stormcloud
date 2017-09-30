@@ -16,9 +16,14 @@ protocol StormcloudDocument {
 }
 
 public enum StormcloudDocumentType : String {
+	case unknown = ""
 	case json = "json"
 	case jpegImage = "jpg"
 	case pngImage = "png"
+	
+	static func allTypes() -> [StormcloudDocumentType] {
+		 return [.unknown, .json, .jpegImage, .pngImage]
+	}
 }
 
 public typealias StormcloudDocumentClosure = (_ error : StormcloudError?, _ metadata : StormcloudMetadata?) -> ()
@@ -50,9 +55,6 @@ public protocol StormcloudDelegate {
 
 open class Stormcloud: NSObject {
 	
-	/// The file extension to use for the backup files
-	open var fileExtension = "json"
-	
 	/// Whether or not the backup manager is currently using iCloud (read only)
 	open var isUsingiCloud : Bool {
 		get {
@@ -70,8 +72,7 @@ open class Stormcloud: NSObject {
 	/// The backup manager delegate
 	open var delegate : StormcloudDelegate?
 	
-	/// The number of files to keep before older ones are deleted. 0 = never delete.
-	open var fileLimit : Int = 0
+	open var shouldDisableInProgressCheck : Bool = false
 	
 	var formatter = DateFormatter()
 	
@@ -88,11 +89,12 @@ open class Stormcloud: NSObject {
 	
 	var operationInProgress : Bool = false
 	
+	
 	var workingCache : [String : Any] = [:]
 	
 	var restoreDelegate : StormcloudRestoreDelegate?
 	
-	public override init() {
+	@objc public override init() {
 		super.init()
 		if self.isUsingiCloud {
 			_ = self.enableiCloudShouldMoveLocalDocumentsToiCloud(false, completion: nil)
@@ -105,7 +107,7 @@ open class Stormcloud: NSObject {
 	/**
 	Reloads the current metadata list, either from iCloud or from local documents. If you are switching between storage locations, using the appropriate methods will automatically reload the list of documents so there's no need to call this.
 	*/
-	open func reloadData() {
+	@objc open func reloadData() {
 		self.prepareDocumentList()
 	}
 	
@@ -230,9 +232,7 @@ open class Stormcloud: NSObject {
 	
 	@objc func iCloudUserChanged( _ notification : Notification ) {
 		// Handle user changing
-		
 		self.prepareDocumentList()
-		
 	}
 	
 	deinit {
@@ -278,14 +278,13 @@ extension Stormcloud {
 		// Find out where we should be savindocumentsDirectoryg, based on iCloud or local
 		if let baseURL = self.documentsDirectory() {
 			// Set the file extension to whatever it is we're trying to back up
-			fileExtension = documentType.rawValue
 			let metadata : StormcloudMetadata
 			let document : UIDocument
 			let finalURL : URL
 			switch documentType {
 			case .jpegImage:
 				
-				metadata = ImageMetadata()
+				metadata = JPEGMetadata()
 				finalURL = baseURL.appendingPathComponent(metadata.filename)
 				let imageDocument = ImageDocument(fileURL: finalURL )
 				if let isImage = objects as? UIImage {
@@ -298,11 +297,10 @@ extension Stormcloud {
 				let jsonDocument = JSONDocument(fileURL: finalURL )
 				jsonDocument.objectsToBackup = objects
 				document = jsonDocument
-			case .pngImage:
+			default:
 				metadata  = StormcloudMetadata()
 				finalURL = baseURL.appendingPathComponent(metadata.filename)
 				document = UIDocument()
-				break
 			}
 			
 			
@@ -371,73 +369,90 @@ extension Stormcloud {
 	- parameter completion:      A completion handler to run when the operation is completed
 	*/
 	public func restoreBackup(withMetadata metadata : StormcloudMetadata, completion : @escaping (_ error: StormcloudError?, _ restoredObjects : Any? ) -> () ) {
-		
-		if self.operationInProgress {
+
+		if self.operationInProgress && !self.shouldDisableInProgressCheck {
 			completion(.backupInProgress, nil)
 			return
 		}
-		self.operationInProgress = true
 		
-		if let url = self.urlForItem(metadata) {
-			let document : UIDocument
-			if let validType = StormcloudDocumentType(rawValue: fileExtension) {
-				switch validType {
-				case .jpegImage:
-					document = ImageDocument(fileURL: url)
-				default:
-					document = JSONDocument(fileURL: url)
-				}
-			} else {
-				document = JSONDocument(fileURL : url)
-			}
-			
-			
-			// TODO: Handle different metadata types
-			
-			let _ = document.documentState
-			document.open(completionHandler: { (success) -> Void in
-				
-				let data : Any?
-				if let isJSON = document as? JSONDocument, let hasObjects = isJSON.objectsToBackup {
-					data = hasObjects
-				} else if let isImage = document as? ImageDocument, let hasImage = isImage.imageToBackup {
-					data = hasImage
-				} else {
-					data = nil
-				}
-
-				
-				if !success {
-					self.operationInProgress = false
-					completion(.couldntOpenDocument, nil)
-					return
-				}
-				
-				DispatchQueue.main.async(execute: { () -> Void in
-					self.operationInProgress = false
-					completion(nil, data)
-					document.close()
-				})
-			})
-		} else {
+		guard let url = self.urlForItem(metadata) else {
 			self.operationInProgress = false
 			completion(.invalidURL, nil)
+			return
 		}
-	}
-	
-
-	
-	public func deleteItemsOverLimit( _ completion : @escaping ( _ error : StormcloudError? ) -> () ) {
+		if !self.shouldDisableInProgressCheck {
+			self.operationInProgress = true
+		}
 		
-		// Knock one off as we're about to back up
-		let limit = self.fileLimit - 1
-		var itemsToDelete : [StormcloudMetadata] = []
-		if self.fileLimit > 0 && self.metadataList.count > limit {
-			for i in self.fileLimit..<self.metadataList.count {
-				let metadata = self.metadataList[i]
-				itemsToDelete.append(metadata)
+		let document : UIDocument
+		
+		switch metadata.type {
+		case .jpegImage:
+			document = ImageDocument(fileURL: url)
+		default:
+			document = JSONDocument(fileURL: url)
+		}
+		
+		let _ = document.documentState
+		document.open(completionHandler: { (success) -> Void in
+			var error : StormcloudError? = nil
+			
+			let data : Any?
+			if let isJSON = document as? JSONDocument, let hasObjects = isJSON.objectsToBackup {
+				data = hasObjects
+			} else if let isImage = document as? ImageDocument, let hasImage = isImage.imageToBackup {
+				data = hasImage
+			} else {
+				data = nil
+				error = StormcloudError.invalidDocumentData
 			}
 			
+			if !success {
+				error = StormcloudError.couldntOpenDocument
+			}
+			
+			DispatchQueue.main.async(execute: { () -> Void in
+				self.operationInProgress = false
+				self.shouldDisableInProgressCheck = false
+				completion(error, data)
+				document.close()
+			})
+		})
+	}
+	
+	public func list( for stormcloudType : StormcloudDocumentType ) -> [StormcloudMetadata] {
+		return self.metadataList.filter({ (metadata) -> Bool in
+			switch stormcloudType {
+			case .jpegImage:
+				return metadata is JPEGMetadata
+			case .json:
+				return metadata is JSONMetadata
+			case .unknown, .pngImage:
+				return false
+			}
+		})
+	}
+	
+	public func deleteItems(_ type : StormcloudDocumentType, overLimit limit : Int, completion : @escaping ( _ error : StormcloudError? ) -> () ) {
+		
+		// Knock one off as we're about to back up
+		var itemsToDelete : [StormcloudMetadata] = []
+		let validItems = metadataList.filter { (metadata) -> Bool in
+			switch type {
+			case .jpegImage:
+				return metadata is JPEGMetadata
+			case .json:
+				return metadata is JSONMetadata
+			default:
+				return false
+			}
+		}
+		
+		if limit > 0 && validItems.count > limit {
+			for i in limit..<validItems.count {
+				let metadata = validItems[i]
+				itemsToDelete.append(metadata)
+			}
 		}
 		
 		for item in itemsToDelete {
@@ -545,16 +560,12 @@ extension Stormcloud {
 				if self.moveDocsToiCloud {
 					if let iCloudDir = self.iCloudDocumentsDirectory() {
 						for fileURL in self.listLocalDocuments() {
-							if fileURL.pathExtension == self.fileExtension {
-								
-								let finaliCloudURL = iCloudDir.appendingPathComponent(fileURL.lastPathComponent)
-								print( finaliCloudURL)
-								do {
-									try FileManager.default.setUbiquitous(true, itemAt: fileURL, destinationURL: finaliCloudURL)
-								} catch {
-									stormcloudError = StormcloudError.couldntMoveDocumentToiCloud
-								}
-								
+							let finaliCloudURL = iCloudDir.appendingPathComponent(fileURL.lastPathComponent)
+							print( finaliCloudURL)
+							do {
+								try FileManager.default.setUbiquitous(true, itemAt: fileURL, destinationURL: finaliCloudURL)
+							} catch {
+								stormcloudError = StormcloudError.couldntMoveDocumentToiCloud
 							}
 						}
 					}
@@ -581,9 +592,7 @@ extension Stormcloud {
 	}
 	
 	func sortDocuments() {
-		
-		
-		//        dispatch_async(dispatch_get_main_queue(), { () -> Void in
+
 		self.internalMetadataList.sort { (element1, element2) -> Bool in
 			if (element2.date as NSDate).earlierDate(element1.date as Date) == element2.date as Date {
 				return true
@@ -607,14 +616,12 @@ extension Stormcloud {
 			}
 		}
 		
-		
 		let sortedIndexes = indexesToDelete.sorted { (index1, index2) -> Bool in
 			return index1 > index2
 		}
 		for idx in sortedIndexes {
 			self.backingMetadataList.remove(at: idx)
 		}
-		
 		
 		// Has anything been added?
 		let indexesToAdd = NSMutableIndexSet()
@@ -624,6 +631,7 @@ extension Stormcloud {
 			}
 			return true
 		}
+		
 		for item in addedItems {
 			if let idx = self.internalMetadataList.index(of: item) {
 				indexesToAdd.add(idx)
@@ -631,12 +639,9 @@ extension Stormcloud {
 				self.backingMetadataList.insert(item, at: idx)
 			}
 		}
-		self.delegate?.metadataListDidAddItemsAtIndexes((indexesToAdd.count > 0 ) ? indexesToAdd as IndexSet : nil, andDeletedItemsAtIndexes: (indexesToDelete.count > 0) ? indexesToDelete as IndexSet : nil)
 		
-		//        })
+		self.delegate?.metadataListDidAddItemsAtIndexes((indexesToAdd.count > 0 ) ? indexesToAdd as IndexSet : nil, andDeletedItemsAtIndexes: (indexesToDelete.count > 0) ? indexesToDelete as IndexSet : nil)
 	}
-	
-	
 }
 
 // MARK: - Local Document Handling
@@ -661,32 +666,23 @@ extension Stormcloud {
 	}
 	
 	func loadLocalDocuments() {
-		for fileURL in self.listLocalDocuments() {
-			
-			
-			if fileURL.pathExtension == self.fileExtension {
-				let backup : StormcloudMetadata
-
-				if let type = StormcloudDocumentType(rawValue: self.fileExtension) {
-					
-					switch type {
-					case .jpegImage:
-						backup = ImageMetadata(fileURL: fileURL)
-					case .json:
-						backup = JSONMetadata(fileURL: fileURL)
-					default:
-						backup = StormcloudMetadata(fileURL: fileURL)
-					}
-				} else {
-					backup = StormcloudMetadata(fileURL: fileURL)
+		
+		let availableTypes = Dictionary(grouping: self.listLocalDocuments()) {
+			return $0.pathExtension
+		}
+		
+		var metadataArray : [StormcloudMetadata] = []
+		for type in StormcloudDocumentType.allTypes() {
+			if let hasItems = availableTypes[type.rawValue] {
+				if type == .json {
+					metadataArray.append(contentsOf: hasItems.map() { JSONMetadata(fileURL: $0) })
+				} else if type == .jpegImage {
+					metadataArray.append(contentsOf:  hasItems.map() { JPEGMetadata(fileURL: $0) } )
 				}
-				
-
-				
-				self.internalMetadataList.append(backup)
-				self.sortDocuments()
 			}
 		}
+		self.internalMetadataList.append(contentsOf: metadataArray)
+		self.sortDocuments()
 	}
 	
 	
@@ -715,10 +711,12 @@ extension Stormcloud {
 			return
 		}
 		
-		stormcloudLog("Beginning metadata query with file extension \(self.fileExtension)")
-		
 		self.metadataQuery.searchScopes = [NSMetadataQueryUbiquitousDocumentsScope]
-		self.metadataQuery.predicate = NSPredicate(format: "%K CONTAINS '\(self.fileExtension)'", NSMetadataItemPathKey)
+//		let types = StormcloudDocumentType.allTypes().map() { return $0.rawValue }
+		self.metadataQuery.predicate = NSPredicate.init(block: { (obj, _) -> Bool in
+			print(obj ?? "No Object")
+			return true
+		})
 		
 		NotificationCenter.default.addObserver(self, selector: #selector(Stormcloud.metadataFinishedGathering), name:NSNotification.Name.NSMetadataQueryDidFinishGathering , object: nil)
 		NotificationCenter.default.addObserver(self, selector: #selector(Stormcloud.metadataUpdated), name:NSNotification.Name.NSMetadataQueryDidUpdate, object: nil)
@@ -735,11 +733,8 @@ extension Stormcloud {
 		return nil
 	}
 	
-	@objc func metadataFinishedGathering() {
-		
+	@objc func metadataFinishedGathering() {		
 		stormcloudLog("Metadata finished gathering")
-		
-		//        self.metadataQuery.stopQuery()
 		self.metadataUpdated()
 	}
 	

@@ -11,7 +11,8 @@ import Stormcloud
 
 
 class DetailViewController: UIViewController {
-    
+	
+	var metadataItem : StormcloudMetadata?
     var itemURL : URL?
     var document : JSONDocument?
     var backupManager : Stormcloud?
@@ -19,42 +20,71 @@ class DetailViewController: UIViewController {
     
     @IBOutlet var detailLabel : UILabel!
     @IBOutlet var activityIndicator : UIActivityIndicatorView!
-    
+	@IBOutlet var imageView: UIImageView!
+	
     override func viewDidLoad() {
         super.viewDidLoad()
         
         // Do any additional setup after loading the view.
-        
-        if let url = self.itemURL {
-            self.document = JSONDocument(fileURL: url as URL)
-            if let doc = self.document {
-                doc.open(completionHandler: { (success) -> Void in
-					
-					DispatchQueue.main.async {
-                        self.activityIndicator.stopAnimating()
-                        if let dict = doc.objectsToBackup as? [String : AnyObject] {
-                            self.detailLabel.text = "Objects backed up: \(dict.count)"
-                        }
-                        
-                    }
-                })
-            }
-        }
+		guard let hasMetadata = metadataItem else {
+			return
+		}
+		self.imageView.isHidden = true
+		self.detailLabel.isHidden = true
+		
+		switch hasMetadata {
+		case is JSONMetadata:
+			getObjectCount()
+		case is JPEGMetadata:
+			showImage()
+		default:
+			break
+		}
     }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-    }
+	
+	func showImage() {
+		guard let manager = backupManager, let jpegMetadata = metadataItem as? JPEGMetadata else {
+			return
+		}
+		self.activityIndicator.startAnimating()
+		
+		manager.restoreBackup(withMetadata: jpegMetadata) { (error, image) in
+			if let image = image as? UIImage {
+				self.imageView.image = image
+				self.imageView.isHidden = false
+				self.activityIndicator.stopAnimating()
+				self.activityIndicator.isHidden = true
+			}
+		}
+	}
+	
+	func getObjectCount() {
+		
+		guard let manager = backupManager, let jsonMetadata = metadataItem as? JSONMetadata else {
+			return
+		}
+		
+		self.detailLabel.isHidden = false
+		self.detailLabel.text = "Fetching object count..."
+		self.activityIndicator.startAnimating()
+		
+		self.document = JSONDocument(fileURL: manager.urlForItem(jsonMetadata)! )
+		if let doc = self.document {
+			doc.open(completionHandler: { (success) -> Void in
+				DispatchQueue.main.async {
+					self.activityIndicator.stopAnimating()
+					if let dict = doc.objectsToBackup as? [String : AnyObject] {
+						self.detailLabel.text = "Objects backed up: \(dict.count)"
+					}
+				}
+			})
+		}
+	
+	}
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         self.document?.close(completionHandler: nil)
-    }
-    
-    
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
     
     

@@ -155,7 +155,7 @@ class StormcloudTests: StormcloudTestsBaseClass {
     func testThatMaximumBackupLimitsAreRespected() {
         self.copyItems()
         let stormcloud = Stormcloud()
-        stormcloud.fileLimit = 2
+
         let newDocs = self.listItemsAtURL()
         XCTAssertEqual(stormcloud.metadataList.count, 2)
         XCTAssertEqual(stormcloud.metadataList.count, newDocs.count)
@@ -172,11 +172,9 @@ class StormcloudTests: StormcloudTestsBaseClass {
         waitForExpectations(timeout: 3.0, handler: nil)
 		
         let deleteExpectation = self.expectation(description: "Deleting new item")
-		stormcloud.deleteItemsOverLimit { (error) in
+		stormcloud.deleteItems(.json, overLimit: 2) { (error) in
 			XCTAssertNil(error)
-			
 			XCTAssertEqual(stormcloud.metadataList.count, 2)
-			
 			deleteExpectation.fulfill()
 		}
 		waitForExpectations(timeout: 3.0, handler: nil)

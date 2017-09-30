@@ -28,19 +28,8 @@ class ImageCollectionViewController: UICollectionViewController  {
         // Register cell classes
 
         // Do any additional setup after loading the view.
-		stormcloud.fileExtension = "jpg"
 		stormcloud.delegate = self
 		stormcloud.reloadData()
-		
-    }
-
-	func deleteItem(_ sender : Any? ) {
-		
-	}
-	
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
 
     // MARK: UICollectionViewDataSource
@@ -51,12 +40,12 @@ class ImageCollectionViewController: UICollectionViewController  {
 
 
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return stormcloud.metadataList.count
+		return stormcloud.list(for: .jpegImage).count
     }
 
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath)
-		let item = stormcloud.metadataList[indexPath.row]
+		let item = stormcloud.list(for: .jpegImage)[indexPath.row]
 		if let hasCell = cell as? ImageCollectionViewCell {
 			hasCell.photoView.image = #imageLiteral(resourceName: "cloud")
 			
@@ -67,6 +56,8 @@ class ImageCollectionViewController: UICollectionViewController  {
 					if let hasImage = restoredObject as? UIImage {
 						hasCell.photoView.image = hasImage
 						self.imageCache[item.filename] = hasImage
+					} else if let hasError = error  {
+						print(hasError)
 					}
 				})
 			}
@@ -80,8 +71,6 @@ class ImageCollectionViewController: UICollectionViewController  {
     }
 
     // MARK: UICollectionViewDelegate
-	
-	
 
     /*
     // Uncomment this method to specify if the specified item should be highlighted during tracking
@@ -97,29 +86,20 @@ class ImageCollectionViewController: UICollectionViewController  {
     }
     */
 
-	
+    /*
     // Uncomment these methods to specify if an action menu should be displayed for the specified item, and react to actions performed on the item
     override func collectionView(_ collectionView: UICollectionView, shouldShowMenuForItemAt indexPath: IndexPath) -> Bool {
-        return true
+        return false
     }
 
     override func collectionView(_ collectionView: UICollectionView, canPerformAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) -> Bool {
-        return true
+        return false
     }
 
     override func collectionView(_ collectionView: UICollectionView, performAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) {
-		if action == #selector(cut(_:)) {
-			let item = stormcloud.metadataList[indexPath.row]
-			stormcloud.deleteItem(item, completion: { (val, error) in
-				if let hasError = error {
-					print(hasError.localizedDescription)
-				} else {
-					self.collectionView?.reloadData()
-				}
-			})
-		}
+    
     }
-
+    */
 
 }
 

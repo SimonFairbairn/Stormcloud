@@ -38,17 +38,30 @@ public class StormcloudFetchedResultsController: UITableViewController {
     
     public override func viewDidLoad() {
         super.viewDidLoad()
-
-        do {
-            try frc?.performFetch()
-        } catch {
-            fatalError("Error performing fetch")
-        }
-
 		if enableDelete {
             self.navigationItem.rightBarButtonItem = self.editButtonItem
         }
     }
+	
+	public override func viewDidAppear(_ animated: Bool) {
+		super.viewDidAppear(animated)
+
+		guard let hasController = frc else {
+			fatalError("Missing fetched results controller")
+		}
+		
+		do {
+			try hasController.performFetch()
+		} catch {
+			fatalError("Error performing fetch")
+		}
+		tableView.reloadData()
+	}
+	
+	override public func viewDidDisappear(_ animated: Bool) {
+		super.viewDidDisappear(animated)
+		frc = nil
+	}
 }
 
 // MARK: - UITableViewDelegate
@@ -79,8 +92,6 @@ extension StormcloudFetchedResultsController  {
         return frc?.sections?.count ?? 1
     }
 	
-	
-    
     public override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if let sectionInfo = frc?.sections?[section] {
             return sectionInfo.numberOfObjects

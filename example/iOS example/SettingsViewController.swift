@@ -63,7 +63,7 @@ class SettingsViewController: UIViewController, StormcloudViewController {
 }
 
 extension SettingsViewController {
-    func updateDefaults(note : NSNotification ) {
+	@objc func updateDefaults(note : NSNotification ) {
         self.prepareSettings()
     }
     
