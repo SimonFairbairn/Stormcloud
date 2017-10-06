@@ -9,11 +9,16 @@
 import XCTest
 
 class StormcloudImageTests: StormcloudTestsBaseClass {
-    
+	
+	let stormcloud = Stormcloud()
+	
     override func setUp() {
         super.setUp()
 		self.fileExtension = "jpg"
         // Put setup code here. This method is called before the invocation of each test method in the class.
+		XCTAssertEqual(stormcloud.metadataList.count, 0)
+		XCTAssertFalse(stormcloud.isUsingiCloud)
+
     }
     
     override func tearDown() {
@@ -22,20 +27,14 @@ class StormcloudImageTests: StormcloudTestsBaseClass {
     }
     
 	func testThatBackupManagerAddsDocuments() {
-		let stormcloud = Stormcloud()
-		
-		XCTAssertEqual(stormcloud.metadataList.count, 0)
-		
-		XCTAssertFalse(stormcloud.isUsingiCloud)
-		
+
 		let docs = self.listItemsAtURL()
 		XCTAssertEqual(stormcloud.metadataList.count, docs.count)
 		let expectation = self.expectation(description: "Restoring item")
 		
 		let bundle = Bundle(for: StormcloudImageTests.self)
-		
-		
-		guard  let imageURL = bundle.url(forResource: "TestItem1", withExtension: "jpg"), let image = UIImage(contentsOfFile: imageURL.path) else {
+		guard let imageURL = bundle.url(forResource: "TestItem1", withExtension: "jpg"),
+			let image = UIImage(contentsOfFile: imageURL.path) else {
 			XCTFail("Couldn't load image")
 			return
 		}
@@ -48,7 +47,6 @@ class StormcloudImageTests: StormcloudTestsBaseClass {
 			}
 		}
 		
-		
 		waitForExpectations(timeout: 3.0, handler: nil)
 		
 		let newDocs = self.listItemsAtURL()
@@ -57,5 +55,39 @@ class StormcloudImageTests: StormcloudTestsBaseClass {
 		XCTAssertEqual(stormcloud.metadataList.count, newDocs.count)
 		
 	}
-    
+	
+	func testThatManuallyCreatedDocumentsGetDeleted() {
+		let bundle = Bundle(for: StormcloudImageTests.self)
+		guard let imageURL = bundle.url(forResource: "TestItem1", withExtension: "jpg"), let docsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+				XCTFail("Couldn't load image")
+				return
+		}
+		let imageDestination = docsURL.appendingPathComponent("TestItem1.jpg")
+		do {
+			try FileManager.default.copyItem(at: imageURL, to: imageDestination)
+		} catch {
+			XCTFail("Failed to copy image to documents directory")
+		}
+		stormcloud.reloadData()
+		XCTAssertEqual(stormcloud.metadataList.filter() { $0 is JPEGMetadata }.count, 1)
+
+		let item = JPEGMetadata(path: "TestItem1.jpg")
+		
+		let exp = expectation(description: "Deletion")
+		stormcloud.deleteItem(item) { (index, error) in
+			if let hasError = error {
+				XCTFail("Failed to delete: \(hasError.localizedDescription)")
+			}
+		}
+		
+		// Give the coordinator time to delete the file
+		DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+			XCTAssertFalse(FileManager.default.fileExists(atPath: imageDestination.path))
+			exp.fulfill()
+		}
+		waitForExpectations(timeout: 4, handler: nil)
+		
+		XCTAssertEqual(stormcloud.metadataList.filter() { $0 is JPEGMetadata }.count, 0)
+	}
+	
 }

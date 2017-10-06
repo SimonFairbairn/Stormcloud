@@ -520,12 +520,9 @@ extension Stormcloud {
 			}
 			DispatchQueue.main.async(execute: { () -> Void in
 				completion(nil, hasError)
-				
 			})
 		}
 	}
-	
-	
 	
 	/**
 	Deletes the document represented by the metadataItem object
@@ -772,7 +769,6 @@ extension Stormcloud {
 			print(string)
 		}
 	}
-	
 }
 
 

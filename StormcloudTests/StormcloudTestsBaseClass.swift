@@ -72,16 +72,13 @@ class StormcloudTestsBaseClass: XCTestCase {
 	
 	
 	
-	func copyItems(extra : Bool = false) {
-		
+	func copyItems(extra : Bool = false) {		
 		self.copyItemWith(filename: self.pastFilename, fileExtension: self.fileExtension)
 		self.copyItemWith(filename: self.futureFilename, fileExtension: self.fileExtension)
 		if extra {
 			self.copyItemWith(filename: "fragment", fileExtension: self.fileExtension)
 			
 		}
-
-        
     }
     
     
