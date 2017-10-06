@@ -18,7 +18,7 @@ open class StormcloudDefaultsManager: NSObject {
         NotificationCenter.default.addObserver(self, selector: #selector(StormcloudDefaultsManager.ubiquitousContentDidChange(_:)), name: NSUbiquitousKeyValueStore.didChangeExternallyNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(StormcloudDefaultsManager.enablediCloud(_:)), name: NSNotification.Name.NSUbiquityIdentityDidChange, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(StormcloudDefaultsManager.userDefaultsDidChange(_:)), name: UserDefaults.didChangeNotification, object: nil)
-        NSUbiquitousKeyValueStore.default.synchronize()
+		NSUbiquitousKeyValueStore.default.synchronize()
     }
     
     @objc func ubiquitousContentDidChange( _ note : Notification ) {

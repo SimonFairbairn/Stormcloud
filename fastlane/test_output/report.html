@@ -30,7 +30,8 @@
       .test.passing { background-color: #CAF59F;}
       .test.failing.odd { background-color: #EEC7CC;}
       .test.passing.odd { background-color: #E5FBCF;}
-      .details { background-color: #F4DDE0; border: 1px solid #C84F5E;}
+      .details.failing { background-color: #F4DDE0; border: 1px solid #C84F5E;}
+      .details.passing { background-color: #E5F4DC; border: 1px solid #A1D761;}
       .test .test-detail:last-child { padding-bottom: 8px;}
       .test .title { float: left; font-size: 0.9em; margin-top: 8px; font-family: Menlo, Monaco, monospace;}
       .test .time { float: left;margin: 4px 10px 0 20px;}
@@ -109,7 +110,7 @@
       </section>
       <section class="right">
         <section id="counters">
-          <h2 id="test-count"><span class="number">10</span> tests</h2>
+          <h2 id="test-count"><span class="number">13</span> tests</h2>
           
         </section>
         <section id="segment-bar">
@@ -125,14 +126,13 @@
             <h3 class="title">StormcloudTests.StormcloudCoreDataTests</h3>
           </section>
           <section class="tests">
-            
             <table>
             
               
               <tr class="test passing "  onclick="toggleDetails('testThatBackingUpCoreDataCreatesCorrectFormat');">
                 <td>
                   
-                    <h3 class="time">0.154s</h3>
+                    <h3 class="time">3.711s</h3>
                   
                 </td>
                 <td><h3 class="title">testThatBackingUpCoreDataCreatesCorrectFormat</h3></td>
@@ -143,7 +143,7 @@
               <tr class="test passing odd"  onclick="toggleDetails('testThatBackingUpCoreDataCreatesFile');">
                 <td>
                   
-                    <h3 class="time">0.547s</h3>
+                    <h3 class="time">0.564s</h3>
                   
                 </td>
                 <td><h3 class="title">testThatBackingUpCoreDataCreatesFile</h3></td>
@@ -151,10 +151,32 @@
               
             
               
+              <tr class="test passing "  onclick="toggleDetails('testThatBackingUpIndividualObjectsWorks');">
+                <td>
+                  
+                    <h3 class="time">0.581s</h3>
+                  
+                </td>
+                <td><h3 class="title">testThatBackingUpIndividualObjectsWorks</h3></td>
+              </tr>
+              
+            
+              
+              <tr class="test passing odd"  onclick="toggleDetails('testThatRestoringIndividualItemsWorks');">
+                <td>
+                  
+                    <h3 class="time">0.015s</h3>
+                  
+                </td>
+                <td><h3 class="title">testThatRestoringIndividualItemsWorks</h3></td>
+              </tr>
+              
+            
+              
               <tr class="test passing "  onclick="toggleDetails('testThatRestoringRestoresThingsCorrectly');">
                 <td>
                   
-                    <h3 class="time">0.578s</h3>
+                    <h3 class="time">0.615s</h3>
                   
                 </td>
                 <td><h3 class="title">testThatRestoringRestoresThingsCorrectly</h3></td>
@@ -165,10 +187,33 @@
               <tr class="test passing odd"  onclick="toggleDetails('testWeirdStrings');">
                 <td>
                   
-                    <h3 class="time">0.563s</h3>
+                    <h3 class="time">1.578s</h3>
                   
                 </td>
                 <td><h3 class="title">testWeirdStrings</h3></td>
+              </tr>
+              
+            
+            </table>
+          </section>
+        </section>
+      
+        
+        <section class="test-suite passing" id="StormcloudTests.StormcloudImageTests">
+          <section class="heading" onclick="toggleTests(this);">
+            <h3 class="title">StormcloudTests.StormcloudImageTests</h3>
+          </section>
+          <section class="tests">
+            <table>
+            
+              
+              <tr class="test passing "  onclick="toggleDetails('testThatBackupManagerAddsDocuments');">
+                <td>
+                  
+                    <h3 class="time">0.603s</h3>
+                  
+                </td>
+                <td><h3 class="title">testThatBackupManagerAddsDocuments</h3></td>
               </tr>
               
             
@@ -182,14 +227,13 @@
             <h3 class="title">StormcloudTests.StormcloudTests</h3>
           </section>
           <section class="tests">
-            
             <table>
             
               
               <tr class="test passing "  onclick="toggleDetails('testThatAddingAnItemPlacesItInRightPosition');">
                 <td>
                   
-                    <h3 class="time">0.009s</h3>
+                    <h3 class="time">0.551s</h3>
                   
                 </td>
                 <td><h3 class="title">testThatAddingAnItemPlacesItInRightPosition</h3></td>
@@ -200,7 +244,7 @@
               <tr class="test passing odd"  onclick="toggleDetails('testThatBackupManagerAddsDocuments');">
                 <td>
                   
-                    <h3 class="time">0.550s</h3>
+                    <h3 class="time">0.548s</h3>
                   
                 </td>
                 <td><h3 class="title">testThatBackupManagerAddsDocuments</h3></td>
@@ -211,7 +255,7 @@
               <tr class="test passing "  onclick="toggleDetails('testThatBackupManagerDeletesDocuments');">
                 <td>
                   
-                    <h3 class="time">1.081s</h3>
+                    <h3 class="time">0.556s</h3>
                   
                 </td>
                 <td><h3 class="title">testThatBackupManagerDeletesDocuments</h3></td>
@@ -222,7 +266,7 @@
               <tr class="test passing odd"  onclick="toggleDetails('testThatFilenameDatesAreConvertedToLocalTime');">
                 <td>
                   
-                    <h3 class="time">0.009s</h3>
+                    <h3 class="time">0.557s</h3>
                   
                 </td>
                 <td><h3 class="title">testThatFilenameDatesAreConvertedToLocalTime</h3></td>
@@ -244,7 +288,7 @@
               <tr class="test passing odd"  onclick="toggleDetails('testThatRestoringAFileWorks');">
                 <td>
                   
-                    <h3 class="time">0.007s</h3>
+                    <h3 class="time">0.012s</h3>
                   
                 </td>
                 <td><h3 class="title">testThatRestoringAFileWorks</h3></td>

@@ -114,6 +114,12 @@ open class StormcloudMetadata : NSObject {
 		self.init(path : fileURL.lastPathComponent)
 	}
 	
+	open override func isEqual(_ object: Any?) -> Bool {
+		guard let isMetadata = object as? StormcloudMetadata else {
+			return false
+		}
+		return isMetadata.filename == self.filename
+	}
 }
 
 

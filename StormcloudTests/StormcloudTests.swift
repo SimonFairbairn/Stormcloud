@@ -85,6 +85,8 @@ class StormcloudTests: StormcloudTestsBaseClass {
         XCTAssertEqual(stormcloud.metadataList.count, 0)
         XCTAssertEqual(stormcloud.metadataList.count, emptyDocs.count)
     }
+	
+
     
     func testThatAddingAnItemPlacesItInRightPosition() {
         
