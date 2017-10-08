@@ -18,9 +18,13 @@ open class StormcloudMetadata : NSObject {
 	open var date : Date
 	open var filename : String
 	open var type : StormcloudDocumentType
+	
+	// If we get set and we're not nil
 	open var iCloudMetadata : NSMetadataItem? {
 		didSet {
-			self.delegate?.iCloudMetadataDidUpdate(self)
+			if iCloudMetadata != nil {
+				self.delegate?.iCloudMetadataDidUpdate(self)
+			}
 		}
 	}
 
@@ -37,7 +41,7 @@ open class StormcloudMetadata : NSObject {
 		}
 	}
 	
-	/// A read only property indicating that returns true when the document is currently downloading
+	/// A read only property that returns true when the document is already downloaded. Only applies to iCloud metadata
 	public var isDownloaded : Bool {
 		get {
 			if let metadata = iCloudMetadata {
@@ -45,7 +49,7 @@ open class StormcloudMetadata : NSObject {
 					return downloadingStatus == NSMetadataUbiquitousItemDownloadingStatusCurrent
 				}
 			}
-			return false
+			return true
 		}
 	}
 	
@@ -69,7 +73,7 @@ open class StormcloudMetadata : NSObject {
 					return downloaded
 				}
 			}
-			return 0.0
+			return 100.0
 		}
 	}
 	

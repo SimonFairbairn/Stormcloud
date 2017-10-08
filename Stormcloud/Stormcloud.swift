@@ -370,6 +370,13 @@ extension Stormcloud {
 	*/
 	public func restoreBackup(withMetadata metadata : StormcloudMetadata, completion : @escaping (_ error: StormcloudError?, _ restoredObjects : Any? ) -> () ) {
 		
+		if self.metadataList.contains(metadata) {
+			if let idx = self.metadataList.index(of: metadata) {
+				metadata.iCloudMetadata = self.metadataList[idx].iCloudMetadata
+			}
+			
+		}
+		
 		if self.operationInProgress && !self.shouldDisableInProgressCheck {
 			completion(.backupInProgress, nil)
 			return
