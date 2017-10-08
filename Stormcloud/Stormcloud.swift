@@ -22,7 +22,7 @@ public enum StormcloudDocumentType : String {
 	case pngImage = "png"
 	
 	static func allTypes() -> [StormcloudDocumentType] {
-		 return [.unknown, .json, .jpegImage, .pngImage]
+		return [.unknown, .json, .jpegImage, .pngImage]
 	}
 }
 
@@ -265,7 +265,7 @@ extension Stormcloud {
 
 // MARK: - Adding Documents
 extension Stormcloud {
-
+	
 	public func addDocument( withData objects : Any, for documentType : StormcloudDocumentType,  completion: @escaping StormcloudDocumentClosure ) {
 		self.stormcloudLog("\(#function)")
 		
@@ -369,7 +369,7 @@ extension Stormcloud {
 	- parameter completion:      A completion handler to run when the operation is completed
 	*/
 	public func restoreBackup(withMetadata metadata : StormcloudMetadata, completion : @escaping (_ error: StormcloudError?, _ restoredObjects : Any? ) -> () ) {
-
+		
 		if self.operationInProgress && !self.shouldDisableInProgressCheck {
 			completion(.backupInProgress, nil)
 			return
@@ -539,7 +539,7 @@ extension Stormcloud {
 // MARK: - Prepare Documents
 
 extension Stormcloud {
-
+	
 	func prepareDocumentList() {
 		
 		self.internalQueryList.removeAll()
@@ -589,7 +589,7 @@ extension Stormcloud {
 	}
 	
 	func sortDocuments() {
-
+		
 		self.internalMetadataList.sort { (element1, element2) -> Bool in
 			if (element2.date as NSDate).earlierDate(element1.date as Date) == element2.date as Date {
 				return true
@@ -709,7 +709,7 @@ extension Stormcloud {
 		}
 		
 		self.metadataQuery.searchScopes = [NSMetadataQueryUbiquitousDocumentsScope]
-//		let types = StormcloudDocumentType.allTypes().map() { return $0.rawValue }
+		//		let types = StormcloudDocumentType.allTypes().map() { return $0.rawValue }
 		self.metadataQuery.predicate = NSPredicate.init(block: { (obj, _) -> Bool in
 			print(obj ?? "No Object")
 			return true
@@ -730,7 +730,7 @@ extension Stormcloud {
 		return nil
 	}
 	
-	@objc func metadataFinishedGathering() {		
+	@objc func metadataFinishedGathering() {
 		stormcloudLog("Metadata finished gathering")
 		self.metadataUpdated()
 	}
@@ -750,7 +750,16 @@ extension Stormcloud {
 						hasBackup.iCloudMetadata = item
 					} else {
 						if let url = item.value(forAttribute: NSMetadataItemURLKey) as? URL {
-							let backup = StormcloudMetadata(fileURL: url)
+							let backup : StormcloudMetadata
+							switch url.pathExtension {
+							case "json":
+								backup = JSONMetadata(fileURL: url)
+							case "jpg":
+								backup = JPEGMetadata(fileURL: url)
+							default:
+								backup = StormcloudMetadata(fileURL: url)
+								
+							}
 							backup.iCloudMetadata = item
 							self.internalMetadataList.append(backup)
 							self.internalQueryList[fname] = backup
