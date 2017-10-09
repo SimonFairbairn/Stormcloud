@@ -13,14 +13,11 @@ open class JSONMetadata: StormcloudMetadata {
 	
 	open static let dateFormatter = DateFormatter()
 	
-
-	/// The original Device UUID on which this backup was originally created
-	open var deviceUUID : String
+	/// The name of the device
 	open var device : String
 	
 	public override init() {
 		self.device = UIDevice.current.model
-		self.deviceUUID = JSONMetadata.getDeviceUUID()
 		super.init()
 		let dateComponents = NSCalendar.current.dateComponents([.year, .month, .day, .hour, .minute, .second], from: Date())
 		(dateComponents as NSDateComponents).calendar = NSCalendar.current
@@ -37,7 +34,7 @@ open class JSONMetadata: StormcloudMetadata {
 		
 		
 		let stringDate = JSONMetadata.dateFormatter.string(from: self.date)
-		self.filename = "\(stringDate)--\(self.device)--\(self.deviceUUID).json"
+		self.filename = "\(stringDate)--\(self.device).json"
 		self.type = .json
 	}
 	
@@ -51,46 +48,27 @@ open class JSONMetadata: StormcloudMetadata {
 		
 		var date  = Date()
 		
-		var device = UIDevice.current.model
-		var deviceUUID = JSONMetadata.getDeviceUUID()
+		var device = UIDevice.current.name
 		
 		filename = path
 		let components = path.components(separatedBy: "--")
 		
-		if components.count > 2 {
+		if components.count > 1 {
 			if let newDate = JSONMetadata.dateFormatter.date(from: components[0]) {
 				date = newDate
 			}
 			
-			device = components[1]
-			deviceUUID = components[2].replacingOccurrences(of: ".json", with: "")
+			device = components[1].replacingOccurrences(of: ".json", with: "")
 		}
 		
 		self.device = device
-		self.deviceUUID = deviceUUID
 		
 		super.init()
 		self.filename = filename
 		self.date = date
 		self.type = .json
 	}
-	
-	
-	/**
-	Use this to get a UUID for the current device, which is then cached and attached to the filename of the created document and can be used to find out if the document that this metadata represents was originally created on the same device.
-	
-	- returns: The device UUID as a string
-	*/
-	open class func getDeviceUUID() -> String {
-		let currentDeviceUUIDKey = "VTADocumentsManagerDeviceKey"
-		if let savedDevice = UserDefaults.standard.object(forKey: currentDeviceUUIDKey) as? String {
-			return savedDevice
-		} else {
-			let uuid = UUID().uuidString
-			UserDefaults.standard.set(uuid, forKey: currentDeviceUUIDKey)
-			return uuid
-		}
-	}
+
 }
 
 // MARK: - NSCopying

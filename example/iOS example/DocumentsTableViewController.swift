@@ -80,7 +80,7 @@ class DocumentsTableViewController: UITableViewController, StormcloudViewControl
         dateFormatter.timeZone = TimeZone(abbreviation: "UTC")
         var text = dateFormatter.string(from: data.date)
 		tvc.textLabel?.text = text
-		tvc.detailTextLabel?.text = data.device
+		tvc.detailTextLabel?.text = ( data.device == UIDevice.current.name ) ? "This Device" : data.device
 
 		guard let usingiCloud = stormcloud?.isUsingiCloud else {
 			return
