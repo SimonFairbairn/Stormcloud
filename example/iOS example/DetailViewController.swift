@@ -17,8 +17,10 @@ class DetailViewController: UIViewController {
     var document : JSONDocument?
     var backupManager : Stormcloud?
     var stack  : CoreDataStack?
-    
+	
+	@IBOutlet var iniCloudSwitch : UISwitch!
     @IBOutlet var detailLabel : UILabel!
+	@IBOutlet var iCloudStatus : UILabel!
     @IBOutlet var activityIndicator : UIActivityIndicatorView!
 	@IBOutlet var imageView: UIImageView!
 	
@@ -31,7 +33,11 @@ class DetailViewController: UIViewController {
 		}
 		self.imageView.isHidden = true
 		self.detailLabel.isHidden = true
+		metadataItem?.delegate = self
+		iniCloudSwitch.isOn = hasMetadata.iniCloud
+		iCloudStatus.text = ( hasMetadata.isDownloaded ) ? "Downloaded" : "Downloading: \(hasMetadata.percentDownloaded)%"
 		
+
 		switch hasMetadata {
 		case is JSONMetadata:
 			getObjectCount()
@@ -46,16 +52,42 @@ class DetailViewController: UIViewController {
 		guard let manager = backupManager, let jpegMetadata = metadataItem as? JPEGMetadata else {
 			return
 		}
+
 		self.activityIndicator.startAnimating()
 		
 		manager.restoreBackup(withMetadata: jpegMetadata) { (error, image) in
-			if let image = image as? UIImage {
-				self.imageView.image = image
-				self.imageView.isHidden = false
+			DispatchQueue.main.async {
 				self.activityIndicator.stopAnimating()
 				self.activityIndicator.isHidden = true
+
+				if let hasError = error {
+					switch hasError {
+					case .couldntOpenDocument:
+						self.iCloudStatus.text = "Error with document. Possible internet."
+					default:
+						self.iCloudStatus.text = "\(hasError.localizedDescription)"
+					}
+				} else {
+					self.iCloudStatus.text = "Downloaded"
+					if let image = image as? UIImage {
+						self.imageView.image = image
+						self.imageView.isHidden = false
+					}
+				}
 			}
 		}
+	}
+	@IBAction func shareItem(_ sender: UIBarButtonItem ) {
+		
+		guard let item = metadataItem, let url = backupManager?.urlForItem(item	) else {
+			return
+		}
+		
+		let vc = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+		vc.popoverPresentationController?.permittedArrowDirections = [.up, .down]
+		vc.popoverPresentationController?.barButtonItem = sender
+		
+		present(vc, animated: true, completion: nil)
 	}
 	
 	func getObjectCount() {
@@ -72,6 +104,9 @@ class DetailViewController: UIViewController {
 		if let doc = self.document {
 			doc.open(completionHandler: { (success) -> Void in
 				DispatchQueue.main.async {
+					DispatchQueue.main.async {
+						self.iCloudStatus.text = "Downloaded"
+					}
 					self.activityIndicator.stopAnimating()
 					if let dict = doc.objectsToBackup as? [String : AnyObject] {
 						self.detailLabel.text = "Objects backed up: \(dict.count)"
@@ -121,4 +156,15 @@ class DetailViewController: UIViewController {
     }
     */
     
+}
+
+extension DetailViewController : StormcloudMetadataDelegate {
+	func iCloudMetadataDidUpdate(_ metadata: StormcloudMetadata) {
+		if metadata.percentDownloaded < 100 {
+			self.iCloudStatus.text = "Downloading: \(metadata.percentDownloaded)%"
+		} else {
+			self.iCloudStatus.text = "Downloaded"
+		}
+		
+	}
 }
