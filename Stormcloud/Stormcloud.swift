@@ -20,7 +20,6 @@ public enum StormcloudDocumentType : String {
 	case json = "json"
 	case jpegImage = "jpg"
 	case pngImage = "png"
-	
 	static func allTypes() -> [StormcloudDocumentType] {
 		return [.unknown, .json, .jpegImage, .pngImage]
 	}
