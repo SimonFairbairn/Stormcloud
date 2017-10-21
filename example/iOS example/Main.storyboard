@@ -9,6 +9,7 @@
         <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
+        <capability name="Stack View standard spacing" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -164,7 +165,7 @@
             </objects>
             <point key="canvasLocation" x="-841" y="634"/>
         </scene>
-        <!--Detail View Controller-->
+        <!--Title-->
         <scene sceneID="bsX-QB-x0r">
             <objects>
                 <viewController id="ZGL-Uq-fp6" customClass="DetailViewController" customModule="iOS_example" customModuleProvider="target" sceneMemberID="viewController">
@@ -176,8 +177,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="inc-Ih-t75">
-                                <rect key="frame" x="20" y="72" width="335" height="650.5"/>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="inc-Ih-t75">
+                                <rect key="frame" x="20" y="72" width="335" height="715.5"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HjQ-8c-RB5">
                                         <rect key="frame" x="146.5" y="0.0" width="42" height="20.5"/>
@@ -185,15 +186,35 @@
                                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
+                                    <stackView opaque="NO" contentMode="scaleToFill" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="l9k-Tx-DSF">
+                                        <rect key="frame" x="118" y="28.5" width="99" height="31"/>
+                                        <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Sjg-Ba-G6v">
+                                                <rect key="frame" x="0.0" y="0.0" width="42" height="31"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="8RE-hu-mS5">
+                                                <rect key="frame" x="50" y="0.0" width="51" height="31"/>
+                                            </switch>
+                                        </subviews>
+                                    </stackView>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TOZ-ae-T4s">
-                                        <rect key="frame" x="113.5" y="20.5" width="108" height="30"/>
+                                        <rect key="frame" x="113.5" y="67.5" width="108" height="30"/>
                                         <state key="normal" title="Restore Backup"/>
                                         <connections>
                                             <action selector="restoreObject:" destination="ZGL-Uq-fp6" eventType="touchUpInside" id="Lvc-QC-l9K"/>
                                         </connections>
                                     </button>
+                                    <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" horizontalCompressionResistancePriority="1000" progress="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="Qhl-Oz-8qh">
+                                        <rect key="frame" x="17.5" y="105.5" width="300" height="2"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" relation="lessThanOrEqual" constant="300" id="rMk-yz-5ie"/>
+                                        </constraints>
+                                    </progressView>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" placeholderIntrinsicWidth="240" placeholderIntrinsicHeight="128" translatesAutoresizingMaskIntoConstraints="NO" id="G48-XF-JwM">
-                                        <rect key="frame" x="0.0" y="50.5" width="335" height="600"/>
+                                        <rect key="frame" x="0.0" y="115.5" width="335" height="600"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="600" id="bcw-7o-0QB"/>
                                         </constraints>
@@ -201,6 +222,8 @@
                                 </subviews>
                                 <constraints>
                                     <constraint firstAttribute="trailing" secondItem="G48-XF-JwM" secondAttribute="trailing" id="5u0-d2-yhu"/>
+                                    <constraint firstItem="Qhl-Oz-8qh" firstAttribute="leading" secondItem="inc-Ih-t75" secondAttribute="leading" priority="750" id="87X-B4-UEF"/>
+                                    <constraint firstAttribute="trailing" secondItem="Qhl-Oz-8qh" secondAttribute="trailing" priority="750" id="ccI-ru-HJz"/>
                                     <constraint firstItem="G48-XF-JwM" firstAttribute="leading" secondItem="inc-Ih-t75" secondAttribute="leading" id="ggk-0y-9Lh"/>
                                 </constraints>
                             </stackView>
@@ -218,10 +241,20 @@
                             <constraint firstItem="inc-Ih-t75" firstAttribute="leading" secondItem="nsZ-AC-HhE" secondAttribute="leading" constant="20" symbolic="YES" id="eXd-37-jp8"/>
                         </constraints>
                     </view>
+                    <navigationItem key="navigationItem" title="Title" id="gtD-d8-00c">
+                        <barButtonItem key="rightBarButtonItem" systemItem="action" id="mBe-VX-BTC">
+                            <connections>
+                                <action selector="shareItem:" destination="ZGL-Uq-fp6" id="ykM-rU-ePF"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="activityIndicator" destination="srU-Gx-nS7" id="oEg-OR-fWp"/>
                         <outlet property="detailLabel" destination="HjQ-8c-RB5" id="Skx-vP-lji"/>
+                        <outlet property="iCloudStatus" destination="Sjg-Ba-G6v" id="r8w-8g-bHH"/>
                         <outlet property="imageView" destination="G48-XF-JwM" id="F7x-6s-IjU"/>
+                        <outlet property="iniCloudSwitch" destination="8RE-hu-mS5" id="Bjl-n4-Bbm"/>
+                        <outlet property="progressView" destination="Qhl-Oz-8qh" id="HLA-68-88X"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="t9R-As-vHG" userLabel="First Responder" sceneMemberID="firstResponder"/>

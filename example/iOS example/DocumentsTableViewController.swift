@@ -35,6 +35,7 @@ class DocumentsTableViewController: UITableViewController, StormcloudViewControl
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+		self.tableView.reloadData()
 		stormcloud?.deleteItems(.json, overLimit: 10, completion: { (error) in
 			if let hasError = error {
 				fatalError("Error deleting items over limit: \(hasError.localizedDescription)")
@@ -62,43 +63,53 @@ class DocumentsTableViewController: UITableViewController, StormcloudViewControl
 		}
         data.delegate = self
         // End
-		if let isJSON = data as? JSONMetadata {
-			self.configureTableViewCell(tvc: cell, withMetadata: isJSON)
-		} else if let isJPEG = data as? JPEGMetadata {
-			cell.textLabel?.text = "Image Backup"
-			cell.detailTextLabel?.text = "Filename: \(isJPEG.filename)"
-		}
+		
+		self.configureTableViewCell(tvc: cell, withMetadata: data)
+
 		
         return cell
     }
     
     
-    func configureTableViewCell( tvc : UITableViewCell, withMetadata data: JSONMetadata ) {
+    func configureTableViewCell( tvc : UITableViewCell, withMetadata data: StormcloudMetadata ) {
 
 		dateFormatter.dateStyle = .short
         dateFormatter.timeStyle = .short
         dateFormatter.timeZone = TimeZone(abbreviation: "UTC")
         var text = dateFormatter.string(from: data.date)
-		tvc.textLabel?.text = text
-		tvc.detailTextLabel?.text = ( data.device == UIDevice.current.name ) ? "This Device" : data.device
-
+		if let _ = data as? JPEGMetadata {
+			text = "Image Backup"
+		}
+		
 		guard let usingiCloud = stormcloud?.isUsingiCloud else {
 			return
 		}
 		
+		data.delegate = self
+		
         if usingiCloud {
-            
+			if data.iniCloud {
+				text.append(" ☁️")
+			}
+			if data.isDownloaded {
+				text.append(" 💾")
+			}
             if data.isDownloading {
-				text.append(" ⏬ \(self.numberFormatter.string(from: NSNumber(value: data.percentDownloaded / 100)) ?? "0")%")
-            } else if data.iniCloud {
-                text.append(" ☁️")
+				text.append(" ⏬ \(self.numberFormatter.string(from: NSNumber(value: data.percentDownloaded / 100)) ?? "0")")
             } else if data.isUploading {
                 
                 self.numberFormatter.numberStyle = NumberFormatter.Style.percent
 				text.append(" ⏫ \(self.numberFormatter.string(from: NSNumber(value: data.percentUploaded / 100 ))!)")
             }
-            
         }
+		
+		tvc.textLabel?.text = text
+		if let isJPEG = data as? JPEGMetadata {
+			tvc.detailTextLabel?.text = "Filename: \(isJPEG.filename)"
+		} else if let isJson = data as? JSONMetadata {
+			tvc.detailTextLabel?.text = ( isJson.device == UIDevice.current.name ) ? "This Device" : isJson.device
+		}
+
     }
 
 
@@ -182,8 +193,8 @@ extension DocumentsTableViewController : StormcloudMetadataDelegate {
     func iCloudMetadataDidUpdate(_ metadata: StormcloudMetadata) {
         if let index = stormcloud?.metadataList.index(of: metadata) {
 			let ip = IndexPath(row: index, section: 0)
-			if let tvc = self.tableView.cellForRow(at: ip), let isJson = metadata as? JSONMetadata {
-				self.configureTableViewCell(tvc: tvc, withMetadata: isJson)
+			if let tvc = self.tableView.cellForRow(at: ip) {
+				self.configureTableViewCell(tvc: tvc, withMetadata: metadata)
             }
         }
     }
@@ -315,4 +326,5 @@ extension DocumentsTableViewController {
 //        }
     }
 }
+
 

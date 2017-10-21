@@ -9,6 +9,15 @@
 import UIKit
 import CoreData
 
+public enum StormcloudCoreDataStatus {
+	case deletingOldObjects, insertingNewObjects, establishingRelationships
+}
+
+public protocol StormcloudCoreDataDelegate : StormcloudDelegate {
+	func stormcloud( _ stormcloud : Stormcloud, coreDataHit error : StormcloudError, for status : StormcloudCoreDataStatus)
+	func stormcloud( _ stormcloud : Stormcloud, didUpdate objectsUpdated : Int, of total : Int, for status : StormcloudCoreDataStatus )
+}
+
 
 // MARK: - Restore Core Data
 
@@ -173,24 +182,44 @@ extension Stormcloud {
 				
 				self.stormcloudLog("Found \(entities.count) entities:")
 				
+				var objectsToDelete = [NSManagedObject]()
 				for entity in entities {
 					if let entityName = entity.name {
 						
 						self.stormcloudLog("\t\(entityName)")
-						
+						let currentEntities : [NSManagedObject]
 						let request = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
 						
-						let allObjects : [NSManagedObject]
 						do {
-							allObjects = try privateContext.fetch(request) as! [NSManagedObject]
+							currentEntities = try privateContext.fetch(request) as! [NSManagedObject]
 						} catch {
-							allObjects = []
+							DispatchQueue.main.async {
+								self.coreDataDelegate?.stormcloud( self, coreDataHit : .entityDeleteFailed, for: .deletingOldObjects)
+								sleep(1)
+							}
+							
+							currentEntities = []
 						}
-						
-						for object in allObjects {
-							privateContext.delete(object)
+						objectsToDelete.append(contentsOf: currentEntities)
+					}
+				}
+				
+				DispatchQueue.main.async {
+					self.coreDataDelegate?.stormcloud( self, didUpdate: 0, of: objectsToDelete.count, for: .deletingOldObjects )
+				}
+
+				var count = 0
+				for object in objectsToDelete {
+					privateContext.delete(object)
+					count += 1
+					if count % 40 == 0 {
+						DispatchQueue.main.async {
+							self.coreDataDelegate?.stormcloud( self, didUpdate: count, of: objectsToDelete.count, for: .deletingOldObjects )
 						}
 					}
+				}
+				DispatchQueue.main.async {
+					self.coreDataDelegate?.stormcloud( self, didUpdate: objectsToDelete.count, of: objectsToDelete.count, for: .deletingOldObjects )
 				}
 				
 				// Push the changes to the store
@@ -223,8 +252,12 @@ extension Stormcloud {
 				
 				var allObjects : [NSManagedObject] = []
 				
+				var insertCount = 0
+				DispatchQueue.main.async {
+					self.coreDataDelegate?.stormcloud( self, didUpdate: insertCount, of: data.count, for: .insertingNewObjects )
+				}
 				for (key, value) in data {
-					
+					insertCount += 1
 					if var dict = value as? [ String : AnyObject], let entityName = dict[StormcloudEntityKeys.EntityType.rawValue] as? String {
 						self.stormcloudLog("\tCreating entity \(entityName)")
 						
@@ -240,14 +273,18 @@ extension Stormcloud {
 						for (propertyName, propertyValue ) in dict {
 							for propertyDescription in object.entity.properties {
 								if let attribute = propertyDescription as? NSAttributeDescription , propertyName == propertyDescription.name {
-									
 									self.stormcloudLog("\t\tFound attribute: \(propertyName)")
-									
 									self.setAttribute(attribute, onObject: object, withData: propertyValue)
 								}
 							}
 						}
+						DispatchQueue.main.async {
+							self.coreDataDelegate?.stormcloud( self, didUpdate: insertCount, of: data.count, for: .insertingNewObjects )
+						}
 					}
+				}
+				DispatchQueue.main.async {
+					self.coreDataDelegate?.stormcloud( self, didUpdate: data.count, of: data.count, for: .insertingNewObjects )
 				}
 				
 				self.stormcloudLog("\tAttempting to obtain permanent IDs...")
@@ -296,15 +333,25 @@ extension Stormcloud {
 				// An array of managed objects, whose object IDs are now no good.
 				// A dictionary of the data, with one of the keys pointing to a managed object
 				
+				DispatchQueue.main.async {
+					self.coreDataDelegate?.stormcloud( self, didUpdate: 0, of: self.workingCache.count, for: .establishingRelationships )
+				}
+				count = 0
 				for (_, value) in self.workingCache {
+					count += 1
 					if let dict = value as? [String : AnyObject], let object = dict[StormcloudEntityKeys.ManagedObject.rawValue] as? NSManagedObject {
 						for propertyDescription in object.entity.properties {
 							if let relationship = propertyDescription as? NSRelationshipDescription {
 								self.setRelationship(relationship, onObject: object, withData : dict, inContext: privateContext)
+								DispatchQueue.main.async {
+									self.coreDataDelegate?.stormcloud( self, didUpdate: count, of: self.workingCache.count, for: .establishingRelationships )
+								}
 							}
 						}
-						
 					}
+				}
+				DispatchQueue.main.async {
+					self.coreDataDelegate?.stormcloud( self, didUpdate: self.workingCache.count, of: self.workingCache.count, for: .establishingRelationships )
 				}
 				
 				do {
@@ -459,15 +506,15 @@ extension Stormcloud {
 	- parameter completion: A completion handler
 	*/
 	public func restoreCoreDataBackup(withDocument document : JSONDocument, toContext context : NSManagedObjectContext,  completion : @escaping (_ error : StormcloudError?) -> () ) {
-		if let data = document.objectsToBackup as? [String : AnyObject] {
-			self.insertObjectsWithContext(context, data: data) { (success)  -> Void in
-				self.operationInProgress = false
-				let error : StormcloudError?  = (success) ? nil : StormcloudError.couldntRestoreJSON
-				completion(error)
-			}
-		} else {
+		guard let data = document.objectsToBackup as? [String : AnyObject] else {
 			self.operationInProgress = false
 			completion(.couldntRestoreJSON)
+			return
+		}
+		self.insertObjectsWithContext(context, data: data) { (success)  -> Void in
+			self.operationInProgress = false
+			let error : StormcloudError?  = (success) ? nil : StormcloudError.couldntRestoreJSON
+			completion(error)
 		}
 	}
 	
@@ -481,38 +528,37 @@ extension Stormcloud {
 	
 	public func restoreCoreDataBackup(withMetadata metadata : StormcloudMetadata, toContext context : NSManagedObjectContext,  completion : @escaping (_ error : StormcloudError?) -> () ) {
 		
-		do {
-			try context.save()
-		} catch {
-			// TODO : Handle errors better
-			stormcloudLog("Error saving context")
-		}
-		
-		if self.operationInProgress {
+		guard self.operationInProgress == false else {
 			completion(.backupInProgress)
 			return
 		}
+		guard let url = self.urlForItem(metadata) else {
+			completion(.invalidURL)
+			return
+		}
+		do {
+			try context.save()
+		} catch {
+			stormcloudLog("Error saving context")
+			completion(.couldntSaveManagedObjectContext)
+			return
+		}
+
 		self.operationInProgress = true
 		
-		if let url = self.urlForItem(metadata) {
-			let document = JSONDocument(fileURL : url)
-			document.open(completionHandler: { (success) -> Void in
-				
-				if !success {
-					self.operationInProgress = true
-					completion(.couldntOpenDocument)
-					return
-				}
-				
-				DispatchQueue.main.async(execute: { () -> Void in
-					
-					self.restoreCoreDataBackup(withDocument: document, toContext: context, completion: completion)
-				})
+		let document = JSONDocument(fileURL : url)
+		document.open(completionHandler: { (success) -> Void in
+			
+			if !success {
+				self.operationInProgress = false
+				completion(.couldntOpenDocument)
+				return
+			}
+			
+			DispatchQueue.main.async(execute: { () -> Void in
+				self.restoreCoreDataBackup(withDocument: document, toContext: context, completion: completion)
 			})
-		} else {
-			self.operationInProgress = false
-			completion(.invalidURL)
-		}
+		})
 	}
 }
 

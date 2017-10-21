@@ -427,6 +427,7 @@
 				CODE_SIGN_ENTITLEMENTS = "iOS example/iOS example.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = 52T262DA8V;
 				INFOPLIST_FILE = "iOS example/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.voyagetravelapps.Stormcloud.iOS-example";
@@ -443,6 +444,7 @@
 				CODE_SIGN_ENTITLEMENTS = "iOS example/iOS example.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = 52T262DA8V;
 				INFOPLIST_FILE = "iOS example/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.voyagetravelapps.Stormcloud.iOS-example";

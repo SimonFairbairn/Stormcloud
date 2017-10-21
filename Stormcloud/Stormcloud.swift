@@ -20,7 +20,6 @@ public enum StormcloudDocumentType : String {
 	case json = "json"
 	case jpegImage = "jpg"
 	case pngImage = "png"
-	
 	static func allTypes() -> [StormcloudDocumentType] {
 		return [.unknown, .json, .jpegImage, .pngImage]
 	}
@@ -71,10 +70,13 @@ open class Stormcloud: NSObject {
 	
 	/// The backup manager delegate
 	open var delegate : StormcloudDelegate?
+	open var coreDataDelegate : StormcloudCoreDataDelegate?
 	
 	open var shouldDisableInProgressCheck : Bool = false
 	
 	var formatter = DateFormatter()
+	
+	var workingCache : [String : Any] = [:]
 	
 	var iCloudURL : URL?
 	var metadataQuery : NSMetadataQuery = NSMetadataQuery()
@@ -88,9 +90,6 @@ open class Stormcloud: NSObject {
 	var moveDocsToiCloudCompletion : ((_ error : StormcloudError?) -> Void)?
 	
 	var operationInProgress : Bool = false
-	
-	
-	var workingCache : [String : Any] = [:]
 	
 	var restoreDelegate : StormcloudRestoreDelegate?
 	
@@ -580,14 +579,10 @@ extension Stormcloud {
 					
 					// Start metadata search
 					self.loadiCloudDocuments()
-					// Set URL
 					
-					// If we have a completion handler from earlier
-					if let completion = self.moveDocsToiCloudCompletion {
-						completion(stormcloudError)
-						self.moveDocsToiCloudCompletion = nil;
-					}
-					
+					// If we have a completion handler from earlier, call it then clear it.
+					self.moveDocsToiCloudCompletion?(stormcloudError)
+					self.moveDocsToiCloudCompletion = nil;
 				})
 			}
 		} else {
@@ -655,7 +650,6 @@ extension Stormcloud {
 	func listLocalDocuments() -> [URL] {
 		let docs : [URL]
 		if let url = self.documentsDirectory()  {
-			
 			do {
 				docs = try FileManager.default.contentsOfDirectory(at: url, includingPropertiesForKeys: nil, options: FileManager.DirectoryEnumerationOptions())
 			} catch {
@@ -666,6 +660,22 @@ extension Stormcloud {
 		} else {
 			docs = []
 		}
+		
+		let availableTypes = Dictionary(grouping: docs) {
+			return $0.pathExtension
+		}
+		var allowedDocs = [URL]()
+		for type in StormcloudDocumentType.allTypes() {
+			if let hasItems = availableTypes[type.rawValue] {
+				if type == .json {
+					allowedDocs.append(contentsOf: hasItems)
+				} else if type == .jpegImage {
+					allowedDocs.append(contentsOf: hasItems)
+				}
+			}
+		}
+		
+		
 		return docs
 	}
 	
@@ -725,6 +735,7 @@ extension Stormcloud {
 		NotificationCenter.default.addObserver(self, selector: #selector(Stormcloud.metadataFinishedGathering), name:NSNotification.Name.NSMetadataQueryDidFinishGathering , object: nil)
 		NotificationCenter.default.addObserver(self, selector: #selector(Stormcloud.metadataUpdated), name:NSNotification.Name.NSMetadataQueryDidUpdate, object: nil)
 		
+		self.metadataQuery.notificationBatchingInterval = 0.3
 		self.metadataQuery.start()
 	}
 	
@@ -756,20 +767,23 @@ extension Stormcloud {
 					if let hasBackup = self.internalQueryList[fname] {
 						hasBackup.iCloudMetadata = item
 					} else {
-						if let url = item.value(forAttribute: NSMetadataItemURLKey) as? URL {
-							let backup : StormcloudMetadata
-							switch url.pathExtension {
-							case "json":
+						// We are only interested in items that we explicitly support
+						if let url = item.value(forAttribute: NSMetadataItemURLKey) as? URL,
+							let validMetadata = StormcloudDocumentType.init(rawValue: url.pathExtension) {
+							let backup : StormcloudMetadata?
+							switch validMetadata {
+							case .json:
 								backup = JSONMetadata(fileURL: url)
-							case "jpg":
+							case .jpegImage:
 								backup = JPEGMetadata(fileURL: url)
-							default:
-								backup = StormcloudMetadata(fileURL: url)
-								
+							case .pngImage, .unknown:
+								backup = nil
 							}
-							backup.iCloudMetadata = item
-							self.internalMetadataList.append(backup)
-							self.internalQueryList[fname] = backup
+							if let hasBackup = backup {
+								hasBackup.iCloudMetadata = item
+								self.internalMetadataList.append(hasBackup)
+								self.internalQueryList[fname] = backup
+							}
 						}
 					}
 				}
