@@ -71,6 +71,7 @@ open class Stormcloud: NSObject {
 	
 	/// The backup manager delegate
 	open var delegate : StormcloudDelegate?
+	open var coreDataDelegate : StormcloudCoreDataDelegate?
 	
 	open var shouldDisableInProgressCheck : Bool = false
 	

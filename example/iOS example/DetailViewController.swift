@@ -23,6 +23,7 @@ class DetailViewController: UIViewController {
 	@IBOutlet var iCloudStatus : UILabel!
     @IBOutlet var activityIndicator : UIActivityIndicatorView!
 	@IBOutlet var imageView: UIImageView!
+	@IBOutlet var progressView : UIProgressView!
 	
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -37,7 +38,9 @@ class DetailViewController: UIViewController {
 		iniCloudSwitch.isOn = hasMetadata.iniCloud
 		iCloudStatus.text = ( hasMetadata.isDownloaded ) ? "Downloaded" : "Downloading: \(hasMetadata.percentDownloaded)%"
 		
-
+		backupManager?.delegate = self
+		backupManager?.coreDataDelegate = self
+		
 		switch hasMetadata {
 		case is JSONMetadata:
 			getObjectCount()
@@ -158,10 +161,34 @@ class DetailViewController: UIViewController {
     
 }
 
+extension DetailViewController : StormcloudDelegate, StormcloudCoreDataDelegate {
+	func stormcloud(_ stormcloud: Stormcloud, coreDataHit error: StormcloudError, for status: StormcloudCoreDataStatus) {
+		self.iCloudStatus.text = "ERROR RESTORING"
+	}
+	func stormcloud(_ stormcloud: Stormcloud, didUpdate objectsUpdated: Int, of total: Int, for status: StormcloudCoreDataStatus) {
+		self.progressView.progress =  (Float(objectsUpdated) / Float(total))
+		switch status {
+		case .deletingOldObjects:
+			self.iCloudStatus.text = "Deleting Old Objects"
+		case .insertingNewObjects:
+			self.iCloudStatus.text = "Inserting New Objects"
+		case .establishingRelationships:
+			self.iCloudStatus.text = "Establishing Relationships"
+		}
+	}
+	func metadataListDidChange(_ manager: Stormcloud) {
+		
+	}
+	func metadataListDidAddItemsAtIndexes(_ addedItems: IndexSet?, andDeletedItemsAtIndexes deletedItems: IndexSet?) {
+		
+	}
+}
+
 extension DetailViewController : StormcloudMetadataDelegate {
 	func iCloudMetadataDidUpdate(_ metadata: StormcloudMetadata) {
 		if metadata.percentDownloaded < 100 {
-			self.iCloudStatus.text = "Downloading: \(metadata.percentDownloaded)%"
+			self.progressView.progress =  (Float(metadata.percentDownloaded) / 100.0)
+			self.iCloudStatus.text = "Downloading"
 		} else {
 			self.iCloudStatus.text = "Downloaded"
 		}
