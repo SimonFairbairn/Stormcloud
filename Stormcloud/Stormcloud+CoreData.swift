@@ -595,7 +595,7 @@ extension Stormcloud {
 			document.objectsToBackup = objects
 			
 			// If the filename already exists, can't create a new document. Usually because it's trying to add them too quickly.
-			let exists = self.internalMetadataList.filter({ (element) -> Bool in
+			let exists = self.metadataLists[.json]!.items.filter({ (element) -> Bool in
 				if element.filename == metadata.filename {
 					return true
 				}
@@ -623,7 +623,7 @@ extension Stormcloud {
 				document.close(completionHandler: nil)
 				if !self.isUsingiCloud {
 					DispatchQueue.main.async(execute: { () -> Void in
-						self.internalMetadataList.append(metadata)
+						self.metadataLists[.json]!.items.append(metadata)
 						self.prepareDocumentList()
 						self.operationInProgress = false
 						completion(nil, (totalSuccess) ? metadata : metadata)

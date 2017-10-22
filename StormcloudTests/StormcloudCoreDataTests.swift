@@ -8,6 +8,7 @@
 
 import CoreData
 import XCTest
+@testable import Stormcloud
 
 enum StormcloudTestError : Error {
     case invalidContext
@@ -171,7 +172,7 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
 			let items = self.listItemsAtURL()
 			
 			XCTAssertEqual(items.count, 1)
-			XCTAssertEqual(self.manager.metadataList.count, 1)
+			XCTAssertEqual(self.manager.items(for: .json).count, 1)
 	
 		}
 	}
@@ -186,7 +187,7 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
         let items = self.listItemsAtURL()
         
         XCTAssertEqual(items.count, 1)
-        XCTAssertEqual(self.manager.metadataList.count, 1)
+        XCTAssertEqual(self.manager.items(for: .json).count, 1)
     }
     
     func testThatBackingUpCoreDataCreatesCorrectFormat() {
@@ -202,7 +203,7 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
         
         let items = self.listItemsAtURL()
         XCTAssertEqual(items.count, 1)
-        XCTAssertEqual(self.manager.metadataList.count, 1)
+        XCTAssertEqual(self.manager.items(for: .json).count, 1)
         
         let url = items[0]
         let data = try? Data(contentsOf: url as URL)
@@ -330,10 +331,10 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
         
         let items = self.listItemsAtURL()
         XCTAssertEqual(items.count, 1)
-        XCTAssertEqual(self.manager.metadataList.count, 1)
+        XCTAssertEqual(self.manager.items(for: .json).count, 1)
 
         let expectation = self.expectation(description: "Restore expectation")
-        manager.restoreCoreDataBackup(withMetadata: self.manager.metadataList[0], toContext: stack.managedObjectContext!) { (success) -> () in
+        manager.restoreCoreDataBackup(withMetadata: self.manager.items(for: .json)[0], toContext: stack.managedObjectContext!) { (success) -> () in
             
             XCTAssertNil(success)
             XCTAssertEqual(Thread.current, Thread.main)
@@ -495,12 +496,12 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
 		
         let items = self.listItemsAtURL()
         XCTAssertEqual(items.count, 1)
-        XCTAssertEqual(self.manager.metadataList.count, 1)
+        XCTAssertEqual(self.manager.items(for: .json).count, 1)
 		
-		print(self.manager.urlForItem(self.manager.metadataList[0]) ?? "No metadata item found")
+		print(self.manager.urlForItem(self.manager.items(for: .json)[0]) ?? "No metadata item found")
         
         let expectation = self.expectation(description: "Restore expectation")
-        manager.restoreCoreDataBackup(withMetadata: self.manager.metadataList[0], toContext: stack.managedObjectContext!) { (success) -> () in
+        manager.restoreCoreDataBackup(withMetadata: self.manager.items(for: .json)[0], toContext: stack.managedObjectContext!) { (success) -> () in
             
             XCTAssertNil(success)
             XCTAssertEqual(Thread.current, Thread.main)

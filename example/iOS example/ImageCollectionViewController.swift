@@ -40,12 +40,12 @@ class ImageCollectionViewController: UICollectionViewController  {
 
 
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-		return stormcloud.list(for: .jpegImage).count
+		return stormcloud.items(for: .jpegImage).count
     }
 
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath)
-		let item = stormcloud.list(for: .jpegImage)[indexPath.row]
+		let item = stormcloud.items(for: .jpegImage)[indexPath.row]
 		if let hasCell = cell as? ImageCollectionViewCell {
 			hasCell.photoView.image = #imageLiteral(resourceName: "cloud")
 			
@@ -104,6 +104,10 @@ class ImageCollectionViewController: UICollectionViewController  {
 }
 
 extension ImageCollectionViewController : StormcloudDelegate {
+	func metadataListDidAddItemsAt(_ addedItems: IndexSet?, andDeletedItemsAt deletedItems: IndexSet?, for type: StormcloudDocumentType) {
+		
+	}
+	
 	func metadataListDidChange(_ manager: Stormcloud) {
 		collectionView?.reloadData()
 	}

@@ -14,7 +14,8 @@ class DocumentsTableViewController: UITableViewController, StormcloudViewControl
     let dateFormatter = DateFormatter()
     var stormcloud: Stormcloud?
 	var coreDataStack: CoreDataStack?
-    
+	
+	var stormcloudTableView : StormcloudTableViewDataSource!
     let numberFormatter = NumberFormatter()
     
 	
@@ -23,9 +24,12 @@ class DocumentsTableViewController: UITableViewController, StormcloudViewControl
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // MARK: - To Copy
+		
+		stormcloudTableView = StormcloudTableViewDataSource(tableView: self.tableView, cellIdentifier: "BackupTableViewCell", stormcloud: self.stormcloud!)
 
-        stormcloud?.delegate = self
+		tableView.delegate = stormcloudTableView
+		tableView.dataSource = stormcloudTableView
+		
         stormcloud?.reloadData()
         tableView.reloadData()
         // End
@@ -47,18 +51,54 @@ class DocumentsTableViewController: UITableViewController, StormcloudViewControl
     // MARK: - Table view data source
 
 	override func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
+        return 2
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return stormcloud?.metadataList.count ?? 0
+		switch section {
+		case 0:
+			return stormcloud?.items(for: .json).count ?? 0
+		case 1:
+			return stormcloud?.items(for: .jpegImage).count ?? 0
+		default:
+			return 0
+		}
     }
+	
+	override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+		switch section {
+		case 0:
+			return "JSON Documents"
+		case 1:
+			return "Image Documents"
+		default:
+			return ""
+		}
+	}
 
+	func data(at indexPath : IndexPath ) -> StormcloudMetadata? {
+		let type : StormcloudDocumentType
+		switch indexPath.section {
+		case 0:
+			type = .json
+		case 1:
+			type = .jpegImage
+		default:
+			type = .unknown
+		}
+		
+		if let hasItems = stormcloud?.items(for: type) {
+			return hasItems[indexPath.row]
+		}
+		
+		return nil
+	}
+	
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "BackupTableViewCell", for: indexPath as IndexPath)
-
+		
         // MARK: - To Copy
-		guard let data = stormcloud?.metadataList[indexPath.row] else {
+		guard let data = data(at: indexPath) else {
 			return cell
 		}
         data.delegate = self
@@ -120,7 +160,7 @@ class DocumentsTableViewController: UITableViewController, StormcloudViewControl
             // MARK: - To Copy
 			
 			// If we don't have an item, nothing to delete
-			guard let metadataItem = stormcloud?.metadataList[indexPath.row] else {
+			guard let metadataItem = data(at: indexPath) else {
 				return
 			}
             stormcloud?.deleteItem(metadataItem, completion: { ( index, error) -> () in
@@ -159,6 +199,10 @@ extension DocumentsTableViewController {
 // MARK: - StormcloudDelegate
 
 extension DocumentsTableViewController : StormcloudDelegate {
+	func metadataListDidAddItemsAt(_ addedItems: IndexSet?, andDeletedItemsAt deletedItems: IndexSet?, for type: StormcloudDocumentType) {
+		
+	}
+	
 
 	func metadataListDidAddItemsAtIndexes(_ addedItems: IndexSet?, andDeletedItemsAtIndexes deletedItems: IndexSet?) {
         
@@ -191,7 +235,7 @@ extension DocumentsTableViewController : StormcloudDelegate {
 
 extension DocumentsTableViewController : StormcloudMetadataDelegate {
     func iCloudMetadataDidUpdate(_ metadata: StormcloudMetadata) {
-        if let index = stormcloud?.metadataList.index(of: metadata) {
+        if let index = stormcloud?.items(for: metadata.type).index(of: metadata) {
 			let ip = IndexPath(row: index, section: 0)
 			if let tvc = self.tableView.cellForRow(at: ip) {
 				self.configureTableViewCell(tvc: tvc, withMetadata: metadata)
@@ -207,8 +251,8 @@ extension DocumentsTableViewController : StormcloudMetadataDelegate {
 extension DocumentsTableViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let dvc = segue.destination as? DetailViewController, let tvc = self.tableView.indexPathForSelectedRow {
-            
-			if let metadata = stormcloud?.metadataList[tvc.row] {
+			
+			if let metadata = data(at: tvc) {
 				dvc.itemURL = stormcloud?.urlForItem(metadata)
 				dvc.metadataItem = metadata
 			}

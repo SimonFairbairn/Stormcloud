@@ -162,6 +162,10 @@ class DetailViewController: UIViewController {
 }
 
 extension DetailViewController : StormcloudDelegate, StormcloudCoreDataDelegate {
+	func metadataListDidAddItemsAt(_ addedItems: IndexSet?, andDeletedItemsAt deletedItems: IndexSet?, for type: StormcloudDocumentType) {
+	
+	}
+	
 	func stormcloud(_ stormcloud: Stormcloud, coreDataHit error: StormcloudError, for status: StormcloudCoreDataStatus) {
 		self.iCloudStatus.text = "ERROR RESTORING"
 	}
