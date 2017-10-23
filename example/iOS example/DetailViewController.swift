@@ -18,9 +18,9 @@ class DetailViewController: UIViewController {
     var backupManager : Stormcloud?
     var stack  : CoreDataStack?
 	
-	@IBOutlet var iniCloudSwitch : UISwitch!
     @IBOutlet var detailLabel : UILabel!
 	@IBOutlet var iCloudStatus : UILabel!
+	@IBOutlet var iCloudProgress : UILabel!
     @IBOutlet var activityIndicator : UIActivityIndicatorView!
 	@IBOutlet var imageView: UIImageView!
 	@IBOutlet var progressView : UIProgressView!
@@ -35,11 +35,11 @@ class DetailViewController: UIViewController {
 		self.imageView.isHidden = true
 		self.detailLabel.isHidden = true
 		metadataItem?.delegate = self
-		iniCloudSwitch.isOn = hasMetadata.iniCloud
-		iCloudStatus.text = ( hasMetadata.isDownloaded ) ? "Downloaded" : "Downloading: \(hasMetadata.percentDownloaded)%"
-		
+		updateLabel(with: hasMetadata)
 		backupManager?.delegate = self
 		backupManager?.coreDataDelegate = self
+		
+		self.title = ( hasMetadata.iniCloud ) ? "☁️" : "💾"
 		
 		switch hasMetadata {
 		case is JSONMetadata:
@@ -50,6 +50,39 @@ class DetailViewController: UIViewController {
 			break
 		}
     }
+	
+	func updateLabel( with metadata : StormcloudMetadata ) {
+		
+		var textItems : [String] = []
+		var progress = ""
+		
+		if metadata.isUploading && metadata.percentUploaded < 100 {
+			self.progressView.progress =  (Float(metadata.percentUploaded) / 100.0)
+			progress = String(format: "%.2f", Float(metadata.percentUploaded)).appending("%")
+			textItems.append("Uploading")
+		}
+		if metadata.iniCloud {
+			self.progressView.progress = 1.0
+			textItems.append("☁️")
+		}
+		
+		if metadata.isDownloading && metadata.percentDownloaded < 100 {
+			self.progressView.progress =  (Float(metadata.percentDownloaded) / 100.0)
+			progress = String(format: "%.2f", Float(metadata.percentUploaded)).appending("%")
+			textItems.append("Downloading")
+		}
+		if metadata.isDownloaded {
+			self.progressView.progress = 1.0
+			textItems.append("💾")
+		}
+		
+		self.iCloudStatus.text = textItems.joined(separator: " & ")
+		self.iCloudProgress.text = progress
+	}
+	
+	func updateLabel( with text : String ) {
+		self.iCloudStatus.text = text
+	}
 	
 	func showImage() {
 		guard let manager = backupManager, let jpegMetadata = metadataItem as? JPEGMetadata else {
@@ -66,12 +99,12 @@ class DetailViewController: UIViewController {
 				if let hasError = error {
 					switch hasError {
 					case .couldntOpenDocument:
-						self.iCloudStatus.text = "Error with document. Possible internet."
+						self.updateLabel(with: "Error with document. Possible internet.")
 					default:
-						self.iCloudStatus.text = "\(hasError.localizedDescription)"
+						self.updateLabel(with: "\(hasError.localizedDescription)")
 					}
 				} else {
-					self.iCloudStatus.text = "Downloaded"
+					self.updateLabel(with: jpegMetadata)
 					if let image = image as? UIImage {
 						self.imageView.image = image
 						self.imageView.isHidden = false
@@ -104,20 +137,22 @@ class DetailViewController: UIViewController {
 		self.activityIndicator.startAnimating()
 		
 		self.document = JSONDocument(fileURL: manager.urlForItem(jsonMetadata)! )
-		if let doc = self.document {
-			doc.open(completionHandler: { (success) -> Void in
-				DispatchQueue.main.async {
-					DispatchQueue.main.async {
-						self.iCloudStatus.text = "Downloaded"
-					}
-					self.activityIndicator.stopAnimating()
-					if let dict = doc.objectsToBackup as? [String : AnyObject] {
-						self.detailLabel.text = "Objects backed up: \(dict.count)"
-					}
-				}
-			})
+		guard let doc = self.document else {
+			updateLabel(with: "Error with document")
+			return
 		}
-	
+		doc.open(completionHandler: { (success) -> Void in
+			DispatchQueue.main.async {
+				DispatchQueue.main.async {
+					self.updateLabel(with: jsonMetadata)
+				}
+				self.activityIndicator.stopAnimating()
+				if let dict = doc.objectsToBackup as? [String : AnyObject] {
+					self.detailLabel.text = "Objects backed up: \(dict.count)"
+				}
+			}
+		})
+
 	}
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -133,12 +168,14 @@ class DetailViewController: UIViewController {
             self.backupManager?.restoreCoreDataBackup(withDocument: doc, toContext: context , completion: { (error) -> () in
                 self.activityIndicator.stopAnimating()
                 self.view.isUserInteractionEnabled = true
-            
                 let message : String
-                if let _ = error {
+                if let hasError = error {
                     message = "With Errors"
+					self.updateLabel(with: hasError.localizedDescription)
                 } else {
                     message = "Successfully"
+					self.iCloudProgress.text = ""
+					self.updateLabel(with: "Successfully Restored")
                 }
                 
                 let avc = UIAlertController(title: "Completed!", message: message, preferredStyle: .alert)
@@ -148,54 +185,45 @@ class DetailViewController: UIViewController {
             })
         }
     }
-    
-    /*
-    // MARK: - Navigation
-    
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-    // Get the new view controller using segue.destinationViewController.
-    // Pass the selected object to the new view controller.
-    }
-    */
-    
+	
 }
 
 extension DetailViewController : StormcloudDelegate, StormcloudCoreDataDelegate {
+	func metadataDidUpdate(_ metadata: StormcloudMetadata, for type: StormcloudDocumentType) {
+		if metadata == self.metadataItem {
+			updateLabel(with: metadata)
+		}
+	}
 	func metadataListDidAddItemsAt(_ addedItems: IndexSet?, andDeletedItemsAt deletedItems: IndexSet?, for type: StormcloudDocumentType) {
 	
 	}
-	
-	func stormcloud(_ stormcloud: Stormcloud, coreDataHit error: StormcloudError, for status: StormcloudCoreDataStatus) {
-		self.iCloudStatus.text = "ERROR RESTORING"
-	}
-	func stormcloud(_ stormcloud: Stormcloud, didUpdate objectsUpdated: Int, of total: Int, for status: StormcloudCoreDataStatus) {
-		self.progressView.progress =  (Float(objectsUpdated) / Float(total))
-		switch status {
-		case .deletingOldObjects:
-			self.iCloudStatus.text = "Deleting Old Objects"
-		case .insertingNewObjects:
-			self.iCloudStatus.text = "Inserting New Objects"
-		case .establishingRelationships:
-			self.iCloudStatus.text = "Establishing Relationships"
-		}
-	}
+
 	func metadataListDidChange(_ manager: Stormcloud) {
 		
 	}
 	func metadataListDidAddItemsAtIndexes(_ addedItems: IndexSet?, andDeletedItemsAtIndexes deletedItems: IndexSet?) {
 		
 	}
+	
+	func stormcloud(_ stormcloud: Stormcloud, coreDataHit error: StormcloudError, for status: StormcloudCoreDataStatus) {
+		updateLabel(with: "ERROR RESTORING")
+	}
+	func stormcloud(_ stormcloud: Stormcloud, didUpdate objectsUpdated: Int, of total: Int, for status: StormcloudCoreDataStatus) {
+		self.progressView.progress =  (Float(objectsUpdated) / Float(total))
+		self.iCloudProgress.text = String(format: "%.2f", (Float(objectsUpdated) / Float(total) ) * 100).appending("%")
+		switch status {
+		case .deletingOldObjects:
+			updateLabel(with: "Deleting Old Objects")
+		case .insertingNewObjects:
+			updateLabel(with: "Inserting New Objects")
+		case .establishingRelationships:
+			updateLabel(with: "Establishing Relationships")
+		}
+	}
 }
 
 extension DetailViewController : StormcloudMetadataDelegate {
 	func iCloudMetadataDidUpdate(_ metadata: StormcloudMetadata) {
-		if metadata.percentDownloaded < 100 {
-			self.progressView.progress =  (Float(metadata.percentDownloaded) / 100.0)
-			self.iCloudStatus.text = "Downloading"
-		} else {
-			self.iCloudStatus.text = "Downloaded"
-		}
-		
+		updateLabel(with: metadata)
 	}
 }

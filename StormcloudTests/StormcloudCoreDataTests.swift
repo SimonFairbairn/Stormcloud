@@ -21,12 +21,12 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
     let totalClouds = 2
     let totalRaindrops = 2
     
-    let stack = CoreDataStack(modelName: "clouds")
-
-    let manager = Stormcloud()
+	var stack : CoreDataStack!
     
     override func setUp() {
-         super.setUp()
+		self.fileExtension = "json"
+		stack = CoreDataStack(modelName: "clouds")
+		super.setUp()
     }
 
     override func tearDown() {
@@ -125,7 +125,7 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
         
     }
     
-    func backupCoreData() {
+	func backupCoreData(with manager : Stormcloud) {
         guard let context = self.stack.managedObjectContext else {
             XCTFail("Context not available")
             return
@@ -136,7 +136,6 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
         manager.backupCoreDataEntities(inContext: context) { (error, metadata) -> () in
             if let _ = error {
                 XCTFail("Failed to back up Core Data entites")
-                
             }
             expectation.fulfill()
         }
@@ -144,9 +143,13 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
     }
 	
 	func testThatBackingUpIndividualObjectsWorks() {
+		let manager = Stormcloud()
+		manager.delegate = self
 		self.setupStack()
 		let tags = self.addTags()
 		self.addObjectsWithNumber(5, tags: tags)
+		
+		waitForFiles(manager)
 		
 		guard let context = self.stack.managedObjectContext else {
 			XCTFail("Context not available")
@@ -164,7 +167,6 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
 			manager.backupCoreDataObjects( objects: objects) { (error, metadata) -> () in
 				if let hasError = error {
 					XCTFail("Failed to back up Core Data entites: \(hasError)")
-					
 				}
 				expectation.fulfill()
 			}
@@ -172,38 +174,44 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
 			let items = self.listItemsAtURL()
 			
 			XCTAssertEqual(items.count, 1)
-			XCTAssertEqual(self.manager.items(for: .json).count, 1)
+			XCTAssertEqual(manager.items(for: .json).count, 1)
 	
 		}
 	}
 	
 	
     func testThatBackingUpCoreDataCreatesFile() {
-		
+		let manager = Stormcloud()
+		manager.delegate = self
         self.setupStack()
         self.addObjectsWithNumber(1)
-        self.backupCoreData()
+		
+		waitForFiles(manager)
+		
+        self.backupCoreData(with: manager)
         
         let items = self.listItemsAtURL()
-        
+        sleep(1)
         XCTAssertEqual(items.count, 1)
-        XCTAssertEqual(self.manager.items(for: .json).count, 1)
+        XCTAssertEqual(manager.items(for: .json).count, 1)
     }
     
     func testThatBackingUpCoreDataCreatesCorrectFormat() {
-
+		let manager = Stormcloud()
+		manager.delegate = self
         self.setupStack()
         let tags = self.addTags()
 		
 		for i in 1...totalClouds {
 			self.addObjectsWithNumber(i, tags:  tags)
 		}
-		        
-        self.backupCoreData()
-        
+		
+		waitForFiles(manager)
+		
+		self.backupCoreData(with: manager)
         let items = self.listItemsAtURL()
         XCTAssertEqual(items.count, 1)
-        XCTAssertEqual(self.manager.items(for: .json).count, 1)
+        XCTAssertEqual(manager.items(for: .json).count, 1)
         
         let url = items[0]
         let data = try? Data(contentsOf: url as URL)
@@ -321,20 +329,31 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
     }
     
     func testThatRestoringRestoresThingsCorrectly() {
+		let manager = Stormcloud()
+		manager.delegate = self
+		
+		waitForFiles(manager)
+		
+		
         // Keep a copy of all the data and make sure it's the same when it gets back in to the DB
-        
+		// Give it a chance to catch up
         self.setupStack()
         let tags = self.addTags()
         self.addObjectsWithNumber(1, tags:  tags)
         self.addObjectsWithNumber(2, tags:  tags)
-        self.backupCoreData()
+        self.backupCoreData(with: manager)
         
         let items = self.listItemsAtURL()
         XCTAssertEqual(items.count, 1)
-        XCTAssertEqual(self.manager.items(for: .json).count, 1)
+        XCTAssertEqual(manager.items(for: .json).count, 1)
 
+		guard manager.items(for: .json).count > 0 else {
+			XCTFail("Invalid number of items")
+			return
+		}
+		
         let expectation = self.expectation(description: "Restore expectation")
-        manager.restoreCoreDataBackup(withMetadata: self.manager.items(for: .json)[0], toContext: stack.managedObjectContext!) { (success) -> () in
+        manager.restoreCoreDataBackup(withMetadata: manager.items(for: .json)[0], toContext: stack.managedObjectContext!) { (success) -> () in
             
             XCTAssertNil(success)
             XCTAssertEqual(Thread.current, Thread.main)
@@ -402,10 +421,14 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
     
 
 	func testThatRestoringIndividualItemsWorks() {
+		let manager = Stormcloud()
+		manager.delegate = self
 		// Keep a copy of all the data and make sure it's the same when it gets back in to the DB
 		self.copyItems(extra: true)
 		self.setupStack()
 		let items = self.listItemsAtURL()
+		
+		waitForFiles(manager)
 		
 		XCTAssertEqual(items.count, 3)
 		
@@ -466,8 +489,8 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
 	
     func testWeirdStrings() {
         // Keep a copy of all the data and make sure it's the same when it gets back in to the DB
-		
-		sleep(1)
+		let manager = Stormcloud()
+		manager.delegate = self
         self.setupStack()
 		if let context = self.stack.managedObjectContext {
 			
@@ -492,16 +515,19 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
 			
 			
         }
-        self.backupCoreData()
+		
+		waitForFiles(manager)
+		
+        self.backupCoreData(with: manager)
 		
         let items = self.listItemsAtURL()
         XCTAssertEqual(items.count, 1)
-        XCTAssertEqual(self.manager.items(for: .json).count, 1)
+        XCTAssertEqual(manager.items(for: .json).count, 1)
 		
-		print(self.manager.urlForItem(self.manager.items(for: .json)[0]) ?? "No metadata item found")
+		print(manager.urlForItem(manager.items(for: .json)[0]) ?? "No metadata item found")
         
         let expectation = self.expectation(description: "Restore expectation")
-        manager.restoreCoreDataBackup(withMetadata: self.manager.items(for: .json)[0], toContext: stack.managedObjectContext!) { (success) -> () in
+        manager.restoreCoreDataBackup(withMetadata: manager.items(for: .json)[0], toContext: stack.managedObjectContext!) { (success) -> () in
             
             XCTAssertNil(success)
             XCTAssertEqual(Thread.current, Thread.main)

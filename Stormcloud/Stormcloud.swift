@@ -15,7 +15,6 @@ protocol StormcloudDocument {
 	}
 }
 
-
 public typealias StormcloudDocumentClosure = (_ error : StormcloudError?, _ metadata : StormcloudMetadata?) -> ()
 
 public protocol StormcloudRestoreDelegate {
@@ -29,22 +28,17 @@ enum StormcloudEntityKeys : String {
 
 // Keys for NSUSserDefaults that manage iCloud state
 enum StormcloudPrefKey : String {
-	case iCloudToken = "com.voyagetravelapps.Stormcloud.iCloudToken"
 	case isUsingiCloud = "com.voyagetravelapps.Stormcloud.usingiCloud"
-	
 }
 
 /**
 *  Informs the delegate of changes made to the metadata list.
 */
-public protocol StormcloudDelegate {
+public protocol StormcloudDelegate : class {
+	func metadataDidUpdate( _ metadata : StormcloudMetadata, for type : StormcloudDocumentType)
 	func metadataListDidChange(_ manager : Stormcloud)
 	func metadataListDidAddItemsAt( _ addedItems : IndexSet?, andDeletedItemsAt deletedItems: IndexSet?, for type : StormcloudDocumentType)
-}
-
-struct StormcloudStore {
-	let type : StormcloudDocumentType
-	var items : [StormcloudMetadata] = []
+	func stormcloudFileListDidLoad( _ stormcloud : Stormcloud)
 }
 
 extension Stormcloud : DocumentProviderDelegate {
@@ -52,11 +46,17 @@ extension Stormcloud : DocumentProviderDelegate {
 		
 	}
 	func provider(_ prov: DocumentProvider, didFindItems items: [StormcloudDocumentType : [StormcloudMetadata]]) {
-
+		if !fileListLoaded {
+			self.delegate?.stormcloudFileListDidLoad(self)
+			fileListLoadedInternal = true
+			operationInProgress = false
+		}
+		
 		for type in StormcloudDocumentType.allTypes() {
 			guard var hasItems = items[type] else {
 				continue
 			}
+			
 			hasItems.sort { (item1, item2) -> Bool in
 				return item1.date > item2.date
 			}
@@ -91,6 +91,12 @@ extension Stormcloud : DocumentProviderDelegate {
 			}
 			internalList[type] = hasItems
 			
+			internalList[type]?.forEach({ (metadata) in
+				if metadata.iCloudMetadata != nil {
+					self.delegate?.metadataDidUpdate(metadata, for: type)
+				}
+			})
+			
 			var addedItemsIndices : IndexSet? = IndexSet()
 			for item in addedItems {
 				if let didAddItems = internalList[type]!.index(of: item) {
@@ -115,116 +121,87 @@ open class Stormcloud: NSObject {
 			return UserDefaults.standard.bool(forKey: StormcloudPrefKey.isUsingiCloud.rawValue)
 		}
 	}
-	
 
 	/// The backup manager delegate
-	open var delegate : StormcloudDelegate?
+	open weak var delegate : StormcloudDelegate?
 	open var coreDataDelegate : StormcloudCoreDataDelegate?
 	
 	open var shouldDisableInProgressCheck : Bool = false
+	
+	var fileListLoadedInternal = false
+	
+	open var fileListLoaded : Bool {
+		get {
+			return fileListLoadedInternal
+		}
+	}
 	
 	var formatter = DateFormatter()
 	
 	var workingCache : [String : Any] = [:]
 	
-	var iCloudURL : URL?
-	var metadataQuery : NSMetadataQuery = NSMetadataQuery()
-	
-	var internalList : [StormcloudDocumentType : [StormcloudMetadata]] = [:]
-	var metadataLists : [StormcloudDocumentType : StormcloudStore] = [:]
-	var internalQueryList : [String : StormcloudMetadata] = [:]
-	var pauseMetadata : Bool = false
-	
-	var moveDocsToiCloud : Bool = false
-	var moveDocsToiCloudCompletion : ((_ error : StormcloudError?) -> Void)?
-	
-	var operationInProgress : Bool = false
+	var internalList : [StormcloudDocumentType : [StormcloudMetadata]] = [:] 
+
+	var operationInProgress : Bool = true
 	
 	var restoreDelegate : StormcloudRestoreDelegate?
 	
-	var provider : DocumentProvider?
+	var provider : DocumentProvider? {
+		didSet {
+			// External references to self will still be nil if the provider is set during initialisation
+			provider?.delegate = self
+		}
+	}
 	
 	@objc public override init() {
 		super.init()
-		if self.isUsingiCloud {
-			if let hasIcloud = iCloudDocumentProvider() {
-				provider = hasIcloud
-			}
-			
-			// TODO: Review
-			_ = self.enableiCloudShouldMoveLocalDocumentsToiCloud(false, completion: nil)
+
+		// If iCloud is enabled, start it up and get gathering
+		if isUsingiCloud, let iCloudProvider = iCloudDocumentProvider() {
+			provider = iCloudProvider
+			UserDefaults.standard.set(true, forKey: StormcloudPrefKey.isUsingiCloud.rawValue)
+		} else {
+			provider = LocalDocumentProvider()
+			UserDefaults.standard.set(false, forKey: StormcloudPrefKey.isUsingiCloud.rawValue)
 		}
 		
-		if provider == nil {
-			provider = LocalDocumentProvider()
-		}
+		// Needs to be set manually. See `provider` property
 		provider?.delegate = self
 		provider?.updateFiles()
 		
 		// Assume UTC for everything.
 		self.formatter.timeZone = TimeZone(identifier: "UTC")
 		
-		// TODO: Review
-		self.prepareDocumentList()
 	}
 	
-	/**
-	Reloads the current metadata list, either from iCloud or from local documents. If you are switching between storage locations, using the appropriate methods will automatically reload the list of documents so there's no need to call this.
-	*/
-	@objc open func reloadData() {
-		self.prepareDocumentList()
-	}
 	
+	/// Returns a list of items for a given type. If the type does not yet exist, sets up the array
+	///
+	/// - Parameter type: A registered document type that you're interested in
+	/// - Returns: An array of metadata objects that represent the files on disk or in iCloud
 	open func items( for type: StormcloudDocumentType ) -> [StormcloudMetadata] {
 		if let hasItems = internalList[type] {
 			return hasItems
+		} else {
+			internalList[type] = []
 		}
 		return []
-//		return internalMetadataList.filter({ (metadata) -> Bool in
-//			switch type {
-//			case .jpegImage:
-//				return metadata is JPEGMetadata
-//			case .json:
-//				return metadata is JSONMetadata
-//			case .pngImage:
-//				return false
-//			case .unknown:
-//				return false
-//			}
-//		})
 	}
-	
+
 	/**
-	Attempts to enable iCloud for document storage.
+	Enables iCloud
 	
-	- parameter move: Attept to move the documents from local storage to iCloud
-	- parameter completion: A completion handler to be run when the move has finisehd
-	
-	- returns: true if iCloud was enabled, false otherwise
+	- parameter move:       Pass true if you want the manager to attempt to copy any documents in iCloud to local storage
+	- parameter completion: A completion handler to run when the attempt to copy documents has finished.
 	*/
-	open func enableiCloudShouldMoveLocalDocumentsToiCloud(_ move : Bool, completion : ((_ error : StormcloudError?) -> Void)? ) -> Bool {
-		let currentiCloudToken = FileManager.default.ubiquityIdentityToken
-		
-		// If we don't have a token, then we can't enable iCloud
-		guard let token = currentiCloudToken  else {
-			completion?(StormcloudError.iCloudUnavailable)
-			disableiCloudShouldMoveiCloudDocumentsToLocal(false, completion: nil)
-			return false
-		
+	open func enableiCloudShouldMoveDocuments( _ move : Bool, completion : ((_ error : StormcloudError?) -> Void)? ) {
+		let currentItems = self.internalList
+		deleteAllItems()
+
+		if move {
+			// Handle the moving of documents
+			self.moveItemsToiCloud(currentItems, completion: completion)
 		}
-		// Add observer for iCloud user changing
-		NotificationCenter.default.addObserver(self, selector: #selector(Stormcloud.iCloudUserChanged(_:)), name: NSNotification.Name.NSUbiquityIdentityDidChange, object: nil)
-		
-		let data = NSKeyedArchiver.archivedData(withRootObject: token)
-		UserDefaults.standard.set(data, forKey: StormcloudPrefKey.iCloudToken.rawValue)
-		UserDefaults.standard.set(true, forKey: StormcloudPrefKey.isUsingiCloud.rawValue)
-		
-		// Make a note that we need to move documents once iCloud is initialised
-		self.moveDocsToiCloud = move
-		self.moveDocsToiCloudCompletion = completion
-		
-		self.prepareDocumentList()
-		return true
 	}
 	
 	/**
@@ -234,50 +211,66 @@ open class Stormcloud: NSObject {
 	- parameter completion: A completion handler to run when the attempt to copy documents has finished.
 	*/
 	open func disableiCloudShouldMoveiCloudDocumentsToLocal( _ move : Bool, completion : ((_ moveSuccessful : Bool) -> Void)? ) {
-		
+		let currentItems = self.internalList
+		deleteAllItems()
+
 		if move {
 			// Handle the moving of documents
-			self.moveItemsFromiCloud(self.metadataLists, completion: completion)
+			self.moveItemsFromiCloud(currentItems, completion: completion)
 		}
-		
-		UserDefaults.standard.removeObject(forKey: StormcloudPrefKey.iCloudToken.rawValue)
-		UserDefaults.standard.set(false, forKey: StormcloudPrefKey.isUsingiCloud.rawValue)
-		
-		self.metadataQuery.stop()
-		self.internalQueryList.removeAll()
-		self.prepareDocumentList()
 	}
 	
-	func moveItemsToiCloud( _ items : [String], completion : ((_ success : Bool, _ error : NSError?) -> Void)? ) {
-		if let docsDir = self.documentsDirectory(), let iCloudDir = iCloudDocumentsDirectory() {
-			
-			DispatchQueue.global(qos: .default).async {
-				var success = true
-				var hasError : NSError?
-				for filename in items {
-					let finalURL = docsDir.appendingPathComponent(filename)
-					let finaliCloudURL = iCloudDir.appendingPathComponent(filename)
-					do {
-						try FileManager.default.setUbiquitous(true, itemAt: finalURL, destinationURL: finaliCloudURL)
-					} catch let error as NSError {
-						success = false
-						hasError = error
-					}
-				}
+	func moveItemsToiCloud( _ items : [StormcloudDocumentType : [StormcloudMetadata]], completion : ((_ error : StormcloudError?) -> Void)? ) {
 				
-				DispatchQueue.main.async(execute: { () -> Void in
-					completion?(success, hasError)
-				})
+		// Our current provider should be an local Document Provider
+		guard let currentProvider = provider as? LocalDocumentProvider else {
+			completion?(.iCloudNotEnabled)
+			return
+		}
+		
+		guard let iCloudProvider = iCloudDocumentProvider() else {
+			// Couldn't start up iCloud
+			completion?(.iCloudUnavailable)
+			return
+		}
+		provider = iCloudProvider
+		
+		guard let docsDir = currentProvider.documentsDirectory(), let iCloudDir = iCloudProvider.documentsDirectory() else {
+			provider = LocalDocumentProvider()
+			completion?(.iCloudUnavailable)
+			return
+		}
+		
+		UserDefaults.standard.set(true, forKey: StormcloudPrefKey.isUsingiCloud.rawValue)
+		
+		var allItems = [StormcloudMetadata]()
+		for type in StormcloudDocumentType.allTypes() {
+			if let hasItems = items[type] {
+				allItems.append(contentsOf: hasItems)
+			}
+		}
+		
+		DispatchQueue.global(qos: .default).async {
+			var hasError : StormcloudError?
+			for metadata in allItems {
+				let finalURL = docsDir.appendingPathComponent(metadata.filename)
+				let finaliCloudURL = iCloudDir.appendingPathComponent(metadata.filename)
+				do {
+					try FileManager.default.setUbiquitous(true, itemAt: finalURL, destinationURL: finaliCloudURL)
+					self.stormcloudLog("Moved item from local \(finalURL) to iCloud: \(finaliCloudURL)")
+				} catch {
+					hasError = .couldntMoveDocumentToiCloud
+					self.stormcloudLog("Error moving item: \(finalURL): \(error.localizedDescription)")
+				}
 			}
 			
-		} else {
-			let scError = StormcloudError.couldntMoveDocumentToiCloud
-			let error = scError.asNSError()
-			completion?(false, error)
+			DispatchQueue.main.async(execute: { () -> Void in
+				completion?(hasError)
+			})
 		}
 	}
 	
-	func moveItemsFromiCloud( _ items : [StormcloudDocumentType :  StormcloudStore], completion : ((_ success : Bool ) -> Void)? ) {
+	func moveItemsFromiCloud( _ items : [StormcloudDocumentType :  [StormcloudMetadata]], completion : ((_ success : Bool ) -> Void)? ) {
 		// Our current provider should be an iCloud Document Provider
 		guard let currentProvider = provider as? iCloudDocumentProvider else {
 			completion?(false)
@@ -292,11 +285,12 @@ open class Stormcloud: NSObject {
 		}
 		
 		// Set the provider to our new local provider so it can respond to changes
-		self.provider = localProvider
+		provider = localProvider
+		UserDefaults.standard.set(false, forKey: StormcloudPrefKey.isUsingiCloud.rawValue)
 			
 		var filenames = [String]()
-		for item in items {
-			let allNames = item.value.items.map() { $0.filename }
+		for (_,value) in items {
+			let allNames = value.map() { $0.filename }
 			filenames.append(contentsOf: allNames )
 		}
 		
@@ -306,9 +300,10 @@ open class Stormcloud: NSObject {
 				let finalURL = docsDir.appendingPathComponent(element)
 				let finaliCloudURL = iCloudDir.appendingPathComponent(element)
 				do {
-					self.stormcloudLog("Moving files from iCloud: \(finaliCloudURL) to local URL: \(finalURL)")
 					try FileManager.default.setUbiquitous(false, itemAt: finaliCloudURL, destinationURL: finalURL)
+					self.stormcloudLog("Moving files from iCloud: \(finaliCloudURL) to local URL: \(finalURL)")
 				} catch {
+					self.stormcloudLog("Error moving file: \(finaliCloudURL) from iCloud: \(error.localizedDescription)")
 					success = false
 				}
 			}
@@ -316,19 +311,14 @@ open class Stormcloud: NSObject {
 			DispatchQueue.main.async(execute: { () -> Void in
 //					self.prepareDocumentList()
 				completion?(success)
-				
 			})
 		}
 	}
-	
-	
-	@objc func iCloudUserChanged( _ notification : Notification ) {
-		// Handle user changing
-//		self.prepareDocumentList()
-	}
-	
+		
 	deinit {
-		self.metadataQuery.stop()
+		print("deinit called")
+		
+		provider = nil
 		NotificationCenter.default.removeObserver(self)
 	}
 	
@@ -349,6 +339,16 @@ extension Stormcloud {
 	public func urlForItem(_ item : StormcloudMetadata) -> URL? {
 		return self.provider?.documentsDirectory()?.appendingPathComponent(item.filename)
 	}
+	
+	func deleteAllItems() {
+		for type in StormcloudDocumentType.allTypes() {
+			if let hasItems = internalList[type] {
+				let indexesToDelete = IndexSet(0..<hasItems.count)
+				internalList[type]?.removeAll()
+				self.delegate?.metadataListDidAddItemsAt(nil, andDeletedItemsAt: indexesToDelete, for: type)
+			}
+		}
+	}
 }
 
 // MARK: - Adding Documents
@@ -364,84 +364,88 @@ extension Stormcloud {
 		self.operationInProgress = true
 		
 		// Find out where we should be savindocumentsDirectoryg, based on iCloud or local
-		if let baseURL = self.documentsDirectory() {
-			// Set the file extension to whatever it is we're trying to back up
-			let metadata : StormcloudMetadata
-			let document : UIDocument
-			let finalURL : URL
-			switch documentType {
-			case .jpegImage:
-				
-				metadata = JPEGMetadata()
-				finalURL = baseURL.appendingPathComponent(metadata.filename)
-				let imageDocument = ImageDocument(fileURL: finalURL )
-				if let isImage = objects as? UIImage {
-					imageDocument.imageToBackup = isImage
-				}
-				document = imageDocument
-			case .json:
-				metadata = JSONMetadata()
-				finalURL = baseURL.appendingPathComponent(metadata.filename)
-				let jsonDocument = JSONDocument(fileURL: finalURL )
-				jsonDocument.objectsToBackup = objects
-				document = jsonDocument
-			default:
-				metadata  = StormcloudMetadata()
-				finalURL = baseURL.appendingPathComponent(metadata.filename)
-				document = UIDocument()
-			}
-			
-			
-			self.stormcloudLog("Backing up to: \(finalURL)")
-			
-			// If the filename already exists, can't create a new document. Usually because it's trying to add them too quickly.
-			let exists = self.metadataLists[documentType]!.items.filter({ (element) -> Bool in
-				if element.filename == metadata.filename {
-					return true
-				}
-				return false
-			})
-			
-			if exists.count > 0 {
-				completion(.backupFileExists, nil)
-				return
-			}
-			document.save(to: finalURL, for: .forCreating, completionHandler: { (success) -> Void in
-				let totalSuccess = success
-				
-				if ( !totalSuccess ) {
-					
-					self.stormcloudLog("\(#function): Error saving new document")
-					
-					DispatchQueue.main.async(execute: { () -> Void in
-						self.operationInProgress = false
-						completion(StormcloudError.couldntSaveNewDocument, nil)
-					})
-					return
-					
-				}
-				document.close(completionHandler: nil)
-				if !self.isUsingiCloud {
-					DispatchQueue.main.async(execute: { () -> Void in
-						self.metadataLists[documentType]!.items.append(metadata)
-
-						self.operationInProgress = false
-						completion(nil, (totalSuccess) ? metadata : metadata)
-					})
-				} else {
-					DispatchQueue.main.async(execute: { () -> Void in
-						self.moveItemsToiCloud([metadata.filename], completion: { (success, error) -> Void in
-							self.operationInProgress = false
-							if totalSuccess {
-								completion(nil, metadata)
-							} else {
-								completion(StormcloudError.couldntMoveDocumentToiCloud, metadata)
-							}
-						})
-					})
-				}
-			})
+		guard let baseURL = provider?.documentsDirectory() else {
+			completion(.invalidURL, nil)
+			return
 		}
+		// Set the file extension to whatever it is we're trying to back up
+		let metadata : StormcloudMetadata
+		let document : UIDocument
+		let finalURL : URL
+		switch documentType {
+		case .jpegImage:
+			
+			metadata = JPEGMetadata()
+			finalURL = baseURL.appendingPathComponent(metadata.filename)
+			let imageDocument = ImageDocument(fileURL: finalURL )
+			if let isImage = objects as? UIImage {
+				imageDocument.imageToBackup = isImage
+			}
+			document = imageDocument
+		case .json:
+			metadata = JSONMetadata()
+			finalURL = baseURL.appendingPathComponent(metadata.filename)
+			let jsonDocument = JSONDocument(fileURL: finalURL )
+			jsonDocument.objectsToBackup = objects
+			document = jsonDocument
+		default:
+			metadata  = StormcloudMetadata()
+			finalURL = baseURL.appendingPathComponent(metadata.filename)
+			document = UIDocument()
+		}
+		
+		self.stormcloudLog("Backing up to: \(finalURL)")
+		
+		let exists : [StormcloudMetadata]
+		
+		exists = items(for: documentType).filter({ (element) -> Bool in
+			if element.filename == metadata.filename {
+				return true
+			}
+			return false
+		})
+
+		if exists.count > 0 {
+			completion(.backupFileExists, nil)
+			return
+		}
+		
+		assert(Thread.current == Thread.main)
+		document.save(to: finalURL, for: .forCreating, completionHandler: { (success) -> Void in
+			let totalSuccess = success
+			
+			if ( !totalSuccess ) {
+				
+				self.stormcloudLog("\(#function): Error saving new document")
+				
+				DispatchQueue.main.async(execute: { () -> Void in
+					self.operationInProgress = false
+					completion(StormcloudError.couldntSaveNewDocument, nil)
+				})
+				return
+				
+			}
+			document.close(completionHandler: nil)
+			DispatchQueue.main.async(execute: { () -> Void in
+				
+				self.operationInProgress = false
+				
+				// If we were successful, and it hasn't been added in the meantime, then we can go ahead and append the metadata
+				if !self.internalList[documentType]!.contains(metadata) {
+					self.internalList[documentType]?.append(metadata)
+					self.internalList[documentType]?.sort(by: { (data1, data2) -> Bool in
+						return data1.date > data2.date
+					})
+				}
+				
+				
+				if let idx = self.internalList[documentType]?.index(of: metadata) {
+					self.delegate?.metadataListDidAddItemsAt(IndexSet(integer: idx), andDeletedItemsAt: nil, for: documentType)
+				}
+				
+				completion(nil, (totalSuccess) ? metadata : metadata)
+			})
+		})
 	}
 }
 
@@ -459,7 +463,7 @@ extension Stormcloud {
 	public func restoreBackup(withMetadata metadata : StormcloudMetadata, completion : @escaping (_ error: StormcloudError?, _ restoredObjects : Any? ) -> () ) {
 		
 		
-		guard let metadataList = metadataLists[metadata.type]?.items else {
+		guard let metadataList = internalList[metadata.type] else {
 			completion(.invalidDocumentData, nil)
 			return
 		}
@@ -526,7 +530,7 @@ extension Stormcloud {
 		// Knock one off as we're about to back up
 		var itemsToDelete : [StormcloudMetadata] = []
 		
-		guard let validItems = metadataLists[type]?.items else {
+		guard let validItems = internalList[type] else {
 			completion(.invalidDocumentData)
 			return
 		}
@@ -551,24 +555,19 @@ extension Stormcloud {
 		
 	}
 	
-	public func deleteItems( _ metadataItems : [StormcloudMetadata], completion : @escaping (_ index : Int?, _ error : NSError? ) -> () ) {
-		
+	/**
+	Deletes the document represented by the metadataItem object
+	
+	- parameter metadataItem: The Stormcloud Metadata object that represents the document
+	- parameter completion:   The completion handler to run when the delete completes
+	*/
+	public func deleteItem(_ metadataItem : StormcloudMetadata, completion : @escaping (_ index : Int?, _ error : StormcloudError?) -> () ) {
 		// Pull them out of the internal list first
-		var deleteList : [ StormcloudDocumentType : Int ] = [:]
-		var urlList : [ URL : Int ] = [:]
-		var errorList : [StormcloudMetadata] = []
-		for item in metadataItems {
-			if let itemURL = self.urlForItem(item), let idx = metadataLists[item.type]?.items.index(of: item) {
-				urlList[itemURL] = idx
-				deleteList[item.type] = idx
-			} else {
-				errorList.append(item)
-			}
+		guard let itemURL = self.urlForItem(metadataItem), let idx = internalList[metadataItem.type]?.index(of: metadataItem) else {
+			completion(nil, .couldntDelete)
+			return
 		}
 		
-		for (type, idx) in deleteList {
-			metadataLists[type]!.items.remove(at: idx)
-		}
 		
 		// Remove them from the internal list
 		DispatchQueue.global(qos: .default).async {
@@ -577,45 +576,29 @@ extension Stormcloud {
 			if StormcloudEnvironment.MangleDelete.isEnabled() {
 				sleep(2)
 				DispatchQueue.main.async(execute: { () -> Void in
-					let deleteError = StormcloudError.couldntDelete
-					let error = NSError(domain:deleteError.domain(), code: deleteError.rawValue, userInfo: nil)
-					completion(nil, error )
+					completion(nil, .couldntDelete )
 				})
 				return
 			}
 			// ENDs
-			var hasError : NSError?
-			for (url, _) in urlList {
-				let coordinator = NSFileCoordinator(filePresenter: nil)
-				coordinator.coordinate(writingItemAt: url, options: .forDeleting, error:nil, byAccessor: { (url) -> Void in
-					
-					do {
-						try FileManager.default.removeItem(at: url)
-					} catch let error as NSError  {
-						hasError = error
-					}
-					
-				})
-				
-				if hasError != nil {
-					break
+			
+			let coordinator = NSFileCoordinator(filePresenter: nil)
+			coordinator.coordinate(writingItemAt: itemURL, options: .forDeleting, error:nil, byAccessor: { (url) -> Void in
+				var hasError : NSError?
+				do {
+					try FileManager.default.removeItem(at: url)
+				} catch let error as NSError  {
+					hasError = error
 				}
-				
-			}
-			DispatchQueue.main.async(execute: { () -> Void in
-				completion(nil, hasError)
+				if hasError != nil {
+					completion(nil, .couldntDelete)
+				} else {
+					self.internalList[metadataItem.type]!.remove(at: idx)
+					completion(idx, nil)
+				}
 			})
+
 		}
-	}
-	
-	/**
-	Deletes the document represented by the metadataItem object
-	
-	- parameter metadataItem: The Stormcloud Metadata object that represents the document
-	- parameter completion:   The completion handler to run when the delete completes
-	*/
-	public func deleteItem(_ metadataItem : StormcloudMetadata, completion : @escaping (_ index : Int?, _ error : NSError?) -> () ) {
-		self.deleteItems([metadataItem], completion: completion)
 	}
 }
 

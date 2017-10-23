@@ -14,10 +14,8 @@ open class StormcloudTableViewDataSource : NSObject, UITableViewDataSource {
 	let numberFormatter = NumberFormatter()
 
 	let tableView : UITableView
-	let stormcloud : Stormcloud
+	public let stormcloud : Stormcloud
 	let cellIdentifier : String
-	
-	var tableViewBackingList : [StormcloudDocumentType : StormcloudStore] = [:]
 	
 	public init(tableView : UITableView, cellIdentifier : String, stormcloud : Stormcloud) {
 		self.tableView = tableView
@@ -139,6 +137,30 @@ extension StormcloudTableViewDataSource : UITableViewDelegate {
 }
 
 extension StormcloudTableViewDataSource : StormcloudDelegate  {
+	
+	public func stormcloudFileListDidLoad(_ stormcloud: Stormcloud) {
+
+		
+	}
+	
+	public func metadataDidUpdate(_ metadata: StormcloudMetadata, for type: StormcloudDocumentType) {
+		
+		let section : Int
+		switch type {
+		case .jpegImage:
+			section = 1
+		default:
+			section = 0
+		}
+		
+		if let index = stormcloud.items(for: type).index(of: metadata) {
+			let ip = IndexPath(row: index, section: section)
+			if let tvc = self.tableView.cellForRow(at: ip) {
+				self.configureTableViewCell(tvc: tvc, withMetadata: metadata)
+			}
+		}
+		
+	}
 	public func metadataListDidChange(_ manager: Stormcloud) {
 		
 	}
@@ -178,12 +200,12 @@ extension StormcloudTableViewDataSource : StormcloudDelegate  {
 
 extension StormcloudTableViewDataSource : StormcloudMetadataDelegate {
 	open func iCloudMetadataDidUpdate(_ metadata: StormcloudMetadata) {
-		if let index = stormcloud.items(for: metadata.type).index(of: metadata) {
-			let ip = IndexPath(row: index, section: 0)
-			if let tvc = self.tableView.cellForRow(at: ip) {
-				self.configureTableViewCell(tvc: tvc, withMetadata: metadata)
-			}
-		}
+//		if let index = stormcloud.items(for: metadata.type).index(of: metadata) {
+//			let ip = IndexPath(row: index, section: 0)
+//			if let tvc = self.tableView.cellForRow(at: ip) {
+//				self.configureTableViewCell(tvc: tvc, withMetadata: metadata)
+//			}
+//		}
 	}
 
 }

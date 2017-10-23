@@ -17,7 +17,6 @@ class SettingsViewController: UIViewController, StormcloudViewController {
             if let context = coreDataStack?.managedObjectContext {
                 self.cloudAdder = CloudAdder(context: context)
             }
-            self.stormcloud?.reloadData()
         }
     }
 

@@ -156,6 +156,7 @@
 			children = (
 				F4E2E9521BDCC8AF00A63FAF /* Stormcloud.h */,
 				F4E2E96E1BDCC8AF00A63FAF /* Stormcloud.swift */,
+				F4A617E81DB8F67000E484D0 /* Stormcloud+CoreData.swift */,
 				F42AACFE1F73708E0008D6D6 /* Stormcloud+Environment.swift */,
 				F4E2E96D1BDCC8AF00A63FAF /* JSONDocument.swift */,
 				F42AAD091F738B890008D6D6 /* ImageDocument.swift */,
@@ -165,7 +166,6 @@
 				F4E2E9541BDCC8AF00A63FAF /* Info.plist */,
 				F4E2E9731BDCC8AF00A63FAF /* Error.swift */,
 				F48421811BDCD62400C98567 /* StormcloudDefaultsManager.swift */,
-				F4A617E81DB8F67000E484D0 /* Stormcloud+CoreData.swift */,
 				F4052B721F9C5FC000DF067F /* StormcloudTableViewDataSource.swift */,
 				F4F00C761F9C984B000B12B6 /* DocumentProviders.swift */,
 			);

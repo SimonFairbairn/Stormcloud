@@ -33,7 +33,7 @@ public enum StormcloudDocumentType : String {
 }
 
 
-protocol DocumentProviderDelegate {
+protocol DocumentProviderDelegate : class {
 	func provider( _ prov : DocumentProvider, didFindItems items : [StormcloudDocumentType : [StormcloudMetadata]])
 	func provider( _ prov : DocumentProvider, didDelete item : URL)
 }
@@ -51,8 +51,10 @@ protocol DocumentProvider {
 }
 
 class iCloudDocumentProvider : DocumentProvider {
-	var delegate: DocumentProviderDelegate?
-	var pollingFrequecy: TimeInterval = 1 {
+	let token = FileManager.default.ubiquityIdentityToken
+	weak var delegate: DocumentProviderDelegate?
+	var finishedInitialUpdate = false
+	var pollingFrequecy: TimeInterval = 0.3 {
 		didSet {
 			self.metadataQuery.notificationBatchingInterval = pollingFrequecy
 		}
@@ -61,18 +63,12 @@ class iCloudDocumentProvider : DocumentProvider {
 	var metadataQuery : NSMetadataQuery = NSMetadataQuery()
 	
 	init?() {
-		let currentiCloudToken = FileManager.default.ubiquityIdentityToken
-		
 		// If we don't have a token, then we can't enable iCloud
-		guard let token = currentiCloudToken  else {
+		guard let _ = token  else {
 			return nil
 		}
 		// Add observer for iCloud user changing
-		NotificationCenter.default.addObserver(self, selector: #selector(Stormcloud.iCloudUserChanged(_:)), name: NSNotification.Name.NSUbiquityIdentityDidChange, object: nil)
-		
-		let data = NSKeyedArchiver.archivedData(withRootObject: token)
-		UserDefaults.standard.set(data, forKey: StormcloudPrefKey.iCloudToken.rawValue)
-		UserDefaults.standard.set(true, forKey: StormcloudPrefKey.isUsingiCloud.rawValue)
+		NotificationCenter.default.addObserver(self, selector: #selector(self.iCloudUserChanged(_:)), name: NSNotification.Name.NSUbiquityIdentityDidChange, object: nil)
 		
 		// Start the metadata query
 		if metadataQuery.isStopped {
@@ -89,11 +85,10 @@ class iCloudDocumentProvider : DocumentProvider {
 		metadataQuery.searchScopes = [NSMetadataQueryUbiquitousDocumentsScope]
 		//		let types = StormcloudDocumentType.allTypes().map() { return $0.rawValue }
 		metadataQuery.predicate = NSPredicate.init(block: { (obj, _) -> Bool in
-			print("iCloud Document Provider found: \(obj ?? "No Object")")
 			return true
 		})
 		
-		NotificationCenter.default.addObserver(self, selector: #selector(iCloudDocumentProvider.updateFiles), name:NSNotification.Name.NSMetadataQueryDidFinishGathering , object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(iCloudDocumentProvider.finishedGather), name:NSNotification.Name.NSMetadataQueryDidFinishGathering , object: nil)
 		NotificationCenter.default.addObserver(self, selector: #selector(iCloudDocumentProvider.updateFiles), name:NSNotification.Name.NSMetadataQueryDidUpdate, object: nil)
 		
 		self.metadataQuery.notificationBatchingInterval = pollingFrequecy
@@ -101,15 +96,22 @@ class iCloudDocumentProvider : DocumentProvider {
 	}
 	
 	func documentsDirectory() -> URL? {
-		return FileManager.default.url(forUbiquityContainerIdentifier: nil)
+		return FileManager.default.url(forUbiquityContainerIdentifier: nil)?.appendingPathComponent("Documents")
+	}
+	
+	@objc func finishedGather() {
+		finishedInitialUpdate = true
+		updateFiles()
 	}
 	
 	@objc func updateFiles() {
 		guard let items = self.metadataQuery.results as? [NSMetadataItem] else {
 			return
 		}
+		guard finishedInitialUpdate else {
+			return
+		}
 		
-		print("iCloud Document Provider metadata query found \(items.count) items")
 		var allBackups = [StormcloudMetadata]()
 		for item in items {
 			if let url = item.value(forAttribute: NSMetadataItemURLKey) as? URL,
@@ -143,32 +145,55 @@ class iCloudDocumentProvider : DocumentProvider {
 	@objc func iCloudUserChanged( _ notification : Notification ) {
 		// Handle user changing
 	}
-	
+	deinit {
+		self.metadataQuery.stop()
+		NotificationCenter.default.removeObserver(self)
+	}
 	
 }
 
 class LocalDocumentProvider : DocumentProvider {
-	var delegate: DocumentProviderDelegate?
+	weak var delegate: DocumentProviderDelegate?
 	var pollingFrequecy: TimeInterval = 2 {
 		didSet {
 			updateTimer()
 		}
 	}
 	
+	var count = 0
 	weak var timer : Timer?
 	
 	init() {
 		updateTimer()
 	}
 	deinit {
-		timer?.invalidate()
+		print("Provider deinit called")
 	}
 	func updateTimer() {
-		timer?.invalidate()
-		timer = Timer.scheduledTimer(timeInterval: pollingFrequecy, target: self, selector: #selector(updateFiles), userInfo: nil, repeats: true)
+		
+		Timer.scheduledTimer(timeInterval: pollingFrequecy, target: self, selector: #selector(self.timerHit(_:)), userInfo: nil, repeats: true)
 	}
 	
-	@objc func updateFiles() {
+	@objc func timerHit( _ timer : Timer ) {
+		if let _ = delegate {
+			updateFiles()
+		} else {
+			timer.invalidate()
+		}
+	}
+	
+	
+	@objc func updateFiles( ) {
+		
+
+		assert(Thread.current == Thread.main)
+		
+		if StormcloudEnvironment.DelayLocal.isEnabled() {
+			count = count + 1
+			if count < 2 {
+				return
+			}
+		}
 		
 		guard let docsDir = documentsDirectory() else {
 			return
@@ -196,6 +221,7 @@ class LocalDocumentProvider : DocumentProvider {
 				}
 			}
 		}
+		
 		delegate?.provider(self, didFindItems: sortedItems)
 	}
 	

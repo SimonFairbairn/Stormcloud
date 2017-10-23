@@ -567,83 +567,6 @@ extension Stormcloud {
 
 extension Stormcloud {
 	
-	/**
-	Backups the passed JSON objects to iCloud. Will also run a check to ensure that the objects are valid JSON, returning an error in the completion handler if there's a problem.
-	
-	- parameter objects:    A JSON object
-	- parameter completion: A completion block that returns the new metadata if the backup was successful and a new document was created
-	*/
-	public func backupObjectsToJSON( _ objects : Any, completion : @escaping StormcloudDocumentClosure ) {
-		
-		self.stormcloudLog("\(#function)")
-		
-		if self.operationInProgress {
-			completion(.backupInProgress, nil)
-			return
-		}
-		self.operationInProgress = true
-		
-		
-		if let baseURL = self.documentsDirectory() {
-			let metadata = JSONMetadata()
-			let finalURL = baseURL.appendingPathComponent(metadata.filename)
-			
-			let document = JSONDocument(fileURL: finalURL)
-			
-			self.stormcloudLog("Backing up to: \(finalURL)")
-			
-			document.objectsToBackup = objects
-			
-			// If the filename already exists, can't create a new document. Usually because it's trying to add them too quickly.
-			let exists = self.metadataLists[.json]!.items.filter({ (element) -> Bool in
-				if element.filename == metadata.filename {
-					return true
-				}
-				return false
-			})
-			
-			if exists.count > 0 {
-				completion(.backupFileExists, nil)
-				return
-			}
-			document.save(to: finalURL, for: .forCreating, completionHandler: { (success) -> Void in
-				let totalSuccess = success
-				
-				if ( !totalSuccess ) {
-					
-					self.stormcloudLog("\(#function): Error saving new document")
-					
-					DispatchQueue.main.async(execute: { () -> Void in
-						self.operationInProgress = false
-						completion(StormcloudError.couldntSaveNewDocument, nil)
-					})
-					return
-					
-				}
-				document.close(completionHandler: nil)
-				if !self.isUsingiCloud {
-					DispatchQueue.main.async(execute: { () -> Void in
-						self.metadataLists[.json]!.items.append(metadata)
-						self.prepareDocumentList()
-						self.operationInProgress = false
-						completion(nil, (totalSuccess) ? metadata : metadata)
-					})
-				} else {
-					DispatchQueue.main.async(execute: { () -> Void in
-						self.moveItemsToiCloud([metadata.filename], completion: { (success, error) -> Void in
-							self.operationInProgress = false
-							if totalSuccess {
-								completion(nil, metadata)
-							} else {
-								completion(StormcloudError.couldntMoveDocumentToiCloud, metadata)
-							}
-						})
-					})
-				}
-			})
-		}
-	}
-	
 	
 	/// Backup an arbitrary collection of Core Data entities and convert them into JSON. Resolves relationships into their components.
 	///
@@ -736,7 +659,10 @@ extension Stormcloud {
 			} else {
 				DispatchQueue.main.async(execute: { () -> Void in
 					self.operationInProgress = false
-					self.backupObjectsToJSON(dictionary as AnyObject, completion: completion)
+					
+					self.addDocument(withData: dictionary, for: .json, completion: completion)
+					
+//					self.backupObjectsToJSON(dictionary as AnyObject, completion: completion)
 				})
 			}
 		}
@@ -826,7 +752,8 @@ extension Stormcloud {
 				} else {
 					DispatchQueue.main.async(execute: { () -> Void in
 						self.operationInProgress = false
-						self.backupObjectsToJSON(dictionary as AnyObject, completion: completion)
+						self.addDocument(withData: dictionary, for: .json, completion: completion)
+//						self.backupObjectsToJSON(dictionary as AnyObject, completion: completion)
 					})
 				}
 			}
