@@ -55,8 +55,11 @@ class StormcloudTests: StormcloudTestsBaseClass {
 	}
 	
 	func testThatBackupManagerDeletesDocuments() {
+		
 		let stormcloud = Stormcloud()
 		stormcloud.delegate = self
+		
+		
 		
 		waitForFiles( stormcloud )
 		
@@ -140,8 +143,9 @@ class StormcloudTests: StormcloudTestsBaseClass {
 		let stormcloud = Stormcloud()
 		stormcloud.delegate = self
 		
-		stormcloudExpectation = self.expectation(description: ExpectationDescription.positionTestAddItems.rawValue)
+		
 		if !stormcloud.fileListLoaded {
+			stormcloudExpectation = self.expectation(description: ExpectationDescription.positionTestAddItems.rawValue)
 			waitForExpectations(timeout: 5, handler: nil)
 		}
 		

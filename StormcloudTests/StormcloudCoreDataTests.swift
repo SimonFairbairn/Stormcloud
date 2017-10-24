@@ -352,18 +352,18 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
 			return
 		}
 		
-        let expectation = self.expectation(description: "Restore expectation")
+        let exp = self.expectation(description: "Restore expectation")
         manager.restoreCoreDataBackup(withMetadata: manager.items(for: .json)[0], toContext: stack.managedObjectContext!) { (success) -> () in
             
             XCTAssertNil(success)
             XCTAssertEqual(Thread.current, Thread.main)
 
 
-            expectation.fulfill()
+            exp.fulfill()
         }
         
         waitForExpectations(timeout: 10.0, handler: nil)
-        
+        return
         if let context = self.stack.managedObjectContext {
             
             let request = NSFetchRequest<Cloud>(entityName: "Cloud")
@@ -481,7 +481,7 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
 			XCTFail("Failed to read contents")
 		}
 		
-		
+
 		
 	}
 	
@@ -557,7 +557,6 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
                 
             }
         }
-        
     }
 
 	func stormcloud(stormcloud: Stormcloud, shouldRestore objects: [String : AnyObject], toEntityWithName name: String) -> Bool {

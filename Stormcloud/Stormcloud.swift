@@ -17,7 +17,7 @@ protocol StormcloudDocument {
 
 public typealias StormcloudDocumentClosure = (_ error : StormcloudError?, _ metadata : StormcloudMetadata?) -> ()
 
-public protocol StormcloudRestoreDelegate {
+public protocol StormcloudRestoreDelegate : class {
 	func stormcloud( stormcloud : Stormcloud, shouldRestore objects: [String : AnyObject], toEntityWithName name: String ) -> Bool
 }
 
@@ -144,7 +144,7 @@ open class Stormcloud: NSObject {
 
 	var operationInProgress : Bool = true
 	
-	var restoreDelegate : StormcloudRestoreDelegate?
+	weak var restoreDelegate : StormcloudRestoreDelegate?
 	
 	var provider : DocumentProvider? {
 		didSet {

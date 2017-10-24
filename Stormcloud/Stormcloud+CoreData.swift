@@ -506,11 +506,16 @@ extension Stormcloud {
 	- parameter completion: A completion handler
 	*/
 	public func restoreCoreDataBackup(withDocument document : JSONDocument, toContext context : NSManagedObjectContext,  completion : @escaping (_ error : StormcloudError?) -> () ) {
+		
+		defer {
+			document.close(completionHandler: nil)
+		}
+		
 		guard let data = document.objectsToBackup as? [String : AnyObject] else {
 			self.operationInProgress = false
 			completion(.couldntRestoreJSON)
 			return
-		}
+		}		
 		self.insertObjectsWithContext(context, data: data) { (success)  -> Void in
 			self.operationInProgress = false
 			let error : StormcloudError?  = (success) ? nil : StormcloudError.couldntRestoreJSON
@@ -527,6 +532,7 @@ extension Stormcloud {
 	*/
 	
 	public func restoreCoreDataBackup(withMetadata metadata : StormcloudMetadata, toContext context : NSManagedObjectContext,  completion : @escaping (_ error : StormcloudError?) -> () ) {
+
 		
 		guard self.operationInProgress == false else {
 			completion(.backupInProgress)
@@ -547,7 +553,7 @@ extension Stormcloud {
 		self.operationInProgress = true
 		
 		let document = JSONDocument(fileURL : url)
-		document.open(completionHandler: { (success) -> Void in
+		document.open(completionHandler: { [unowned self] (success) -> Void in
 			
 			if !success {
 				self.operationInProgress = false
@@ -555,7 +561,7 @@ extension Stormcloud {
 				return
 			}
 			
-			DispatchQueue.main.async(execute: { () -> Void in
+			DispatchQueue.main.async(execute: { [unowned self] () -> Void in
 				self.restoreCoreDataBackup(withDocument: document, toContext: context, completion: completion)
 			})
 		})
