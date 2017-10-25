@@ -19,6 +19,12 @@ open class StormcloudMetadata : NSObject {
 	open var filename : String
 	open var type : StormcloudDocumentType
 	
+	open override var description: String {
+		get {
+			return filename
+		}
+	}
+	
 	// If we get set and we're not nil
 	open var iCloudMetadata : NSMetadataItem? {
 		didSet {

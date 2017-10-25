@@ -27,13 +27,16 @@ public enum StormcloudError : Int, Error {
     case couldntSaveManagedObjectContext
     case couldntSaveNewDocument
     case couldntMoveDocumentToiCloud
+	case couldntMoveDocumentFromiCloud
     case couldntDelete
+	case iCloudNotEnabled
     case iCloudUnavailable
     case backupInProgress
     case restoreInProgress
     case couldntOpenDocument
 	case invalidDocumentData
 	case entityDeleteFailed
+	case otherError
     
     func domain() -> String {
         return "com.voyagetravelapps.Stormcloud"

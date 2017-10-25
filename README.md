@@ -1,8 +1,14 @@
 <img src="http://images.neverendingvoyage.com/github/StormcloudLogo.png" width="400" style="margin : 0 auto; display: block;" />
 
-Stormcloud is an easy way to convert and write JSON to iCloud documents and back.
+Stormcloud is an easy way to convert and write JSON and JPEG images to iCloud documents and back.
 
 It also supports Core Data, converting a Core Data driven database to JSON and back—pass it an `NSManagedObjectContext` and it will read out all of the entities, attributes, and relationships, wrap them in a JSON document and upload that document to iCloud. 
+
+Environment variables:
+
+`StormcloudDelayLocalFiles` - When set, the Local Files document provider will delay its initial gathering of the files. Allows you to simulate how iCloud's metadata gathering works without enabling iCloud.
+
+`StormcloudVerboseLogging` - Enables comprehensive logging for debugging.
 
 ## Usage
 

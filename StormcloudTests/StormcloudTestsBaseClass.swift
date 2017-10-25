@@ -7,9 +7,29 @@
 //
 
 import XCTest
+import Stormcloud
 
 class StormcloudTestsBaseClass: XCTestCase {
-
+	enum ExpectationDescription : String {
+		case positionTestAddItems
+		case positionTestAddItems2
+		case addTestBackup
+		case addTestMetadataUpdates
+		case delegateTestCorrectCounts
+		case delegateTestThreeItems
+		case addThenFindTest
+		case maximumLimitsTestDidLoad
+		case restoringTest
+		case coreDataCreatesFileTest
+		case imageFileReady
+		case imagesReady
+		case coreDataRestore
+		case coreDataWeirdStrings
+		case waitForFilesToBeReady
+	}
+	
+	
+	var stormcloudExpectation: XCTestExpectation?
 	
 	var fileExtension : String = "json"
     var docsURL : URL?
@@ -19,41 +39,38 @@ class StormcloudTestsBaseClass: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        
-        docsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
-        
-        let docs = self.listItemsAtURL()
-        
-        for url in docs {
-            if url.pathExtension == fileExtension {
-                do {
-                    print("Deleting \(url)")
-                    try FileManager.default.removeItem(at: url)
-                } catch {
-                    print("Couldn't delete item")
-                }
-            }
-        }
-        
-    }
+		docsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
+		deleteAllFiles()
+	}
     
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-        super.tearDown()
-        
-        let docs = self.listItemsAtURL()
-        
-        for url in docs {
-            if url.pathExtension == fileExtension {
-                do {
-                    print("Deleting \(url)")
-                    try FileManager.default.removeItem(at: url)
-                } catch {
-                    print("Couldn't delete item")
-                }
-            }
-        }
+    override func tearDown() {		
+		deleteAllFiles()
+
+		// Put teardown code here. This method is called after the invocation of each test method in the class.
+		super.tearDown()
+		
+
+
     }
+	
+	func deleteAllFiles() {
+		var docs : [URL] = []
+		do {
+			docs = try FileManager.default.contentsOfDirectory(at: docsURL!, includingPropertiesForKeys: nil, options: FileManager.DirectoryEnumerationOptions())
+		} catch {
+			fatalError("couldn't search path \(docsURL!)")
+		}
+		
+		for url in docs {
+			do {
+				try FileManager.default.removeItem(at: url)
+				print("Deleting \(url)")
+			} catch {
+				fatalError("Couldn't delete item")
+			}
+		}
+		
+	}
 	
 	
 	func copyItemWith( filename: String, fileExtension : String ) {
@@ -100,5 +117,83 @@ class StormcloudTestsBaseClass: XCTestCase {
         }
         return jsonDocs
     }
+	
+	func waitForFiles( _ stormcloud : Stormcloud ) {
+		if !stormcloud.fileListLoaded {
+			stormcloudExpectation = self.expectation(description: ExpectationDescription.waitForFilesToBeReady.rawValue)
+			waitForExpectations(timeout: 15, handler: nil)
+		}
+	}
     
+}
+
+extension StormcloudTestsBaseClass : StormcloudDelegate {
+	func stormcloudFileListDidLoad(_ stormcloud: Stormcloud) {
+		
+		guard let desc = stormcloudExpectation?.expectationDescription else {
+			return
+		}
+		
+		guard let expectationDescription = ExpectationDescription(rawValue:desc) else {
+			XCTFail("Incorrect description")
+			return
+		}
+		switch expectationDescription {
+		case  .positionTestAddItems:
+			stormcloudExpectation?.fulfill()
+		case .waitForFilesToBeReady, .maximumLimitsTestDidLoad,
+		     .restoringTest, .coreDataCreatesFileTest, .imagesReady, .coreDataRestore, .coreDataWeirdStrings:
+			stormcloudExpectation?.fulfill()
+		default:
+			break
+		}
+	}
+	
+	func metadataDidUpdate(_ metadata: StormcloudMetadata, for type: StormcloudDocumentType) {
+		
+		
+	}
+	
+	func metadataListDidAddItemsAt(_ addedItems: IndexSet?, andDeletedItemsAt deletedItems: IndexSet?, for type: StormcloudDocumentType) {
+		guard let desc = stormcloudExpectation?.expectationDescription else {
+			return
+		}
+		
+		guard let expectationDescription = ExpectationDescription(rawValue:desc) else {
+			XCTFail("Incorrect description")
+			return
+		}
+		
+		switch expectationDescription {
+		case .addTestBackup:
+			if let hasItems = addedItems, hasItems.count == 1 {
+				stormcloudExpectation?.fulfill()
+			}
+		case .addTestMetadataUpdates:
+			if addedItems == nil && deletedItems == nil {
+				stormcloudExpectation?.fulfill()
+			}
+		case .delegateTestCorrectCounts:
+			if let hasItems = addedItems, hasItems.count == 2 {
+				stormcloudExpectation?.fulfill()
+			}
+		case .delegateTestThreeItems, .imageFileReady:
+			if let hasItems = addedItems, hasItems.count == 1 {
+				stormcloudExpectation?.fulfill()
+			}
+		case .addThenFindTest:
+			if let hasItems = addedItems, hasItems.count == 2 {
+				stormcloudExpectation?.fulfill()
+			}
+		default:
+			break
+		}
+		
+		
+	}
+	
+	public func metadataListDidChange(_ manager: Stormcloud) {
+		print("List did change")
+	}
+	
 }
