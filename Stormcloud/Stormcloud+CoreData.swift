@@ -505,7 +505,7 @@ extension Stormcloud {
 	- parameter context:    The context to restore the objects to
 	- parameter completion: A completion handler
 	*/
-	public func restoreCoreDataBackup(withDocument document : JSONDocument, toContext context : NSManagedObjectContext,  completion : @escaping (_ error : StormcloudError?) -> () ) {
+	public func restoreCoreDataBackup(from document : JSONDocument, to context : NSManagedObjectContext,  completion : @escaping (_ error : StormcloudError?) -> () ) {
 		
 		defer {
 			document.close(completionHandler: nil)
@@ -531,7 +531,7 @@ extension Stormcloud {
 	- parameter completion: A completion handler
 	*/
 	
-	public func restoreCoreDataBackup(withMetadata metadata : StormcloudMetadata, toContext context : NSManagedObjectContext,  completion : @escaping (_ error : StormcloudError?) -> () ) {
+	public func restoreCoreDataBackup(from metadata : StormcloudMetadata, to context : NSManagedObjectContext,  completion : @escaping (_ error : StormcloudError?) -> () ) {
 
 		
 		guard self.operationInProgress == false else {
@@ -562,7 +562,7 @@ extension Stormcloud {
 			}
 			
 			DispatchQueue.main.async(execute: { [unowned self] () -> Void in
-				self.restoreCoreDataBackup(withDocument: document, toContext: context, completion: completion)
+				self.restoreCoreDataBackup(from: document, to: context, completion: completion)
 			})
 		})
 	}
@@ -677,7 +677,7 @@ extension Stormcloud {
 		
 	}
 	
-	public func backupCoreDataEntities( inContext currentContext : NSManagedObjectContext, completion : @escaping ( _ error : StormcloudError?, _ metadata : StormcloudMetadata?) -> () ) {
+	public func backupCoreDataEntities( in currentContext : NSManagedObjectContext, completion : @escaping ( _ error : StormcloudError?, _ metadata : StormcloudMetadata?) -> () ) {
 		
 		self.stormcloudLog("Beginning backup of Core Data with context : \(currentContext)")
 		

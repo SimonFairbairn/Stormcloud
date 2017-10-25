@@ -63,7 +63,24 @@ class SettingsViewController: UIViewController, StormcloudViewController {
 
 extension SettingsViewController {
 	@objc func updateDefaults(note : NSNotification ) {
-        self.prepareSettings()
+		
+		defer {
+			self.prepareSettings()
+		}
+		
+		guard let reason = note.userInfo?[NSUbiquitousKeyValueStoreChangeReasonKey] as? Int else {
+			return
+		}
+		
+		if reason == NSUbiquitousKeyValueStoreServerChange || reason == NSUbiquitousKeyValueStoreInitialSyncChange {
+			guard let hasKeys = note.userInfo?[NSUbiquitousKeyValueStoreChangedKeysKey] as? [String] else {
+				return
+			}
+			for key in hasKeys {
+				let value = NSUbiquitousKeyValueStore.default.object(forKey: key)
+				UserDefaults.standard.set(value, forKey: key)
+			}
+		}
     }
     
     func prepareSettings() {

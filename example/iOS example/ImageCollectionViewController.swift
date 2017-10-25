@@ -56,7 +56,7 @@ class ImageCollectionViewController: UICollectionViewController  {
 			if let hasImage = imageCache[item.filename] {
 				hasCell.photoView.image = hasImage
 			}  else {
-				stormcloud.restoreBackup(withMetadata: item, completion: { (error, restoredObject) in
+				stormcloud.restoreBackup(from: item, completion: { (error, restoredObject) in
 					if let hasImage = restoredObject as? UIImage {
 						hasCell.photoView.image = hasImage
 						self.imageCache[item.filename] = hasImage

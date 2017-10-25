@@ -9,6 +9,7 @@
 import UIKit
 import CoreData
 
+
 protocol StormcloudDocument {
 	var backupMetadata : StormcloudMetadata? {
 		get set
@@ -464,7 +465,7 @@ extension Stormcloud {
 	- parameter metadata:        The Stormcloud metadata object that represents the document
 	- parameter completion:      A completion handler to run when the operation is completed
 	*/
-	public func restoreBackup(withMetadata metadata : StormcloudMetadata, completion : @escaping (_ error: StormcloudError?, _ restoredObjects : Any? ) -> () ) {
+	public func restoreBackup(from metadata : StormcloudMetadata, completion : @escaping (_ error: StormcloudError?, _ restoredObjects : Any? ) -> () ) {
 		
 		
 		guard let metadataList = internalList[metadata.type] else {

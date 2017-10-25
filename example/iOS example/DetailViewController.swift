@@ -91,7 +91,7 @@ class DetailViewController: UIViewController {
 
 		self.activityIndicator.startAnimating()
 		
-		manager.restoreBackup(withMetadata: jpegMetadata) { (error, image) in
+		manager.restoreBackup(from: jpegMetadata) { (error, image) in
 			DispatchQueue.main.async {
 				self.activityIndicator.stopAnimating()
 				self.activityIndicator.isHidden = true
@@ -172,7 +172,7 @@ class DetailViewController: UIViewController {
         if let context = self.stack?.managedObjectContext, let doc = self.document {
             self.activityIndicator.startAnimating()
             self.view.isUserInteractionEnabled = false
-            self.backupManager?.restoreCoreDataBackup(withDocument: doc, toContext: context , completion: { (error) -> () in
+            self.backupManager?.restoreCoreDataBackup(from: doc, to: context , completion: { (error) -> () in
                 self.activityIndicator.stopAnimating()
                 self.view.isUserInteractionEnabled = true
                 let message : String

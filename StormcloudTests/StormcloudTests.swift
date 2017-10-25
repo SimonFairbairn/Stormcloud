@@ -290,7 +290,7 @@ class StormcloudTests: StormcloudTestsBaseClass {
 		let metadata = allItems[0]
 		
 		let expectation = self.expectation(description: "Restoring item")
-		stormcloud.restoreBackup(withMetadata: metadata) { (error, restoredObjects) -> () in
+		stormcloud.restoreBackup(from: metadata) { (error, restoredObjects) -> () in
 			XCTAssertNil(error)
 			
 			XCTAssertNotNil(restoredObjects)
