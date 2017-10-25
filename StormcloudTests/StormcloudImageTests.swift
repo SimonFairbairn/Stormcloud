@@ -44,18 +44,18 @@ class StormcloudImageTests: StormcloudTestsBaseClass {
 		guard let imageURL = bundle.url(forResource: "TestItem1", withExtension: "jpg"),
 			let image = UIImage(contentsOfFile: imageURL.path) else {
 			XCTFail("Couldn't load image")
+			expectation.fulfill()
 			return
 		}
 		XCTAssertNotNil(image)
 		stormcloud.addDocument(withData: image , for: .jpegImage) { (error, metadata) in
 			if let _ = error {
 				XCTFail("Error creating document")
-			} else {
-				expectation.fulfill()
 			}
+			expectation.fulfill()
 		}
 		
-		waitForExpectations(timeout: 3.0, handler: nil)
+		waitForExpectations(timeout: 6.0, handler: nil)
 		
 		let newDocs = self.listItemsAtURL()
 		XCTAssertEqual(newDocs.count, 1)
