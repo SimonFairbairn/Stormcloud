@@ -133,7 +133,7 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
         let expectation = self.expectation(description: "Insert expectation")
         
         self.stack.save()
-        manager.backupCoreDataEntities(inContext: context) { (error, metadata) -> () in
+        manager.backupCoreDataEntities(in: context) { (error, metadata) -> () in
             if let _ = error {
                 XCTFail("Failed to back up Core Data entites")
             }
@@ -353,7 +353,7 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
 		}
 		
         let exp = self.expectation(description: "Restore expectation")
-        manager.restoreCoreDataBackup(withMetadata: manager.items(for: .json)[0], toContext: stack.managedObjectContext!) { (success) -> () in
+        manager.restoreCoreDataBackup(from: manager.items(for: .json)[0], to: stack.managedObjectContext!) { (success) -> () in
             
             XCTAssertNil(success)
             XCTAssertEqual(Thread.current, Thread.main)
@@ -363,7 +363,6 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
         }
         
         waitForExpectations(timeout: 10.0, handler: nil)
-        return
         if let context = self.stack.managedObjectContext {
             
             let request = NSFetchRequest<Cloud>(entityName: "Cloud")
@@ -527,7 +526,7 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
 		print(manager.urlForItem(manager.items(for: .json)[0]) ?? "No metadata item found")
         
         let expectation = self.expectation(description: "Restore expectation")
-        manager.restoreCoreDataBackup(withMetadata: manager.items(for: .json)[0], toContext: stack.managedObjectContext!) { (success) -> () in
+        manager.restoreCoreDataBackup(from: manager.items(for: .json)[0], to: stack.managedObjectContext!) { (success) -> () in
             
             XCTAssertNil(success)
             XCTAssertEqual(Thread.current, Thread.main)

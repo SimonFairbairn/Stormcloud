@@ -137,7 +137,7 @@ extension DocumentsTableViewController {
     
     @IBAction func addButton( _ sender : UIBarButtonItem ) {
         if let context = coreDataStack?.privateContext {
-            self.stormcloud.backupCoreDataEntities(inContext: context, completion: { (error, metadata) -> () in
+            self.stormcloud.backupCoreDataEntities(in: context, completion: { (error, metadata) -> () in
 
                 var title = NSLocalizedString("Success!", comment: "The title of the alert box shown when a backup successfully completes")
                 var message = NSLocalizedString("Successfully backed up all Core Data entities.", comment: "The message when the backup manager successfully completes")

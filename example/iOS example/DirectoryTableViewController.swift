@@ -9,6 +9,8 @@
 import UIKit
 import Stormcloud
 
+/// This View Controller is a convenience View Controller that reads the local/iCloud directories directly
+/// allowing you to see what's happening underneath Stormcloud.
 class DirectoryTableViewController: UITableViewController, StormcloudViewController {
 	var coreDataStack: CoreDataStack?
 	var stormcloud = Stormcloud()

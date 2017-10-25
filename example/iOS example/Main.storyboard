@@ -26,8 +26,8 @@
                         <segue destination="uqP-5k-fwG" kind="relationship" relationship="viewControllers" id="FD7-cP-wi4"/>
                         <segue destination="Mpa-20-ans" kind="relationship" relationship="viewControllers" id="Jpk-em-CPe"/>
                         <segue destination="Jt3-1h-gLe" kind="relationship" relationship="viewControllers" id="Pvi-PC-l2y"/>
-                        <segue destination="Xq5-kN-Sdn" kind="relationship" relationship="viewControllers" id="err-wr-fbk"/>
                         <segue destination="aA5-iL-Xy7" kind="relationship" relationship="viewControllers" id="rJ8-oH-IXg"/>
+                        <segue destination="Xq5-kN-Sdn" kind="relationship" relationship="viewControllers" id="err-wr-fbk"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="9Bz-ia-c6S" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -47,20 +47,26 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="0aL-3X-fnR">
-                                <rect key="frame" x="16" y="80" width="343" height="265"/>
+                                <rect key="frame" x="16" y="80" width="343" height="433"/>
                                 <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="These settings use the iCloud Key/Value store to sync settings between devices" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NCF-2r-cnu">
+                                        <rect key="frame" x="0.0" y="0.0" width="343" height="41"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
                                     <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="Z1L-mo-XZW">
-                                        <rect key="frame" x="0.0" y="0.0" width="343" height="31"/>
+                                        <rect key="frame" x="0.0" y="49" width="343" height="41"/>
                                         <subviews>
                                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="aa6-xr-iQ3">
-                                                <rect key="frame" x="0.0" y="0.0" width="51" height="31"/>
+                                                <rect key="frame" x="0.0" y="5" width="51" height="31"/>
                                                 <accessibility key="accessibilityConfiguration" label="Setting 1 Switch"/>
                                                 <connections>
                                                     <action selector="settingsSwitchChanged:" destination="NvX-Gm-fkb" eventType="valueChanged" id="GE8-xf-c1V"/>
                                                 </connections>
                                             </switch>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Setting 1" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0MK-BH-Fc0">
-                                                <rect key="frame" x="57" y="5.5" width="286" height="20.5"/>
+                                                <rect key="frame" x="57" y="10.5" width="286" height="20.5"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <nil key="highlightedColor"/>
@@ -68,17 +74,17 @@
                                         </subviews>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="6p0-7s-tT8">
-                                        <rect key="frame" x="0.0" y="39" width="343" height="31"/>
+                                        <rect key="frame" x="0.0" y="98" width="343" height="41"/>
                                         <subviews>
                                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="R3e-WB-btF">
-                                                <rect key="frame" x="0.0" y="0.0" width="51" height="31"/>
+                                                <rect key="frame" x="0.0" y="5" width="51" height="31"/>
                                                 <accessibility key="accessibilityConfiguration" label="Setting 2 Switch"/>
                                                 <connections>
                                                     <action selector="settingsSwitchChanged:" destination="NvX-Gm-fkb" eventType="valueChanged" id="XZw-MR-f37"/>
                                                 </connections>
                                             </switch>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Setting 2" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="y9r-Xa-4YL">
-                                                <rect key="frame" x="57" y="5.5" width="286" height="20.5"/>
+                                                <rect key="frame" x="57" y="10.5" width="286" height="20.5"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <nil key="highlightedColor"/>
@@ -86,17 +92,17 @@
                                         </subviews>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="CjA-gW-pTL">
-                                        <rect key="frame" x="0.0" y="78" width="343" height="31"/>
+                                        <rect key="frame" x="0.0" y="147" width="343" height="41"/>
                                         <subviews>
                                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="IsY-og-Z5i">
-                                                <rect key="frame" x="0.0" y="0.0" width="51" height="31"/>
+                                                <rect key="frame" x="0.0" y="5" width="51" height="31"/>
                                                 <accessibility key="accessibilityConfiguration" label="Setting 3 Switch"/>
                                                 <connections>
                                                     <action selector="settingsSwitchChanged:" destination="NvX-Gm-fkb" eventType="valueChanged" id="unA-PH-12w"/>
                                                 </connections>
                                             </switch>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Setting 3" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cfj-GN-bJA">
-                                                <rect key="frame" x="57" y="5.5" width="286" height="20.5"/>
+                                                <rect key="frame" x="57" y="10.5" width="286" height="20.5"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <nil key="highlightedColor"/>
@@ -104,24 +110,30 @@
                                         </subviews>
                                     </stackView>
                                     <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" horizontalHuggingPriority="249" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="w3e-It-Wsj">
-                                        <rect key="frame" x="0.0" y="117" width="343" height="31"/>
+                                        <rect key="frame" x="0.0" y="196" width="343" height="41"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                         <textInputTraits key="textInputTraits" returnKeyType="done" enablesReturnKeyAutomatically="YES"/>
                                         <connections>
                                             <outlet property="delegate" destination="NvX-Gm-fkb" id="u9L-wl-mn9"/>
                                         </connections>
                                     </textField>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Use this to automatically add objects to the Core Data store" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eAr-ut-cet">
+                                        <rect key="frame" x="0.0" y="245" width="343" height="41"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
                                     <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="6gd-mB-oCH">
-                                        <rect key="frame" x="0.0" y="156" width="343" height="31"/>
+                                        <rect key="frame" x="0.0" y="294" width="343" height="41"/>
                                         <subviews>
                                             <stepper opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" wraps="YES" maximumValue="10000" translatesAutoresizingMaskIntoConstraints="NO" id="xoQ-16-Imd">
-                                                <rect key="frame" x="0.0" y="1" width="94" height="29"/>
+                                                <rect key="frame" x="0.0" y="6" width="94" height="29"/>
                                                 <connections>
                                                     <action selector="stepperChanged:" destination="NvX-Gm-fkb" eventType="valueChanged" id="5ZZ-ek-xIx"/>
                                                 </connections>
                                             </stepper>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="249" verticalHuggingPriority="251" text="Clouds to Add: 0" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nhr-zh-O1e">
-                                                <rect key="frame" x="102" y="5.5" width="241" height="20.5"/>
+                                                <rect key="frame" x="102" y="10.5" width="241" height="20.5"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <nil key="highlightedColor"/>
@@ -129,13 +141,13 @@
                                         </subviews>
                                     </stackView>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZZC-g6-Ebt">
-                                        <rect key="frame" x="0.0" y="195" width="343" height="31"/>
+                                        <rect key="frame" x="0.0" y="343" width="343" height="41"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="R8R-10-eHO">
-                                        <rect key="frame" x="0.0" y="234" width="343" height="31"/>
+                                        <rect key="frame" x="0.0" y="392" width="343" height="41"/>
                                         <state key="normal" title="Add New Clouds"/>
                                         <connections>
                                             <action selector="addNewClouds:" destination="NvX-Gm-fkb" eventType="touchUpInside" id="E19-QT-o19"/>
