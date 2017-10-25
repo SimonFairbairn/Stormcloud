@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		F4052B731F9C5FC000DF067F /* StormcloudTableViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4052B721F9C5FC000DF067F /* StormcloudTableViewDataSource.swift */; };
 		F42AACFF1F73708E0008D6D6 /* Stormcloud+Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42AACFE1F73708E0008D6D6 /* Stormcloud+Environment.swift */; };
 		F42AAD0A1F738B890008D6D6 /* ImageDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42AAD091F738B890008D6D6 /* ImageDocument.swift */; };
 		F42AAD0C1F738C840008D6D6 /* JPEGMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42AAD0B1F738C840008D6D6 /* JPEGMetadata.swift */; };
@@ -50,7 +49,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		F4052B721F9C5FC000DF067F /* StormcloudTableViewDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StormcloudTableViewDataSource.swift; sourceTree = "<group>"; };
 		F42AACFE1F73708E0008D6D6 /* Stormcloud+Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Stormcloud+Environment.swift"; sourceTree = "<group>"; };
 		F42AAD091F738B890008D6D6 /* ImageDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageDocument.swift; sourceTree = "<group>"; };
 		F42AAD0B1F738C840008D6D6 /* JPEGMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JPEGMetadata.swift; sourceTree = "<group>"; };
@@ -166,7 +164,6 @@
 				F4E2E9541BDCC8AF00A63FAF /* Info.plist */,
 				F4E2E9731BDCC8AF00A63FAF /* Error.swift */,
 				F48421811BDCD62400C98567 /* StormcloudDefaultsManager.swift */,
-				F4052B721F9C5FC000DF067F /* StormcloudTableViewDataSource.swift */,
 				F4F00C761F9C984B000B12B6 /* DocumentProviders.swift */,
 			);
 			path = Stormcloud;
@@ -309,7 +306,6 @@
 				F42AACFF1F73708E0008D6D6 /* Stormcloud+Environment.swift in Sources */,
 				F4E2E9741BDCC8AF00A63FAF /* Error.swift in Sources */,
 				F4E2E9701BDCC8AF00A63FAF /* JSONDocument.swift in Sources */,
-				F4052B731F9C5FC000DF067F /* StormcloudTableViewDataSource.swift in Sources */,
 				F4F00C771F9C984B000B12B6 /* DocumentProviders.swift in Sources */,
 				F4A617E91DB8F67000E484D0 /* Stormcloud+CoreData.swift in Sources */,
 				F4E2E9711BDCC8AF00A63FAF /* Stormcloud.swift in Sources */,

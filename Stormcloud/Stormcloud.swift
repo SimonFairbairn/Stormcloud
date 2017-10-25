@@ -27,7 +27,7 @@ enum StormcloudEntityKeys : String {
 }
 
 // Keys for NSUSserDefaults that manage iCloud state
-enum StormcloudPrefKey : String {
+public enum StormcloudPrefKey : String {
 	case isUsingiCloud = "com.voyagetravelapps.Stormcloud.usingiCloud"
 }
 
@@ -128,7 +128,11 @@ open class Stormcloud: NSObject {
 	
 	open var shouldDisableInProgressCheck : Bool = false
 	
-	var fileListLoadedInternal = false
+	var fileListLoadedInternal = false {
+		didSet {
+			print("Did set")
+		}
+	}
 	
 	open var fileListLoaded : Bool {
 		get {
@@ -150,6 +154,9 @@ open class Stormcloud: NSObject {
 		didSet {
 			// External references to self will still be nil if the provider is set during initialisation
 			provider?.delegate = self
+			// If we've got a new provider, then we need to reset some state
+			fileListLoadedInternal = false
+			operationInProgress = true
 		}
 	}
 	
@@ -436,13 +443,10 @@ extension Stormcloud {
 					self.internalList[documentType]?.sort(by: { (data1, data2) -> Bool in
 						return data1.date > data2.date
 					})
+					if let idx = self.internalList[documentType]?.index(of: metadata) {
+						self.delegate?.metadataListDidAddItemsAt(IndexSet(integer: idx), andDeletedItemsAt: nil, for: documentType)
+					}
 				}
-				
-				
-				if let idx = self.internalList[documentType]?.index(of: metadata) {
-					self.delegate?.metadataListDidAddItemsAt(IndexSet(integer: idx), andDeletedItemsAt: nil, for: documentType)
-				}
-				
 				completion(nil, (totalSuccess) ? metadata : metadata)
 			})
 		})
@@ -593,8 +597,15 @@ extension Stormcloud {
 				if hasError != nil {
 					completion(nil, .couldntDelete)
 				} else {
-					self.internalList[metadataItem.type]!.remove(at: idx)
-					completion(idx, nil)
+					
+					DispatchQueue.main.async {
+						// If it's still in our internal list at this point, remove it and send the delegate message
+						if let stillIdx = self.internalList[metadataItem.type]?.index(of: metadataItem) {
+							self.internalList[metadataItem.type]!.remove(at: stillIdx)
+							self.delegate?.metadataListDidAddItemsAt(nil, andDeletedItemsAt: IndexSet(integer: stillIdx), for: metadataItem.type)
+						}
+						completion(idx, nil)
+					}
 				}
 			})
 

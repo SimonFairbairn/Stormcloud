@@ -32,6 +32,10 @@ class ImageCollectionViewController: UICollectionViewController  {
 //		stormcloud.reloadData()
     }
 
+	deinit {
+		print("Image Collection View Controller Deinit")
+	}
+	
     // MARK: UICollectionViewDataSource
 
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -73,6 +77,10 @@ class ImageCollectionViewController: UICollectionViewController  {
 }
 
 extension ImageCollectionViewController : StormcloudDelegate {
+	func stormcloudFileListDidLoad(_ stormcloud: Stormcloud) {
+		
+	}
+	
 	func metadataDidUpdate(_ metadata: StormcloudMetadata, for type: StormcloudDocumentType) {
 		
 	}

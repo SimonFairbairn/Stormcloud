@@ -11,7 +11,7 @@ import Stormcloud
 
 class DirectoryTableViewController: UITableViewController, StormcloudViewController {
 	var coreDataStack: CoreDataStack?
-	var stormcloud : Stormcloud?
+	var stormcloud = Stormcloud()
 	
 	let numberFormatter = ByteCountFormatter()
 	var fileContents = [URL]()
@@ -34,7 +34,7 @@ class DirectoryTableViewController: UITableViewController, StormcloudViewControl
 	override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
 		let dir : URL
-		if let hasCloud = stormcloud, hasCloud.isUsingiCloud {
+		if stormcloud.isUsingiCloud {
 			self.title = "☁️ iCloud"
 			dir = FileManager.default.url(forUbiquityContainerIdentifier: nil)!.appendingPathComponent("Documents")
 		} else {
@@ -44,6 +44,10 @@ class DirectoryTableViewController: UITableViewController, StormcloudViewControl
 		
 		
 		contents(for: dir)
+	}
+	
+	deinit {
+		print("Directory table view controller deinitialised")
 	}
 	
 	func contents(for url : URL ) {
@@ -141,31 +145,5 @@ class DirectoryTableViewController: UITableViewController, StormcloudViewControl
 			// Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
 		}
 	}
-	
-	
-	/*
-	// Override to support rearranging the table view.
-	override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
-	
-	}
-	*/
-	
-	/*
-	// Override to support conditional rearranging of the table view.
-	override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-	// Return false if you do not want the item to be re-orderable.
-	return true
-	}
-	*/
-	
-	/*
-	// MARK: - Navigation
-	
-	// In a storyboard-based application, you will often want to do a little preparation before navigation
-	override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-	// Get the new view controller using segue.destinationViewController.
-	// Pass the selected object to the new view controller.
-	}
-	*/
 	
 }

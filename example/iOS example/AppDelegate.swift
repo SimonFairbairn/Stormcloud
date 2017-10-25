@@ -42,9 +42,6 @@ enum ICEFetchRequests : String, CoreDataStackFetchTemplate {
 }
 
 protocol StormcloudViewController {
-	var stormcloud : Stormcloud? {
-		get set
-	}
 	var coreDataStack : CoreDataStack? {
 		get set
 	}
@@ -55,7 +52,6 @@ protocol StormcloudViewController {
 class AppDelegate: UIResponder, UIApplicationDelegate {
     
     let coreDataStack = CoreDataStack(modelName: "clouds")
-	let stormcloud = Stormcloud()
 	
     var window: UIWindow?
     
@@ -64,7 +60,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         self.defaultsManager.prefix = "com.voyagetravelapps.iCloud-Extravaganza"
-        
+		
+		UserDefaults.standard.register(defaults: [StormcloudPrefKey.isUsingiCloud.rawValue : true])
+		
         let adder = CloudAdder(context: nil)
         
         if ICEEnvironmentKeys.DeleteAllItems.isEnabled() {
@@ -76,7 +74,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if ICEEnvironmentKeys.DeleteStore.isEnabled() {
             coreDataStack.deleteStore()
         }
-        
+		
         coreDataStack.setupStore { () -> Void in
             if let context = self.coreDataStack.managedObjectContext {
                 
@@ -93,7 +91,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		if let isTabBar = window?.rootViewController as? UITabBarController {
 			isTabBar.delegate = self
 		}
-        
+		
         return true
     }
     
@@ -136,7 +134,6 @@ extension AppDelegate : UITabBarControllerDelegate {
 		
 		if var stormcloudVC = navController.viewControllers.first as? StormcloudViewController {
 			stormcloudVC.coreDataStack = coreDataStack
-			stormcloudVC.stormcloud = stormcloud
 		}
 		
 		if let cloudVC = navController.viewControllers.first as? StormcloudFetchedResultsController {

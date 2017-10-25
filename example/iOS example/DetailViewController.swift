@@ -12,6 +12,7 @@ import Stormcloud
 
 class DetailViewController: UIViewController {
 	
+	let byteFormatter = ByteCountFormatter()
 	var metadataItem : StormcloudMetadata?
     var itemURL : URL?
     var document : JSONDocument?
@@ -38,7 +39,6 @@ class DetailViewController: UIViewController {
 		updateLabel(with: hasMetadata)
 		backupManager?.delegate = self
 		backupManager?.coreDataDelegate = self
-		
 		self.title = ( hasMetadata.iniCloud ) ? "☁️" : "💾"
 		
 		switch hasMetadata {
@@ -68,7 +68,7 @@ class DetailViewController: UIViewController {
 		
 		if metadata.isDownloading && metadata.percentDownloaded < 100 {
 			self.progressView.progress =  (Float(metadata.percentDownloaded) / 100.0)
-			progress = String(format: "%.2f", Float(metadata.percentUploaded)).appending("%")
+			progress = String(format: "%.2f", Float(metadata.percentDownloaded)).appending("%")
 			textItems.append("Downloading")
 		}
 		if metadata.isDownloaded {
@@ -148,7 +148,14 @@ class DetailViewController: UIViewController {
 				}
 				self.activityIndicator.stopAnimating()
 				if let dict = doc.objectsToBackup as? [String : AnyObject] {
-					self.detailLabel.text = "Objects backed up: \(dict.count)"
+					let fs : String
+					if let icloudData = jsonMetadata.iCloudMetadata, let size = icloudData.value(forAttribute: NSMetadataItemFSSizeKey) as? Int64 {
+						fs = self.byteFormatter.string(fromByteCount: size)
+					} else {
+						fs = ""
+					}
+					
+					self.detailLabel.text = "Objects backed up: \(dict.count). \(fs)"
 				}
 			}
 		})
@@ -178,17 +185,26 @@ class DetailViewController: UIViewController {
 					self.updateLabel(with: "Successfully Restored")
                 }
                 
-                let avc = UIAlertController(title: "Completed!", message: message, preferredStyle: .alert)
-                avc.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-                self.present(avc, animated: true, completion: nil)
-            
+				self.presentAlert(with: message)
+				
             })
         }
     }
+	func presentAlert(with message : String ) {
+		let avc = UIAlertController(title: "Completed!", message: message, preferredStyle: .alert)
+		avc.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+		self.present(avc, animated: true, completion: nil)
+	}
 	
 }
 
 extension DetailViewController : StormcloudDelegate, StormcloudCoreDataDelegate {
+	
+	func stormcloudFileListDidLoad(_ stormcloud: Stormcloud) {
+
+	}
+	
+	
 	func metadataDidUpdate(_ metadata: StormcloudMetadata, for type: StormcloudDocumentType) {
 		if metadata == self.metadataItem {
 			updateLabel(with: metadata)
