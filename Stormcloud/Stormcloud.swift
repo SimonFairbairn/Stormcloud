@@ -338,13 +338,17 @@ open class Stormcloud: NSObject {
 
 extension Stormcloud {
 	/**
-	Gets the URL for a given StormcloudMetadata item. Will return either the local or iCloud URL.
+	Gets the URL for a given StormcloudMetadata item. Will return either the local or iCloud URL, but only if it exists
+	in the internal storage.
 	
 	- parameter item: The item to get the URL for
 	
 	- returns: An optional NSURL, giving the location for the item
 	*/
 	public func urlForItem(_ item : StormcloudMetadata) -> URL? {
+		guard let hasItems = internalList[item.type], hasItems.contains(item) else {
+			return nil
+		}
 		return self.provider?.documentsDirectory()?.appendingPathComponent(item.filename)
 	}
 	

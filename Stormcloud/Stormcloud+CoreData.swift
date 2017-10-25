@@ -170,7 +170,7 @@ extension Stormcloud {
 		
 		let privateContext = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
 		privateContext.parent = context
-		privateContext.perform { () -> Void in
+		privateContext.perform { [unowned self] () -> Void in
 			
 			self.formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZZZ"
 			
