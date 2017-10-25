@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
 s.name             = "Stormcloud"
-s.version          = "2.0.5"
+s.version          = "3.0.0"
 s.summary          = "A JSON document manager for local and iCloud documents"
 s.homepage         = "https://github.com/SimonFairbairn/Stormcloud"
 s.license          = 'MIT'

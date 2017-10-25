@@ -30,6 +30,7 @@
 		F48421921BDCD7E600C98567 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48421911BDCD7E600C98567 /* Helpers.swift */; };
 		F48421941BDCD81F00C98567 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F48421931BDCD81F00C98567 /* Main.storyboard */; };
 		F484219A1BDCDC6300C98567 /* CloudView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48421991BDCDC6300C98567 /* CloudView.swift */; };
+		F4F00C7A1F9CC632000B12B6 /* DirectoryTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F00C791F9CC632000B12B6 /* DirectoryTableViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -89,6 +90,7 @@
 		F48421931BDCD81F00C98567 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		F48421981BDCDB5400C98567 /* iOS example.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "iOS example.entitlements"; sourceTree = "<group>"; };
 		F48421991BDCDC6300C98567 /* CloudView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudView.swift; sourceTree = "<group>"; };
+		F4F00C791F9CC632000B12B6 /* DirectoryTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectoryTableViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -168,6 +170,7 @@
 				F48421871BDCD6B700C98567 /* SettingsViewController.swift */,
 				F438119C1BE77AAC0030D9FD /* TagsTableViewController.swift */,
 				F42AAD0F1F73A0DB0008D6D6 /* ImageCollectionViewController.swift */,
+				F4F00C791F9CC632000B12B6 /* DirectoryTableViewController.swift */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -286,6 +289,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F43811991BE77A2F0030D9FD /* Tag.swift in Sources */,
+				F4F00C7A1F9CC632000B12B6 /* DirectoryTableViewController.swift in Sources */,
 				F427E6731F76A361008FA142 /* Cloud.swift in Sources */,
 				F48421891BDCD6B700C98567 /* DetailViewController.swift in Sources */,
 				F42AAD081F7379A10008D6D6 /* CloudAdder.swift in Sources */,

@@ -29,9 +29,13 @@ class ImageCollectionViewController: UICollectionViewController  {
 
         // Do any additional setup after loading the view.
 		stormcloud.delegate = self
-		stormcloud.reloadData()
+//		stormcloud.reloadData()
     }
 
+	deinit {
+		print("Image Collection View Controller Deinit")
+	}
+	
     // MARK: UICollectionViewDataSource
 
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -40,19 +44,19 @@ class ImageCollectionViewController: UICollectionViewController  {
 
 
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-		return stormcloud.list(for: .jpegImage).count
+		return stormcloud.items(for: .jpegImage).count
     }
 
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath)
-		let item = stormcloud.list(for: .jpegImage)[indexPath.row]
+		let item = stormcloud.items(for: .jpegImage)[indexPath.row]
 		if let hasCell = cell as? ImageCollectionViewCell {
 			hasCell.photoView.image = #imageLiteral(resourceName: "cloud")
 			
 			if let hasImage = imageCache[item.filename] {
 				hasCell.photoView.image = hasImage
 			}  else {
-				stormcloud.restoreBackup(withMetadata: item, completion: { (error, restoredObject) in
+				stormcloud.restoreBackup(from: item, completion: { (error, restoredObject) in
 					if let hasImage = restoredObject as? UIImage {
 						hasCell.photoView.image = hasImage
 						self.imageCache[item.filename] = hasImage
@@ -70,40 +74,20 @@ class ImageCollectionViewController: UICollectionViewController  {
         return cell
     }
 
-    // MARK: UICollectionViewDelegate
-
-    /*
-    // Uncomment this method to specify if the specified item should be highlighted during tracking
-    override func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> Bool {
-        return true
-    }
-    */
-
-    /*
-    // Uncomment this method to specify if the specified item should be selected
-    override func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        return true
-    }
-    */
-
-    /*
-    // Uncomment these methods to specify if an action menu should be displayed for the specified item, and react to actions performed on the item
-    override func collectionView(_ collectionView: UICollectionView, shouldShowMenuForItemAt indexPath: IndexPath) -> Bool {
-        return false
-    }
-
-    override func collectionView(_ collectionView: UICollectionView, canPerformAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) -> Bool {
-        return false
-    }
-
-    override func collectionView(_ collectionView: UICollectionView, performAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) {
-    
-    }
-    */
-
 }
 
 extension ImageCollectionViewController : StormcloudDelegate {
+	func stormcloudFileListDidLoad(_ stormcloud: Stormcloud) {
+		
+	}
+	
+	func metadataDidUpdate(_ metadata: StormcloudMetadata, for type: StormcloudDocumentType) {
+		
+	}
+	func metadataListDidAddItemsAt(_ addedItems: IndexSet?, andDeletedItemsAt deletedItems: IndexSet?, for type: StormcloudDocumentType) {
+		collectionView?.reloadData()
+	}
+	
 	func metadataListDidChange(_ manager: Stormcloud) {
 		collectionView?.reloadData()
 	}

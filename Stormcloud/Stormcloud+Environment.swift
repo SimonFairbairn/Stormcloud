@@ -42,6 +42,7 @@ Valid variables:
 public enum StormcloudEnvironment : String, StormcloudEnvironmentVariable {
 	case MangleDelete = "StormcloudMangleDelete"
 	case VerboseLogging = "StormcloudVerboseLogging"
+	case DelayLocal = "StormcloudDelayLocalFiles"
 	public func stringValue() -> String {
 		return self.rawValue
 	}
