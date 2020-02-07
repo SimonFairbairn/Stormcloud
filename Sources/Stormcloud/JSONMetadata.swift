@@ -11,7 +11,7 @@ import UIKit
 open class JSONMetadata: StormcloudMetadata {
 	
 	
-	open static let dateFormatter = DateFormatter()
+	public static let dateFormatter = DateFormatter()
 	
 	/// The name of the device
 	open var device : String

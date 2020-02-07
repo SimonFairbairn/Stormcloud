@@ -57,7 +57,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     var defaultsManager : StormcloudDefaultsManager = StormcloudDefaultsManager()
     
-    func application(_: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+    func application(_: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         self.defaultsManager.prefix = "com.voyagetravelapps.iCloud-Extravaganza"
 		

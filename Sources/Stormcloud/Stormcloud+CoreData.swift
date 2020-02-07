@@ -441,6 +441,8 @@ extension Stormcloud {
 		case .objectIDAttributeType, .undefinedAttributeType, .UUIDAttributeType, .URIAttributeType:
 			break
 			
+		@unknown default:
+			preconditionFailure("Unknown switch case for attribute type in \(#file)")
 		}
 		
 		
@@ -494,7 +496,8 @@ extension Stormcloud {
 			}
 		case .objectIDAttributeType, .undefinedAttributeType, .UUIDAttributeType, .URIAttributeType:
 			break
-			
+		@unknown default:
+			preconditionFailure("Unknown switch case for attribute type in \(#file)")
 		}
 	}
 

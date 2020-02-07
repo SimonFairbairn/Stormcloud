@@ -10,8 +10,6 @@ import CoreData
 import Stormcloud
 
 
-
-
 public enum CoreDataStackEnvironmentVariables : String, StormcloudEnvironmentVariable {
     case UseMemoryStore = "StormcloudUseMemoryStore"
     
@@ -239,7 +237,7 @@ open class CoreDataStack {
     
     internal func storeOptions() -> [ NSObject : Any ] {
         var options = [ NSObject : Any ]()
-        options = [NSMigratePersistentStoresAutomaticallyOption as NSObject : true as Any]
+//        options = [NSMigratePersistentStoresAutomaticallyOption as NSObject : true as Any]
         if !self.journalling {
             options[ NSSQLitePragmasOption as NSObject ] = [ "journal_mode" : "DELETE" ]
         }
@@ -248,9 +246,9 @@ open class CoreDataStack {
     
     internal func applicationDocumentsDirectory() -> URL {
         guard let theDelegate = delegate, let storeURL = theDelegate.storeDirectory() else {
-            let filemanager = FileManager.default
-            let urls = filemanager.urls(for: .documentDirectory, in: .userDomainMask) as [URL]
-            return urls[0]
+			let thisSourceFile = URL(fileURLWithPath: #file)
+			let thisDirectory = thisSourceFile.deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("Resources", isDirectory: true)
+			return thisDirectory
         }
         return storeURL
     }
@@ -263,12 +261,14 @@ open class CoreDataStack {
         
         print("Setting up PSC")
         
-        let bundle = Bundle(for: CoreDataStack.self)
-        
-        guard let model =             NSManagedObjectModel.mergedModel(from: [bundle]) else {
-            abort()
-        }
-        self.persistentStoreCoordinator = NSPersistentStoreCoordinator(managedObjectModel: model)
+//        let bundle = Bundle(for: CoreDataStack.self)
+
+		let model = StormcloudTestModel()
+		
+//        guard let model = NSManagedObjectModel.mergedModel(from: [bundle]) else {
+//            abort()
+//        }
+		self.persistentStoreCoordinator = NSPersistentStoreCoordinator(managedObjectModel: model.setupModel())
         
         self.managedObjectContext = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
         self.privateContext = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)

@@ -77,7 +77,7 @@ extension Stormcloud : DocumentProviderDelegate {
 
 			var deletedItemsIndices : IndexSet? = IndexSet()
 			for item in deletedItems {
-				if let hasIdx = previousItems.index(of: item) {
+				if let hasIdx = previousItems.firstIndex(of: item) {
 					deletedItemsIndices?.insert(hasIdx)
 					stormcloudLog("Item to delete: \(item) at \(hasIdx)")
 				}
@@ -100,7 +100,7 @@ extension Stormcloud : DocumentProviderDelegate {
 			
 			var addedItemsIndices : IndexSet? = IndexSet()
 			for item in addedItems {
-				if let didAddItems = internalList[type]!.index(of: item) {
+				if let didAddItems = internalList[type]!.firstIndex(of: item) {
 					addedItemsIndices?.insert(didAddItems)
 					stormcloudLog("Item added at \(didAddItems)")
 				}
@@ -448,7 +448,7 @@ extension Stormcloud {
 					self.internalList[documentType]?.sort(by: { (data1, data2) -> Bool in
 						return data1.date > data2.date
 					})
-					if let idx = self.internalList[documentType]?.index(of: metadata) {
+					if let idx = self.internalList[documentType]?.firstIndex(of: metadata) {
 						self.delegate?.metadataListDidAddItemsAt(IndexSet(integer: idx), andDeletedItemsAt: nil, for: documentType)
 					}
 				}
@@ -478,7 +478,7 @@ extension Stormcloud {
 		}
 		
 		if metadataList.contains(metadata) {
-			if let idx = metadataList.index(of: metadata) {
+			if let idx = metadataList.firstIndex(of: metadata) {
 				metadata.iCloudMetadata = metadataList[idx].iCloudMetadata
 			}
 			
@@ -572,7 +572,7 @@ extension Stormcloud {
 	*/
 	public func deleteItem(_ metadataItem : StormcloudMetadata, completion : @escaping (_ index : Int?, _ error : StormcloudError?) -> () ) {
 		// Pull them out of the internal list first
-		guard let itemURL = self.urlForItem(metadataItem), let idx = internalList[metadataItem.type]?.index(of: metadataItem) else {
+		guard let itemURL = self.urlForItem(metadataItem), let idx = internalList[metadataItem.type]?.firstIndex(of: metadataItem) else {
 			completion(nil, .couldntDelete)
 			return
 		}
@@ -605,7 +605,7 @@ extension Stormcloud {
 					
 					DispatchQueue.main.async {
 						// If it's still in our internal list at this point, remove it and send the delegate message
-						if let stillIdx = self.internalList[metadataItem.type]?.index(of: metadataItem) {
+						if let stillIdx = self.internalList[metadataItem.type]?.firstIndex(of: metadataItem) {
 							self.internalList[metadataItem.type]!.remove(at: stillIdx)
 							self.delegate?.metadataListDidAddItemsAt(nil, andDeletedItemsAt: IndexSet(integer: stillIdx), for: metadataItem.type)
 						}

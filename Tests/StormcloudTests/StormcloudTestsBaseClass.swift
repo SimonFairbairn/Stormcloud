@@ -33,13 +33,17 @@ class StormcloudTestsBaseClass: XCTestCase {
 	
 	var fileExtension : String = "json"
     var docsURL : URL?
-    
+	var resourcesURL : URL?
+	
+	
     let futureFilename = "2020-10-19 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157"
     let pastFilename = "2014-10-18 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157"
     
     override func setUp() {
         super.setUp()
-		docsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
+		docsURL = FileManager.default.temporaryDirectory
+		let thisSourceFile = URL(fileURLWithPath: #file)
+		resourcesURL = thisSourceFile.deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("Resources", isDirectory: true)
 		deleteAllFiles()
 	}
     
@@ -48,17 +52,19 @@ class StormcloudTestsBaseClass: XCTestCase {
 
 		// Put teardown code here. This method is called after the invocation of each test method in the class.
 		super.tearDown()
-		
-
-
     }
 	
 	func deleteAllFiles() {
+		guard let docsDir = docsURL else {
+			XCTFail("Couldn't get docs URL")
+			return
+		}
+		
 		var docs : [URL] = []
 		do {
-			docs = try FileManager.default.contentsOfDirectory(at: docsURL!, includingPropertiesForKeys: nil, options: FileManager.DirectoryEnumerationOptions())
+			docs = try FileManager.default.contentsOfDirectory(at: docsDir, includingPropertiesForKeys: nil, options: FileManager.DirectoryEnumerationOptions())
 		} catch {
-			fatalError("couldn't search path \(docsURL!)")
+			fatalError("couldn't search path \(docsURL!): \(error)")
 		}
 		
 		for url in docs {
@@ -76,14 +82,18 @@ class StormcloudTestsBaseClass: XCTestCase {
 	func copyItemWith( filename: String, fileExtension : String ) {
 		let fullName = filename + "." + fileExtension
 		
-		if let theURL = Bundle(for: StormcloudTests.self).url(forResource: filename, withExtension: fileExtension),
-			let docsURL = self.docsURL?.appendingPathComponent(fullName) {
-		
-			do {
-				try             FileManager.default.copyItem(at: theURL, to: docsURL)
-			} catch let error as NSError {
-				XCTFail("Failed to copy past item \(error.localizedDescription)")
-			}
+		guard let resource = resourcesURL?.appendingPathComponent(fullName) else {
+			XCTFail("Failed to get resourcesURL.")
+			return
+		}
+		guard let docsURL = self.docsURL?.appendingPathComponent(fullName) else {
+			XCTFail("Failed to get temporary directory.")
+			return
+		}
+		do {
+			try  FileManager.default.copyItem(at: resource, to: docsURL)
+		} catch let error as NSError {
+			XCTFail("Failed to copy past item \(error.localizedDescription)")
 		}
 	}
 	
