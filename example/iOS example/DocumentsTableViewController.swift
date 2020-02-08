@@ -51,7 +51,7 @@ class DocumentsTableViewController: UITableViewController, StormcloudViewControl
 extension DocumentsTableViewController {
 
     func showAlertView(title : String, message : String ) {
-        let alertViewController = UIAlertController(title: title, message: message, preferredStyle: UIAlertControllerStyle.alert)
+        let alertViewController = UIAlertController(title: title, message: message, preferredStyle: UIAlertController.Style.alert)
         
         let action = UIAlertAction(title: "OK!", style: .cancel, handler: { (alertAction) -> Void in
             
@@ -257,7 +257,7 @@ extension DocumentsTableViewController {
 
 extension DocumentsTableViewController  {
 	// Override to support editing the table view.
-	open override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+	open override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
 		if editingStyle == .delete {
 			
 			// If we don't have an item, nothing to delete
@@ -294,7 +294,7 @@ extension DocumentsTableViewController : StormcloudDelegate  {
 			section = 0
 		}
 		
-		if let index = stormcloud.items(for: type).index(of: metadata) {
+		if let index = stormcloud.items(for: type).firstIndex(of: metadata) {
 			let ip = IndexPath(row: index, section: section)
 			if let tvc = self.tableView.cellForRow(at: ip) {
 				self.configureTableViewCell(tvc: tvc, withMetadata: metadata)

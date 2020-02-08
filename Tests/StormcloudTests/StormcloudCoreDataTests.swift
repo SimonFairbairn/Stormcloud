@@ -80,6 +80,7 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
     
     func setupStack() {
         let expectation = self.expectation(description: "Stack Setup")
+		
         stack.setupStore { () -> Void in
             XCTAssertNotNil(self.stack.managedObjectContext)
             expectation.fulfill()
@@ -113,14 +114,16 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
         let cloud : Cloud
         do {
             cloud = try self.insertCloudWithNumber(number)
-            _ = try? self.insertDropWithType(RaindropType.Heavy, cloud: cloud)
-            _ = try? self.insertDropWithType(RaindropType.Light, cloud: cloud)
+            let drop1 = try self.insertDropWithType(RaindropType.Heavy, cloud: cloud)
+            let drop2 = try self.insertDropWithType(RaindropType.Light, cloud: cloud)
 
+			cloud.addToRaindrops(drop1)
+			cloud.addToRaindrops(drop2)
             if tags.count > 0 {
                 cloud.tags = NSSet(array: tags)
             }
         } catch {
-            XCTFail("Failed to create data")
+            XCTFail("Failed to create data: \(error)")
         }
         
     }
@@ -142,8 +145,18 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
         waitForExpectations(timeout: 4.0, handler: nil)
     }
 	
-	func testThatBackingUpIndividualObjectsWorks() {
+	func test_setupCoreData() {
 		let manager = Stormcloud()
+		manager.delegate = self
+		self.setupStack()
+		let tags = self.addTags()
+		self.addObjectsWithNumber(5, tags: tags)
+		
+		
+	}
+	
+	func testThatBackingUpIndividualObjectsWorks() {
+		let manager = Stormcloud(with: TestDocumentProvider())
 		manager.delegate = self
 		self.setupStack()
 		let tags = self.addTags()
@@ -158,30 +171,29 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
 
 		self.stack.save()
 		
-		if #available(iOS 10, *) {
-			let expectation = self.expectation(description: "Insert expectation")
-			let request = NSFetchRequest<Cloud>(entityName: "Cloud")
-			
-			let objects = try! context.fetch(request)
-			
-			manager.backupCoreDataObjects( objects: objects) { (error, metadata) -> () in
-				if let hasError = error {
-					XCTFail("Failed to back up Core Data entites: \(hasError)")
-				}
-				expectation.fulfill()
+		let expectation = self.expectation(description: "Insert expectation")
+		let request = NSFetchRequest<Cloud>(entityName: "Cloud")
+		
+		let objects = try! context.fetch(request)
+		
+		manager.backupCoreDataObjects( objects: objects) { (error, metadata) -> () in
+			if let hasError = error {
+				XCTFail("Failed to back up Core Data entites: \(hasError)")
 			}
-			waitForExpectations(timeout: 3.0, handler: nil)
-			let items = self.listItemsAtURL()
-			
-			XCTAssertEqual(items.count, 1)
-			XCTAssertEqual(manager.items(for: .json).count, 1)
-	
+			expectation.fulfill()
 		}
+		waitForExpectations(timeout: 30.0, handler: nil)
+		let items = self.listItemsAtURL()
+		
+		XCTAssertEqual(items.count, 1)
+		XCTAssertEqual(manager.items(for: .json).count, 1)
+	
+
 	}
 	
 	
     func testThatBackingUpCoreDataCreatesFile() {
-		let manager = Stormcloud()
+		let manager = Stormcloud(with: TestDocumentProvider())
 		manager.delegate = self
         self.setupStack()
         self.addObjectsWithNumber(1)
@@ -197,7 +209,7 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
     }
     
     func testThatBackingUpCoreDataCreatesCorrectFormat() {
-		let manager = Stormcloud()
+		let manager = Stormcloud(with: TestDocumentProvider())
 		manager.delegate = self
         self.setupStack()
         let tags = self.addTags()
@@ -329,7 +341,7 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
     }
     
     func testThatRestoringRestoresThingsCorrectly() {
-		let manager = Stormcloud()
+		let manager = Stormcloud(with: TestDocumentProvider())
 		manager.delegate = self
 		
 		waitForFiles(manager)
@@ -420,7 +432,7 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
     
 
 	func testThatRestoringIndividualItemsWorks() {
-		let manager = Stormcloud()
+		let manager = Stormcloud(with: TestDocumentProvider())
 		manager.delegate = self
 		// Keep a copy of all the data and make sure it's the same when it gets back in to the DB
 		self.copyItems(extra: true)
@@ -437,9 +449,14 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
 			XCTFail("Context not ready")
 			return
 		}
+		
+		guard let file = items.filter( { $0.path.contains("fragment") } ).first else {
+			XCTFail("Couldn't find correct file")
+			return
+		}
 
 		do {
-			let jsonData = try Data(contentsOf: items[2])
+			let jsonData = try Data(contentsOf: file)
 			let json = try JSONSerialization.jsonObject(with: jsonData, options: .allowFragments)
 			
 			if let isJSON = json as? [String : AnyObject] {
@@ -488,7 +505,7 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
 	
     func testWeirdStrings() {
         // Keep a copy of all the data and make sure it's the same when it gets back in to the DB
-		let manager = Stormcloud()
+		let manager = Stormcloud(with: TestDocumentProvider())
 		manager.delegate = self
         self.setupStack()
 		if let context = self.stack.managedObjectContext {
@@ -522,6 +539,11 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
         let items = self.listItemsAtURL()
         XCTAssertEqual(items.count, 1)
         XCTAssertEqual(manager.items(for: .json).count, 1)
+		
+		guard items.count == 1 else {
+			XCTFail("Incorrect count for items")
+			return
+		}
 		
 		print(manager.urlForItem(manager.items(for: .json)[0]) ?? "No metadata item found")
         

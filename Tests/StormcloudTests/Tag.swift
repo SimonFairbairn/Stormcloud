@@ -24,3 +24,33 @@ open class Tag: NSManagedObject {
     }
     
 }
+
+
+extension Tag {
+
+    @nonobjc public class func fetchRequest() -> NSFetchRequest<Tag> {
+        return NSFetchRequest<Tag>(entityName: "Tag")
+    }
+
+    @NSManaged public var name: String?
+    @NSManaged public var clouds: NSSet?
+
+}
+
+// MARK: Generated accessors for clouds
+extension Tag {
+
+    @objc(addCloudsObject:)
+    @NSManaged public func addToClouds(_ value: Cloud)
+
+    @objc(removeCloudsObject:)
+    @NSManaged public func removeFromClouds(_ value: Cloud)
+
+    @objc(addClouds:)
+    @NSManaged public func addToClouds(_ values: NSSet)
+
+    @objc(removeClouds:)
+    @NSManaged public func removeFromClouds(_ values: NSSet)
+
+}
+

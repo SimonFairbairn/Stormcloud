@@ -27,7 +27,7 @@ class StormcloudTests: StormcloudTestsBaseClass {
 	
 	
 	func testThatBackupManagerAddsDocuments() {
-		let stormcloud = Stormcloud()
+		let stormcloud = Stormcloud(with: TestDocumentProvider())
 		stormcloud.delegate = self
 		XCTAssertEqual(stormcloud.items(for: .json).count, 0)
 		XCTAssertFalse(stormcloud.isUsingiCloud)
@@ -56,7 +56,7 @@ class StormcloudTests: StormcloudTestsBaseClass {
 	
 	func testThatBackupManagerDeletesDocuments() {
 		
-		let stormcloud = Stormcloud()
+		let stormcloud = Stormcloud(with: TestDocumentProvider())
 		stormcloud.delegate = self
 		
 		
@@ -97,7 +97,7 @@ class StormcloudTests: StormcloudTestsBaseClass {
 
 	func testThatFindingNewItemsAfterCreatingDocumentWorksCorrectly() {
 		fileExtension = "json"
-		let stormcloud = Stormcloud()
+		let stormcloud = Stormcloud(with: TestDocumentProvider())
 		stormcloud.delegate = self
 		
 		waitForFiles( stormcloud )
@@ -140,7 +140,7 @@ class StormcloudTests: StormcloudTestsBaseClass {
 	func testThatAddingAnItemPlacesItInRightPosition() {
 		
 		self.copyItems()
-		let stormcloud = Stormcloud()
+		let stormcloud = Stormcloud(with: TestDocumentProvider())
 		stormcloud.delegate = self
 		
 		
@@ -187,7 +187,7 @@ class StormcloudTests: StormcloudTestsBaseClass {
 	
 	func testThatFilenameDatesAreConvertedToLocalTime() {
 		
-		let stormcloud = Stormcloud()
+		let stormcloud = Stormcloud(with: TestDocumentProvider())
 		stormcloud.delegate = self
 		
 		waitForFiles( stormcloud )
@@ -222,7 +222,7 @@ class StormcloudTests: StormcloudTestsBaseClass {
 	
 	func testThatMaximumBackupLimitsAreRespected() {
 		self.copyItems()
-		let stormcloud = Stormcloud()
+		let stormcloud = Stormcloud(with: TestDocumentProvider())
 		stormcloud.delegate = self
 		
 		if !stormcloud.fileListLoaded {
@@ -268,7 +268,7 @@ class StormcloudTests: StormcloudTestsBaseClass {
 	func testThatRestoringAFileWorks() {
 		fileExtension = "json"
 		self.copyItems()
-		let stormcloud = Stormcloud()
+		let stormcloud = Stormcloud(with: TestDocumentProvider())
 		stormcloud.delegate = self
 		let newDocs = self.listItemsAtURL()
 		
@@ -311,7 +311,7 @@ class StormcloudTests: StormcloudTestsBaseClass {
 	func testThatDelegatesWorkCorrectly() {
 		
 		// Start a new instance
-		let stormcloud : Stormcloud = Stormcloud()
+		let stormcloud = Stormcloud(with: TestDocumentProvider())
 		stormcloud.delegate = self
 		
 		// Copy items (stormcloud won't know because this happened after it was initialised)

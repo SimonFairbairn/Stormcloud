@@ -10,8 +10,9 @@ s.social_media_url = 'https://twitter.com/SimonFairbairn'
 
 s.ios.deployment_target = '9.0'
 s.requires_arc = true
+s.swift_version = '5'
 
-s.source_files = 'Stormcloud/'
+s.source_files = 'Sources/Stormcloud/'
 
 s.frameworks = 'CoreData'
 end

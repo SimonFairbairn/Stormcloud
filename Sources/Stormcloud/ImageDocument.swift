@@ -23,7 +23,7 @@ open class ImageDocument: UIDocument, StormcloudDocument {
 	}
 	
 	open override func contents(forType typeName: String) throws -> Any {
-		guard let isImage = self.imageToBackup, let hasData = UIImageJPEGRepresentation(isImage, 0.8)  else {
+		guard let isImage = self.imageToBackup, let hasData = isImage.jpegData(compressionQuality: 0.8)  else {
 			throw StormcloudError.invalidDocumentData
 		}
 		return NSData(data: hasData)

@@ -25,7 +25,7 @@ class StormcloudImageTests: StormcloudTestsBaseClass {
     }
     
 	func testThatBackupManagerAddsDocuments() {
-		let stormcloud = Stormcloud()
+		let stormcloud = Stormcloud(with: TestDocumentProvider())
 		stormcloud.delegate = self
 		XCTAssertEqual(stormcloud.items(for: .jpegImage).count, 0)
 		XCTAssertFalse(stormcloud.isUsingiCloud)
@@ -40,8 +40,7 @@ class StormcloudImageTests: StormcloudTestsBaseClass {
 		XCTAssertEqual(stormcloud.items(for: .jpegImage).count, docs.count)
 		let expectation = self.expectation(description: "Restoring item")
 		
-		let bundle = Bundle(for: StormcloudImageTests.self)
-		guard let imageURL = bundle.url(forResource: "TestItem1", withExtension: "jpg"),
+		guard let imageURL = resourcesURL?.appendingPathComponent("TestItem1.jpg"),
 			let image = UIImage(contentsOfFile: imageURL.path) else {
 			XCTFail("Couldn't load image")
 			expectation.fulfill()
@@ -65,17 +64,16 @@ class StormcloudImageTests: StormcloudTestsBaseClass {
 	}
 	
 	func testThatManuallyCreatedDocumentsGetDeleted() {
-		let stormcloud = Stormcloud()
+		let stormcloud = Stormcloud(with: TestDocumentProvider())
 		stormcloud.delegate = self
 		XCTAssertEqual(stormcloud.items(for: .jpegImage).count, 0)
 		XCTAssertFalse(stormcloud.isUsingiCloud)
 
-		let bundle = Bundle(for: StormcloudImageTests.self)
-		guard let imageURL = bundle.url(forResource: "TestItem1", withExtension: "jpg"), let docsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
-				XCTFail("Couldn't load image")
-				return
+		guard let imageURL = resourcesURL?.appendingPathComponent("TestItem1.jpg"),
+			let imageDestination = docsURL?.appendingPathComponent("TestItem1.jpg") else {
+			XCTFail("Couldn't load image")
+			return
 		}
-		let imageDestination = docsURL.appendingPathComponent("TestItem1.jpg")
 		do {
 			try FileManager.default.copyItem(at: imageURL, to: imageDestination)
 		} catch {
