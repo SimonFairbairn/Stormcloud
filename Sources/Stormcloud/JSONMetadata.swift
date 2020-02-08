@@ -6,7 +6,11 @@
 //  Copyright © 2017 Voyage Travel Apps. All rights reserved.
 //
 
+#if os(macOS)
+import Cocoa
+#else
 import UIKit
+#endif
 
 open class JSONMetadata: StormcloudMetadata {
 	
@@ -79,3 +83,4 @@ extension JSONMetadata : NSCopying {
 		return backup
 	}
 }
+

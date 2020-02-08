@@ -6,6 +6,7 @@
 //  Copyright © 2015 Simon Fairbairn. All rights reserved.
 //
 
+#if os(iOS)
 import UIKit
 
 open class JSONDocument: UIDocument, StormcloudDocument {
@@ -48,3 +49,13 @@ open class JSONDocument: UIDocument, StormcloudDocument {
 	
 	
 }
+
+#else
+
+import Cocoa
+
+open class JSONDocument : StormcloudDocument {
+	
+}
+
+#endif

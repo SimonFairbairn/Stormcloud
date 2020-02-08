@@ -5,8 +5,11 @@
 //  Created by Simon Fairbairn on 21/09/2017.
 //  Copyright © 2017 Voyage Travel Apps. All rights reserved.
 //
-
+#if os(macOS)
+import Cocoa
+#else
 import UIKit
+#endif
 
 open class JPEGMetadata : StormcloudMetadata {
 	
@@ -23,3 +26,5 @@ open class JPEGMetadata : StormcloudMetadata {
 		self.type = .jpegImage
 	}
 }
+
+

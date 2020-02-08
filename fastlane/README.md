@@ -43,10 +43,6 @@ This does the following:
 - Ensures Cocoapods compatibility
 
 - Bumps the patch version
-
-- Pushes it to the remote repository
-
-- Updates the spec repository
 ### ios minor
 ```
 fastlane ios minor
@@ -60,10 +56,6 @@ This does the following:
 - Ensures Cocoapods compatibility
 
 - Bumps the minor version
-
-- Pushes it to the remote repository
-
-- Updates the spec repository
 ### ios major
 ```
 fastlane ios major
@@ -77,10 +69,6 @@ This does the following:
 - Ensures Cocoapods compatibility
 
 - Bumps the major version
-
-- Pushes it to the remote repository
-
-- Updates the spec repository
 ### ios test
 ```
 fastlane ios test
@@ -90,7 +78,7 @@ fastlane ios test
 ```
 fastlane ios submit_pod
 ```
-
+Push the repo to remote and submits the Pod to the given spec repository. Do this after running update to run tests, bump versions, and commit changes.
 
 ----
 

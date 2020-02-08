@@ -6,7 +6,7 @@
 //  Copyright © 2015 Voyage Travel Apps. All rights reserved.
 //
 
-import UIKit
+import Foundation
 
 open class StormcloudDefaultsManager: NSObject {
     
