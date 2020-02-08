@@ -161,21 +161,32 @@ open class Stormcloud: NSObject {
 		}
 	}
 	
+	init( with provider : DocumentProvider ) {
+		super.init()
+		self.provider = provider
+		// Needs to be set manually. See `provider` property
+		self.provider?.delegate = self
+		self.provider?.updateFiles()
+		
+		// Assume UTC for everything.
+		self.formatter.timeZone = TimeZone(identifier: "UTC")
+	}
+	
 	@objc public override init() {
 		super.init()
 
 		// If iCloud is enabled, start it up and get gathering
 		if isUsingiCloud, let iCloudProvider = iCloudDocumentProvider() {
-			provider = iCloudProvider
+			self.provider = iCloudProvider
 			UserDefaults.standard.set(true, forKey: StormcloudPrefKey.isUsingiCloud.rawValue)
 		} else {
-			provider = LocalDocumentProvider()
+			self.provider = LocalDocumentProvider()
 			UserDefaults.standard.set(false, forKey: StormcloudPrefKey.isUsingiCloud.rawValue)
 		}
 		
 		// Needs to be set manually. See `provider` property
-		provider?.delegate = self
-		provider?.updateFiles()
+		self.provider?.delegate = self
+		self.provider?.updateFiles()
 		
 		// Assume UTC for everything.
 		self.formatter.timeZone = TimeZone(identifier: "UTC")

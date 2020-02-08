@@ -54,6 +54,8 @@ class StormcloudTestsBaseClass: XCTestCase {
 		super.tearDown()
     }
 	
+	
+	
 	func deleteAllFiles() {
 		guard let docsDir = docsURL else {
 			XCTFail("Couldn't get docs URL")

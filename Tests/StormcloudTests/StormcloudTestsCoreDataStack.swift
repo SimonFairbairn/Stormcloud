@@ -91,7 +91,7 @@ open class CoreDataStack {
 		
         DispatchQueue.global(qos: .background).async {
             
-            let storeURL = self.applicationDocumentsDirectory().appendingPathComponent("\(self.modelName).sqlite")
+			let storeURL = FileManager.default.temporaryDirectory.appendingPathComponent("\(self.modelName).sqlite")
             
             //            sleep(400)
             
@@ -111,7 +111,7 @@ open class CoreDataStack {
                 }
             }
             
-            if CoreDataStackEnvironmentVariables.UseMemoryStore.isEnabled() {
+            if !CoreDataStackEnvironmentVariables.UseMemoryStore.isEnabled() {
                 do {
                     try self.persistentStoreCoordinator!.addPersistentStore(ofType: NSInMemoryStoreType, configurationName: nil, at: storeURL, options:self.storeOptions())
                     
@@ -173,9 +173,6 @@ open class CoreDataStack {
         }
     }
     
-    
-    
-    @available(iOS 9.0, OSX 10.11, *)
     open func replaceStore() {
         save()
         let storeURL = self.applicationDocumentsDirectory().appendingPathComponent("\(self.modelName).sqlite")
@@ -190,50 +187,6 @@ open class CoreDataStack {
             print("Error deleting store")
         }
     }
-    
-    /**
-     Use this for versions of iOS < 9.0 and OS X < 10.11 to delete the store files.
-     */
-    open func deleteStore() {
-        save()
-        
-        print("Deleting store")
-        
-        managedObjectContext = nil
-        privateContext = nil
-        
-        let storeURL = self.applicationDocumentsDirectory().appendingPathComponent("\(self.modelName).sqlite")
-        
-        if #available(OSX 10.9, *) {
-            
-            do {
-                try  self.persistentStoreCoordinator?.destroyPersistentStore(at: storeURL, ofType: NSSQLiteStoreType, options: self.storeOptions())
-            } catch {
-                print("Couldn't delete store")
-            }
-            
-            
-            persistentStoreCoordinator = nil
-        } else {
-            
-            let walURL = self.applicationDocumentsDirectory().appendingPathComponent("\(self.modelName).sqlite-wal")
-            let shmURL = self.applicationDocumentsDirectory().appendingPathComponent("\(self.modelName).sqlite-shm")
-            
-            
-            do {
-                try FileManager.default.removeItem(at: storeURL)
-                try FileManager.default.removeItem(at: walURL)
-                try FileManager.default.removeItem(at: shmURL)
-            } catch let error as NSError {
-                print("Error deleting store files: \(error.localizedDescription)")
-            }
-            
-        }
-        
-        
-        initialiseCoreData()
-    }
-    
     
     internal func storeOptions() -> [ NSObject : Any ] {
         var options = [ NSObject : Any ]()
@@ -263,12 +216,12 @@ open class CoreDataStack {
         
 //        let bundle = Bundle(for: CoreDataStack.self)
 
-		let model = StormcloudTestModel()
+		let model = StormcloudTestModel().setupModel()
 		
 //        guard let model = NSManagedObjectModel.mergedModel(from: [bundle]) else {
 //            abort()
 //        }
-		self.persistentStoreCoordinator = NSPersistentStoreCoordinator(managedObjectModel: model.setupModel())
+		self.persistentStoreCoordinator = NSPersistentStoreCoordinator(managedObjectModel: model )
         
         self.managedObjectContext = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
         self.privateContext = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)

@@ -16,12 +16,12 @@ class StormcloudTestModel {
 		cloudEntity.managedObjectClassName = NSStringFromClass(Cloud.self)
 
 		let raindropEntity = NSEntityDescription()
-		cloudEntity.name = "Raindrop"
-		cloudEntity.managedObjectClassName = NSStringFromClass(Raindrop.self)
+		raindropEntity.name = "Raindrop"
+		raindropEntity.managedObjectClassName = NSStringFromClass(Raindrop.self)
 
 		let tagEntity = NSEntityDescription()
-		cloudEntity.name = "Tag"
-		cloudEntity.managedObjectClassName = NSStringFromClass(Tag.self)
+		tagEntity.name = "Tag"
+		tagEntity.managedObjectClassName = NSStringFromClass(Tag.self)
 
 		let cloudAddedAttribute = NSAttributeDescription()
 		cloudAddedAttribute.name = "added"
@@ -52,13 +52,70 @@ class StormcloudTestModel {
 		orderAttribute.name = "order"
 		orderAttribute.isOptional = true
 		orderAttribute.attributeType = .integer16AttributeType
-
-		cloudEntity.properties = [cloudAddedAttribute, chanceOfRainAttribute, didRainAttribute, imageAttribute, nameAttribute, orderAttribute]
 		
+        let raindropColourAttribute = NSAttributeDescription()
+		raindropColourAttribute.name = "colour"
+		raindropColourAttribute.isOptional = true
+		raindropColourAttribute.attributeType = .transformableAttributeType
 		
+        let raindropValueAttribute = NSAttributeDescription()
+		raindropValueAttribute.name = "raindropValue"
+		raindropValueAttribute.isOptional = true
+		raindropValueAttribute.attributeType = .decimalAttributeType
+		raindropValueAttribute.defaultValue = 0.0
+		
+        let raindropTimesFallenAttribute = NSAttributeDescription()
+		raindropTimesFallenAttribute.name = "timesFallen"
+		raindropTimesFallenAttribute.isOptional = true
+		raindropTimesFallenAttribute.attributeType = .integer64AttributeType
+		raindropTimesFallenAttribute.defaultValue = 0
+		
+        let raindropTypeAttribute = NSAttributeDescription()
+		raindropTypeAttribute.name = "type"
+		raindropTypeAttribute.isOptional = true
+		raindropTypeAttribute.attributeType = .stringAttributeType
+		
+		let tagNameAttribute = NSAttributeDescription()
+		tagNameAttribute.name = "name"
+		tagNameAttribute.isOptional = true
+		tagNameAttribute.attributeType = .stringAttributeType
+		
+		// Relationships
+		
+		let cloudsToRaindrops = NSRelationshipDescription()
+		cloudsToRaindrops.name = "raindrops"
+		cloudsToRaindrops.isOptional = true
+		cloudsToRaindrops.deleteRule = .cascadeDeleteRule
+		cloudsToRaindrops.destinationEntity = raindropEntity
+		
+		let cloudsToTags = NSRelationshipDescription()
+		cloudsToTags.name = "tags"
+		cloudsToTags.isOptional = true
+		cloudsToTags.deleteRule = .nullifyDeleteRule
+		cloudsToTags.destinationEntity = tagEntity
+		
+		let raindropToCloud = NSRelationshipDescription()
+		raindropToCloud.name = "cloud"
+		raindropToCloud.isOptional = true
+		raindropToCloud.deleteRule = .nullifyDeleteRule
+		raindropToCloud.destinationEntity = cloudEntity
+		raindropToCloud.maxCount = 1
+		
+		let tagToCloud = NSRelationshipDescription()
+		tagToCloud.name = "clouds"
+		tagToCloud.isOptional = true
+		tagToCloud.deleteRule = .nullifyDeleteRule
+		tagToCloud.destinationEntity = cloudEntity
+		
+		cloudsToRaindrops.inverseRelationship = raindropToCloud
+//		cloudsToTags.inverseRelationship = tagToCloud
+		
+		cloudEntity.properties = [cloudAddedAttribute, chanceOfRainAttribute, didRainAttribute, imageAttribute, nameAttribute, orderAttribute, cloudsToRaindrops, cloudsToTags]
+		raindropEntity.properties = [raindropColourAttribute, raindropValueAttribute, raindropTimesFallenAttribute, raindropTypeAttribute, raindropToCloud]
+		tagEntity.properties = [tagNameAttribute, tagToCloud]
 		
 		let model = NSManagedObjectModel()
-		model.entities = [ cloudEntity ]
+		model.entities = [ cloudEntity, raindropEntity, tagEntity ]
 		return model
 	}
 }

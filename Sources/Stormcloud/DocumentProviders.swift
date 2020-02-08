@@ -203,7 +203,7 @@ class LocalDocumentProvider : DocumentProvider {
 		do {
 			items = try FileManager.default.contentsOfDirectory(at: docsDir, includingPropertiesForKeys: nil, options: .skipsHiddenFiles)
 		} catch {
-			print("Error reading items")
+			print("Error reading items: \(#file)")
 			items = []
 		}
 		
