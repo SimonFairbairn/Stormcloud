@@ -8,8 +8,7 @@ s.author           = { "Simon Fairbairn" => "simon@voyagetravelapps.com" }
 s.source           = { :git => "https://github.com/SimonFairbairn/Stormcloud.git", :tag => s.version }
 s.social_media_url = 'https://twitter.com/SimonFairbairn'
 
-s.ios.deployment_target = '9.0'
-s.requires_arc = true
+s.ios.deployment_target = '11.0'
 s.swift_version = '5'
 
 s.source_files = 'Sources/Stormcloud/'
