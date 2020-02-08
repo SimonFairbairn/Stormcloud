@@ -1,4 +1,4 @@
-<img src="http://images.neverendingvoyage.com/github/StormcloudLogo.png" width="400" style="margin : 0 auto; display: block;" />
+<img src="https://dwgfmnrdprofc.cloudfront.net/github/StormcloudLogo.png" width="400" style="margin : 0 auto; display: block;" />
 
 Stormcloud is a way to convert and write JSON files and JPEG images to iCloud documents and back.
 

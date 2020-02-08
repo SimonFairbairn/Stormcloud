@@ -72,7 +72,7 @@ extension StormcloudFetchedResultsController {
         return self.enableDelete
     }
     
-    public override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+    public override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         switch editingStyle {
         case .delete :
 			if let frc = self.frc, let object = frc.object(at: indexPath) as? NSManagedObject {
@@ -80,6 +80,8 @@ extension StormcloudFetchedResultsController {
             }
         case .insert, .none:
             break
+		@unknown default:
+			preconditionFailure("Unknown switch case for Table View Editing Style in \(#file)")
         }
     }
     
@@ -156,6 +158,8 @@ extension StormcloudFetchedResultsController : NSFetchedResultsControllerDelegat
                 tableView.insertRows(at: [ip as IndexPath], with: .none)
                 
             }
+		@unknown default:
+			preconditionFailure("Unknown switch case for Fetched Results Controller in \(#file)")
         }
         
     }
