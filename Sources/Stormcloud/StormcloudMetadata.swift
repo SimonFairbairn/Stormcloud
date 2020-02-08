@@ -6,7 +6,7 @@
 //  Copyright © 2015 Simon Fairbairn. All rights reserved.
 //
 
-import UIKit
+import Foundation
 
 public protocol StormcloudMetadataDelegate {
     func iCloudMetadataDidUpdate( _ metadata : StormcloudMetadata )

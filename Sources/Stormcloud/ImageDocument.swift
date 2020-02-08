@@ -6,6 +6,7 @@
 //  Copyright © 2017 Voyage Travel Apps. All rights reserved.
 //
 
+#if os(iOS)
 import UIKit
 
 open class ImageDocument: UIDocument, StormcloudDocument {
@@ -29,5 +30,6 @@ open class ImageDocument: UIDocument, StormcloudDocument {
 		return NSData(data: hasData)
 	}
 	
-	
 }
+#endif
+

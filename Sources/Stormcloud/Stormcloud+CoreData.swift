@@ -6,6 +6,7 @@
 //  Copyright © 2016 Voyage Travel Apps. All rights reserved.
 //
 
+#if os(iOS)
 import UIKit
 import CoreData
 
@@ -771,3 +772,5 @@ extension Stormcloud {
 	
 }
 
+
+#endif
