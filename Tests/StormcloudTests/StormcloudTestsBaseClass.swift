@@ -74,7 +74,7 @@ class StormcloudTestsBaseClass: XCTestCase {
 				try FileManager.default.removeItem(at: url)
 				print("Deleting \(url)")
 			} catch {
-				fatalError("Couldn't delete item")
+				fatalError("Couldn't delete item: \(error)")
 			}
 		}
 		

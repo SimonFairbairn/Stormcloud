@@ -114,14 +114,16 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
         let cloud : Cloud
         do {
             cloud = try self.insertCloudWithNumber(number)
-            _ = try? self.insertDropWithType(RaindropType.Heavy, cloud: cloud)
-            _ = try? self.insertDropWithType(RaindropType.Light, cloud: cloud)
+            let drop1 = try self.insertDropWithType(RaindropType.Heavy, cloud: cloud)
+            let drop2 = try self.insertDropWithType(RaindropType.Light, cloud: cloud)
 
+			cloud.addToRaindrops(drop1)
+			cloud.addToRaindrops(drop2)
             if tags.count > 0 {
                 cloud.tags = NSSet(array: tags)
             }
         } catch {
-            XCTFail("Failed to create data")
+            XCTFail("Failed to create data: \(error)")
         }
         
     }
@@ -149,7 +151,8 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelega
 		self.setupStack()
 		let tags = self.addTags()
 		self.addObjectsWithNumber(5, tags: tags)
-
+		
+		
 	}
 	
 	func testThatBackingUpIndividualObjectsWorks() {

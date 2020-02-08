@@ -108,7 +108,7 @@ class StormcloudTestModel {
 		tagToCloud.destinationEntity = cloudEntity
 		
 		cloudsToRaindrops.inverseRelationship = raindropToCloud
-//		cloudsToTags.inverseRelationship = tagToCloud
+		cloudsToTags.inverseRelationship = tagToCloud
 		
 		cloudEntity.properties = [cloudAddedAttribute, chanceOfRainAttribute, didRainAttribute, imageAttribute, nameAttribute, orderAttribute, cloudsToRaindrops, cloudsToTags]
 		raindropEntity.properties = [raindropColourAttribute, raindropValueAttribute, raindropTimesFallenAttribute, raindropTypeAttribute, raindropToCloud]
